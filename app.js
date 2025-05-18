@@ -6,6 +6,7 @@ const dotenv = require('dotenv')
 dotenv.config({path: './.env'})
 //koneksi mysql
 const mysql = require('mysql')
+const { register } = require('module')
 const db = mysql.createConnection({
     host:process.env.DATABASE_HOST,
     user:process.env.DATABASE_USER,
@@ -26,12 +27,16 @@ db.connect((err) => {
         console.log("MySQL connected")
     }
 })
-
+//inisialisasi port
 const port = process.env.PORT || 5000;
 //testing request 
 app.get("/",(req, res)=> {
    // res.send("<h1>test</h1>")
    res.render("index")
+})
+//request dari index ke register
+app.get("/register",(req, res)=>{
+    res.render("register")
 })
 //deklarasi port 
 app.listen(port, ()=>{

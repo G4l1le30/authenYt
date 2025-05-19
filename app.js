@@ -17,6 +17,13 @@ const db = mysql.createConnection({
 const publicDirectory=path.join(__dirname, './public/') //dirname: variabel nodejs untuk kasih akses current dir
 //kalau ditambah /public, sekarang app ngeliat semua yang ada di folder public
 app.use(express.static(publicDirectory))
+
+//get data dari form
+//parsing url encoded bodies (saat di sent oleh html forms)
+app.use(express.urlencoded({extended: false}))
+
+app.use(express.json())
+
 app.set('view engine', 'hbs')
 
 //konek mysql
@@ -29,19 +36,25 @@ db.connect((err) => {
 })
 //inisialisasi port
 const port = process.env.PORT || 5000;
-//testing request 
-app.get("/",(req, res)=> {
-   // res.send("<h1>test</h1>")
-   res.render("index")
-})
-//request dari index ke register
-app.get("/register",(req, res)=>{
-    res.render("register")
-})
-//request dari index ke login
-app.get("/login",(req, res)=>{
-    res.render("login")
-})
+// //testing request 
+// app.get("/",(req, res)=> {
+//    // res.send("<h1>test</h1>")
+//    res.render("index")
+// })
+// //request dari index ke register
+// app.get("/register",(req, res)=>{
+//     res.render("register")
+// })
+////request dari index ke login
+//app.get("/login",(req, res)=>{
+//    res.render("login")
+//})
+
+//define routes
+app.use('/',require('./routes/pages'))
+app.use('/auth',require('./routes/auth'))
+
+
 //deklarasi port 
 app.listen(port, ()=>{
     console.log(`server started on port ${port}`)

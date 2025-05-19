@@ -1,7 +1,137 @@
-nav{
-    justify-content: space-between;
+/* Shared Styles */
+.modal-content {
+    border-radius: 15px;
+    border: none;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.3);
 }
-nav li a:hover{
-    color:yellow;
+.modal-header {
+    border-bottom: none;
+    padding: 2rem 2rem 0;
+}
+.modal-body {
+    padding: 1rem 2rem 2rem;
+}
+.form-label {
+    font-weight: 500;
+    color: #333;
+    margin-bottom: 0.5rem;
+}
+.form-control {
+    border-radius: 10px;
+    border: 1px solid #ddd;
+    padding: 0.75rem 1rem;
+    transition: all 0.3s ease;
+}
+.form-control:focus {
+    border-color: #007bff;
+    box-shadow: 0 0 0 0.2rem rgba(0,123,255,0.25);
+}
+.btn-primary {
+    background: linear-gradient(45deg, #007bff, #0056b3);
+    border: none;
+    border-radius: 10px;
+    padding: 0.75rem 2rem;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+.btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0,123,255,0.4);
+}
+.btn-outline-primary {
+    border-radius: 10px;
+    padding: 0.75rem 2rem;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+.form-check-input:checked {
+    background-color: #007bff;
+    border-color: #007bff;
+}
+.forgot-password {
+    color: #007bff;
     text-decoration: none;
+    font-size: 0.9rem;
+}
+.forgot-password:hover {
+    text-decoration: underline;
+}
+.social-login {
+    margin-top: 1.5rem;
+}
+.btn-social {
+    width: 100%;
+    padding: 0.75rem;
+    border-radius: 10px;
+    border: 1px solid #ddd;
+    background: white;
+    transition: all 0.3s ease;
+}
+.btn-social:hover {
+    background: #f8f9fa;
+    transform: translateY(-1px);
+}
+.divider {
+    text-align: center;
+    margin: 1.5rem 0;
+    position: relative;
+}
+.divider::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: #ddd;
+}
+.divider span {
+    background: white;
+    padding: 0 1rem;
+    color: #666;
+    font-size: 0.9rem;
+}
+
+/* Navbar Styles */
+.navbar {
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+/* Hero Section */
+.hero-section {
+    background-color: #f8f9fa;
+    padding: 5rem 0;
+}
+.hero-title {
+    font-size: 3rem;
+    font-weight: 700;
+}
+
+/* Features Section */
+.features-section {
+    padding: 5rem 0;
+}
+.feature-icon {
+    font-size: 2.5rem;
+    color: #007bff;
+}
+
+/* Products Section */
+.product-card {
+    transition: transform 0.3s ease;
+}
+.product-card:hover {
+    transform: translateY(-5px);
+}
+
+/* Auth Pages */
+.auth-container {
+    max-width: 500px;
+    margin: 0 auto;
+    padding: 3rem 0;
+}
+.auth-card {
+    border-radius: 15px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    border: none;
 }

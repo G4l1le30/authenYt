@@ -38,6 +38,10 @@ app.get("/",(req, res)=> {
 app.get("/register",(req, res)=>{
     res.render("register")
 })
+//request dari index ke login
+app.get("/login",(req, res)=>{
+    res.render("login")
+})
 //deklarasi port 
 app.listen(port, ()=>{
     console.log(`server started on port ${port}`)

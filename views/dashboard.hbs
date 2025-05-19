@@ -36,7 +36,8 @@
 
     <!-- Dashboard Content -->
     <div class="container mt-5">
-        <div class="row">
+        <!-- Profile Section -->
+        <div id="dashboard" class="row mb-5">
             <div class="col-12">
                 <div class="card">
                     <div class="card-header">
@@ -46,6 +47,51 @@
                         <h5>Welcome to Fashion HUB, {{user.name}}!</h5>
                         <p>Your email: {{user.email}}</p>
                         <p>This is your personal dashboard where you can manage your account and orders.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Orders Section -->
+        <div id="orders" class="row mb-5">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h4>Your Orders</h4>
+                    </div>
+                    <div class="card-body">
+                        <p>You have no orders yet.</p>
+                        <!-- Future: list orders here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Wishlist Section -->
+        <div id="wishlist" class="row mb-5">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h4>Your Wishlist</h4>
+                    </div>
+                    <div class="card-body">
+                        <p>Your wishlist is empty.</p>
+                        <!-- Future: wishlist items here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Cart Section -->
+        <div id="cart" class="row mb-5">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h4>Your Cart</h4>
+                    </div>
+                    <div class="card-body">
+                        <p>Your cart is currently empty.</p>
+                        <!-- Future: cart items here -->
                     </div>
                 </div>
             </div>

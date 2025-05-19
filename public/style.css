@@ -232,6 +232,7 @@
     font-size: 0.9rem;
 }
 
+
 .auth-container .social-login .btn-social {
     width: 100%;
     padding: 12px;
@@ -277,4 +278,15 @@
     font-size: 0.85rem;
     color: #6c757d;
     margin-top: 0.25rem;
+}
+
+/*wishlisth*/
+.favorite-icon {
+  cursor: pointer;
+  color: #dc3545; /* warna merah ikon hati */
+  z-index: 10;
+}
+
+.favorite-icon:hover {
+  color: #ff4d6d; /* warna merah lebih terang saat hover */
 }

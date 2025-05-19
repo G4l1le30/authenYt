@@ -96,3 +96,72 @@ exports.register = async (req, res) => {
         })
     })
 }
+exports.login = async (req, res) => {
+    try {
+        const { email, password } = req.body;
+
+        // Basic validation
+        if (!email || !password) {
+            return res.render('login', {
+                message: {
+                    type: 'danger',
+                    text: 'Please provide an email and password'
+                }
+            });
+        }
+
+        // Check if user exists and password is correct
+        db.query('SELECT * FROM users WHERE email = ?', [email], async (error, results) => {
+            if (error) {
+                console.log(error);
+                return res.render('login', {
+                    message: {
+                        type: 'danger',
+                        text: 'Database error occurred'
+                    }
+                });
+            }
+
+            // If no user found or password doesn't match
+            if (results.length === 0 || !(await bcrypt.compare(password, results[0].password))) {
+                return res.render('login', {
+                    message: {
+                        type: 'danger',
+                        text: 'Email or Password is incorrect'
+                    }
+                });
+            }
+
+            // User authenticated, create JWT token
+            const user = results[0];
+            const token = jwt.sign({ id: user.id }, process.env.JWT_SECRET, {
+                expiresIn: process.env.JWT_EXPIRES_IN
+            });
+
+            // Set cookie options
+            const cookieOptions = {
+                expires: new Date(
+                    Date.now() + process.env.JWT_COOKIE_EXPIRES * 24 * 60 * 60 * 1000
+                ),
+                httpOnly: true
+            };
+
+            // Send token as cookie
+            res.cookie('jwt', token, cookieOptions);
+            
+            // Send success response
+            return res.redirect('/dashboard');
+        });
+    } catch (error) {
+        console.log(error);
+    }
+};
+exports.logout = (req, res) => {
+    // Clear JWT cookie
+    res.cookie('jwt', 'logout', {
+        expires: new Date(Date.now() + 2 * 1000),
+        httpOnly: true
+    });
+
+    res.redirect('/');
+};

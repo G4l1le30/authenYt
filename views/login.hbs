@@ -40,26 +40,31 @@
                             <div class="card-body">
                                 <h2 class="text-center mb-4">Selamat Datang Kembali</h2>
                                 <p class="text-muted text-center mb-4">Silakan masuk menggunakan informasi pribadi Anda untuk tetap terhubung dengan kami.</p>
-                                
-                                <form id="loginForm">
-                                    <div class="mb-3">
-                                        <label for="loginEmail" class="form-label">Email</label>
-                                        <input type="email" class="form-control" id="loginEmail" required>
-                                    </div>
-                                    <div class="mb-3">
-                                        <label for="loginPassword" class="form-label">Password</label>
-                                        <input type="password" class="form-control" id="loginPassword" required>
-                                    </div>
-                                    <div class="mb-3 form-check">
-                                        <input type="checkbox" class="form-check-input" id="rememberMe">
-                                        <label class="form-check-label" for="rememberMe">
-                                            Ingat saya
-                                        </label>
-                                    </div>
-                                    <div class="d-grid">
-                                        <button type="submit" class="btn btn-primary">Masuk</button>
-                                    </div>
-                                </form>
+                                {{#if message}}
+<div class="alert alert-{{message.type}} alert-dismissible fade show" role="alert">
+    {{message.text}}
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+</div>
+{{/if}}
+                                <form action="/auth/login" method="POST">
+    <div class="mb-3">
+        <label for="email" class="form-label">Email</label>
+        <input type="email" class="form-control" id="email" name="email" required>
+    </div>
+    <div class="mb-3">
+        <label for="password" class="form-label">Password</label>
+        <input type="password" class="form-control" id="password" name="password" required>
+    </div>
+    <div class="mb-3 form-check">
+        <input type="checkbox" class="form-check-input" id="rememberMe">
+        <label class="form-check-label" for="rememberMe">
+            Ingat saya
+        </label>
+    </div>
+    <div class="d-grid">
+        <button type="submit" class="btn btn-primary">Masuk</button>
+    </div>
+</form>
 
                                 <div class="text-center mt-3">
                                     <a href="#" class="forgot-password">Lupa password?</a>

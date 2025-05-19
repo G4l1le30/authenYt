@@ -4,6 +4,12 @@ const path=require('path') //default js, gaperlu diinstall
 //konfigurasi .env
 const dotenv = require('dotenv')
 dotenv.config({path: './.env'})
+//cookie-parser
+const cookieParser = require('cookie-parser');
+
+// Use cookie parser middleware
+app.use(cookieParser());
+
 //koneksi mysql
 const mysql = require('mysql')
 const { register } = require('module')

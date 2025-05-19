@@ -1,11 +1,14 @@
-const express=require('express')
-const authController=require('../controllers/auth')
-const router=express.Router()
-router.post('/register', authController.register)
+const express = require('express');
+const authController = require('../controllers/auth');
+const authMiddleware = require('../middleware/auth');
+
+const router = express.Router();
+
+router.post('/register', authController.register);
 router.post('/login', authController.login);
 router.get('/logout', authController.logout);
-// Tambahkan route untuk wishlist
-router.post('/wishlist', isLoggedIn, (req, res) => {
+
+router.post('/wishlist', authMiddleware.isLoggedIn, (req, res) => {
   const { product_id } = req.body;
   
   db.query(
@@ -24,7 +27,7 @@ router.post('/wishlist', isLoggedIn, (req, res) => {
   );
 });
 
-router.delete('/wishlist/:id', isLoggedIn, (req, res) => {
+router.delete('/wishlist/:id', authMiddleware.isLoggedIn, (req, res) => {
   db.query(
     'DELETE FROM wishlist WHERE id = ? AND user_id = ?',
     [req.params.id, req.user.id],
@@ -38,7 +41,7 @@ router.delete('/wishlist/:id', isLoggedIn, (req, res) => {
   );
 });
 
-router.get('/wishlist', isLoggedIn, (req, res) => {
+router.get('/wishlist', authMiddleware.isLoggedIn, (req, res) => {
   db.query(
     `SELECT w.id, p.* 
      FROM wishlist w 
@@ -54,4 +57,5 @@ router.get('/wishlist', isLoggedIn, (req, res) => {
     }
   );
 });
-module.exports=router
+
+module.exports = router;

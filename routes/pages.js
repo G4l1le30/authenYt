@@ -4,25 +4,40 @@ const authMiddleware = require('../middleware/auth');
 
 // Apply middleware to retrieve user for all routes
 router.use(authMiddleware.getUser);
-
 router.get('/', (req, res) => {
-    res.render('index');
+  db.query('SELECT * FROM products', (error, products) => {
+    if (error) {
+      console.log(error);
+      return res.render('index', { products: [] });
+    }
+    res.render('index', { 
+      products,
+      user: res.locals.user 
+    });
+  });
 });
+
 // Di routes/pages.js
-router.get('/dashboard', authMiddleware.isLoggedIn, (req, res) => {
+
+// Dashboard with wishlist
+router.get('/dashboard', (req, res) => {
+  if (!res.locals.user) {
+    return res.redirect('/login');
+  }
+
   db.query(
     `SELECT w.id, p.* 
      FROM wishlist w 
      JOIN products p ON w.product_id = p.id 
      WHERE w.user_id = ?`,
-    [req.user.id],
+    [res.locals.user.id],
     (error, wishlist) => {
       if (error) {
         console.log(error);
         return res.render('dashboard', { wishlist: [] });
       }
       res.render('dashboard', { 
-        user: req.user,
+        user: res.locals.user,
         wishlist 
       });
     }

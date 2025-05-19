@@ -209,30 +209,6 @@
                 </div>
             </div>
         </div>
-        <!-- Products Section -->
-    <section id="new-arrival" class="new-arrival product-carousel py-5 position-relative overflow-hidden">
-        <div class="container">
-            <div class="d-flex flex-wrap justify-content-between align-items-center mt-5 mb-3">
-                <h4 class="text-uppercase">Koleksi Terbaru Kami</h4>
-                <a href="#" class="btn-link">Lihat Semua Produk</a>
-            </div>
-            <div class="row">
-                {{#each products}}
-                <div class="col-md-3 mb-4">
-                    <div class="card border-0 shadow-sm product-card" 
-                        data-product-id="{{this.id}}" 
-                        data-product-name="{{this.name}}" 
-                        data-product-price="{{this.price}}">
-                        
-                        <button class="wishlist-btn" onclick="toggleWishlist(this, {{this.id}})">
-                            <i class="bi bi-heart"></i>
-                        </button>
-                        
-                        <img src="{{this.image_url}}" class="card-img-top" alt="{{this.name}}">
-                        <div class="card-body">
-                            <h5 class="card-title">{{this.name}}</h5>
-                            <p class="card-text text-primary fw-bold">Rp {{formatPrice this.price}}</p>
-                            <button class="btn btn-outline-primary btn-sm">Tambah ke Keranjang</button>
         <!--products-->
         <section id="new-arrival" class="new-arrival product-carousel py-5 position-relative overflow-hidden">
             <div class="container">

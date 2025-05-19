@@ -126,12 +126,105 @@
 
 /* Auth Pages */
 .auth-container {
-    max-width: 500px;
-    margin: 0 auto;
-    padding: 3rem 0;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    padding: 2rem 0;
 }
+
 .auth-card {
+    background: white;
     border-radius: 15px;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
     border: none;
+    padding: 2rem;
+}
+
+.auth-container .form-control:focus {
+    border-color: #667eea;
+    box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+}
+
+.auth-container .btn-primary {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border: none;
+    padding: 12px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+}
+
+.auth-container .btn-primary:hover {
+    background: linear-gradient(135deg, #5a6fd8 0%, #6a4190 100%);
+    transform: translateY(-2px);
+}
+
+.auth-container .divider {
+    text-align: center;
+    margin: 2rem 0;
+    position: relative;
+}
+
+.auth-container .divider::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: #e9ecef;
+}
+
+.auth-container .divider span {
+    background: white;
+    padding: 0 1rem;
+    color: #6c757d;
+    font-size: 0.9rem;
+}
+
+.auth-container .social-login .btn-social {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #e9ecef;
+    background: white;
+    color: #495057;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.auth-container .social-login .btn-social:hover {
+    background: #f8f9fa;
+    border-color: #dee2e6;
+    transform: translateY(-2px);
+}
+
+.auth-container .form-label {
+    font-weight: 600;
+    color: #495057;
+    margin-bottom: 0.5rem;
+}
+
+.auth-container .form-check-label {
+    font-size: 0.9rem;
+    color: #6c757d;
+}
+
+.auth-container .text-decoration-none {
+    color: #667eea;
+}
+
+.auth-container .text-decoration-none:hover {
+    color: #764ba2;
+}
+
+/* Register Page Specific */
+.auth-container .btn-lg {
+    padding: 0.75rem 1.5rem;
+    font-size: 1.1rem;
+}
+
+.auth-container .form-text {
+    font-size: 0.85rem;
+    color: #6c757d;
+    margin-top: 0.25rem;
 }

@@ -210,68 +210,37 @@
             </div>
         </div>
         <!--products-->
-        <section id="new-arrival" class="new-arrival product-carousel py-5 position-relative overflow-hidden">
-            <div class="container">
-                <div class="d-flex flex-wrap justify-content-between align-items-center mt-5 mb-3">
-                    <h4 class="text-uppercase">Koleksi Terbaru Kami</h4>
-                    <a href="#" class="btn-link">Lihat Semua Produk</a>
-                </div>
-                <div class="row">
-                    <div class="col-md-3 mb-4">
-                        <div class="card border-0 shadow-sm product-card" data-product-id="1" data-product-name="Dark Florish Onepiece" data-product-price="950000">
-                            <button class="wishlist-btn" onclick="toggleWishlist(this, 1)">
-                                <i class="bi bi-heart"></i>
-                            </button>
-                            <img src="/api/placeholder/250/300" class="card-img-top" alt="Dark florish onepiece">
-                            <div class="card-body">
-                                <h5 class="card-title">Dark Florish Onepiece</h5>
-                                <p class="card-text text-primary fw-bold">Rp 950.000</p>
-                                <button class="btn btn-outline-primary btn-sm">Tambah ke Keranjang</button>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-3 mb-4">
-                        <div class="card border-0 shadow-sm product-card" data-product-id="2" data-product-name="Baggy Shirt" data-product-price="550000">
-                            <button class="wishlist-btn" onclick="toggleWishlist(this, 2)">
-                                <i class="bi bi-heart"></i>
-                            </button>
-                            <img src="/api/placeholder/250/300" class="card-img-top" alt="Baggy Shirt">
-                            <div class="card-body">
-                                <h5 class="card-title">Baggy Shirt</h5>
-                                <p class="card-text text-primary fw-bold">Rp 550.000</p>
-                                <button class="btn btn-outline-primary btn-sm">Tambah ke Keranjang</button>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-3 mb-4">
-                        <div class="card border-0 shadow-sm product-card" data-product-id="3" data-product-name="Cotton Off-White Shirt" data-product-price="650000">
-                            <button class="wishlist-btn" onclick="toggleWishlist(this, 3)">
-                                <i class="bi bi-heart"></i>
-                            </button>
-                            <img src="/api/placeholder/250/300" class="card-img-top" alt="Cotton off-white shirt">
-                            <div class="card-body">
-                                <h5 class="card-title">Cotton Off-White Shirt</h5>
-                                <p class="card-text text-primary fw-bold">Rp 650.000</p>
-                                <button class="btn btn-outline-primary btn-sm">Tambah ke Keranjang</button>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-3 mb-4">
-                        <div class="card border-0 shadow-sm product-card" data-product-id="4" data-product-name="Crop Sweater" data-product-price="500000">
-                            <button class="wishlist-btn" onclick="toggleWishlist(this, 4)">
-                                <i class="bi bi-heart"></i>
-                            </button>
-                            <img src="/api/placeholder/250/300" class="card-img-top" alt="Crop sweater">
-                            <div class="card-body">
-                                <h5 class="card-title">Crop Sweater</h5>
-                                <p class="card-text text-primary fw-bold">Rp 500.000</p>
-                                <button class="btn btn-outline-primary btn-sm">Tambah ke Keranjang</button>
-                            </div>
-                        </div>
+        <!-- Ganti section products dengan ini -->
+<section id="new-arrival" class="new-arrival product-carousel py-5 position-relative overflow-hidden">
+    <div class="container">
+        <div class="d-flex flex-wrap justify-content-between align-items-center mt-5 mb-3">
+            <h4 class="text-uppercase">Koleksi Terbaru Kami</h4>
+            <a href="#" class="btn-link">Lihat Semua Produk</a>
+        </div>
+        <div class="row">
+            {{#each products}}
+            <div class="col-md-3 mb-4">
+                <div class="card border-0 shadow-sm product-card" 
+                    data-product-id="{{this.id}}" 
+                    data-product-name="{{this.name}}" 
+                    data-product-price="{{this.price}}">
+                    
+                    <button class="wishlist-btn" onclick="toggleWishlist(this, {{this.id}})">
+                        <i class="bi bi-heart"></i>
+                    </button>
+                    
+                    <img src="{{this.image_url}}" class="card-img-top" alt="{{this.name}}">
+                    <div class="card-body">
+                        <h5 class="card-title">{{this.name}}</h5>
+                        <p class="card-text text-primary fw-bold">Rp {{formatPrice this.price}}</p>
+                        <button class="btn btn-outline-primary btn-sm">Tambah ke Keranjang</button>
                     </div>
                 </div>
             </div>
-        </section>
+            {{/each}}
+        </div>
+    </div>
+</section>
 
         <!-- Toast untuk notifikasi -->
         <div class="toast-container position-fixed bottom-0 end-0 p-3">
@@ -311,231 +280,175 @@
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/js/bootstrap.bundle.min.js" integrity="sha384-j1CDi7MgGQ12Z7Qab0qlWQ/Qqz24Gc6BM0thvEMVjHnfYGF0rmFCozFSxQBxwHKO" crossorigin="anonymous"></script>
         
         <script>
-            // Simulasi status login user (dalam aplikasi nyata, ini akan didapat dari server/session)
-            // Ganti dengan logika authentikasi yang sebenarnya
-            let isUserLoggedIn = false; // Set to true jika user sudah login
-            let currentUser = null; // Data user yang sedang login
+    // Initialize user status from server-side rendering
+    const isUserLoggedIn = {{#if user}}true{{else}}false{{/if}};
+    const currentUser = {{#if user}}{
+        id: {{user.id}},
+        name: '{{user.name}}',
+        email: '{{user.email}}'
+    }{{else}}null{{/if}};
+    
+    // Array to store wishlist items
+    let wishlist = [];
+
+    // Main wishlist toggle function
+    window.toggleWishlist = function(button, productId) {
+        if (!isUserLoggedIn) {
+            showLoginModal();
+            return;
+        }
+
+        const icon = button.querySelector('i');
+        const productCard = button.closest('.product-card');
+        const productName = productCard.dataset.productName;
+        const productPrice = parseInt(productCard.dataset.productPrice);
+        
+        // Toggle button state
+        button.classList.toggle('active');
+        
+        if (icon.classList.contains('bi-heart')) {
+            // Add to wishlist
+            icon.classList.remove('bi-heart');
+            icon.classList.add('bi-heart-fill');
             
-            // Dalam aplikasi nyata, Anda bisa menggunakan:
-            // 1. Server-side rendering untuk inject data user
-            // 2. AJAX call untuk check authentication status
-            // 3. JWT token verification
+            if (!wishlist.find(item => item.product_id === productId)) {
+                const wishlistItem = {
+                    id: Date.now(), // Temporary ID
+                    user_id: currentUser.id,
+                    product_id: productId,
+                    product_name: productName,
+                    product_price: productPrice,
+                    created_at: new Date().toISOString()
+                };
+                
+                wishlist.push(wishlistItem);
+                showToast(`${productName} ditambahkan ke wishlist!`);
+                addToWishlistOnServer(wishlistItem);
+            }
+        } else {
+            // Remove from wishlist
+            icon.classList.remove('bi-heart-fill');
+            icon.classList.add('bi-heart');
             
-            // Example: Check if user is logged in from server-side variable
-            // isUserLoggedIn = typeof window.userLoggedIn !== 'undefined' ? window.userLoggedIn : false;
-            // currentUser = typeof window.currentUser !== 'undefined' ? window.currentUser : null;
+            const itemToRemove = wishlist.find(item => item.product_id === productId);
+            wishlist = wishlist.filter(item => item.product_id !== productId);
+            showToast(`${productName} dihapus dari wishlist!`);
+            
+            if (itemToRemove) {
+                removeFromWishlistOnServer(itemToRemove.id, productId);
+            }
+        }
+    };
 
-            // Array untuk menyimpan wishlist (dalam aplikasi nyata, ini akan disimpan di database)
-            let wishlist = [];
+    // Show login modal when not authenticated
+    function showLoginModal() {
+        const modal = new bootstrap.Modal(document.getElementById('loginRequiredModal'));
+        modal.show();
+    }
 
-            function toggleWishlist(button, productId) {
-                // Cek apakah user sudah login
-                if (!isUserLoggedIn) {
-                    showLoginModal();
-                    return;
-                }
+    // Show toast notification
+    function showToast(message) {
+        const toastElement = document.getElementById('wishlistToast');
+        const toastBody = document.getElementById('toastMessage');
+        toastBody.textContent = message;
+        
+        const toast = new bootstrap.Toast(toastElement);
+        toast.show();
+    }
 
+    // Server communication functions
+    function addToWishlistOnServer(wishlistItem) {
+        fetch('/auth/wishlist', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': getCsrfToken()
+            },
+            body: JSON.stringify({
+                product_id: wishlistItem.product_id
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                const localItem = wishlist.find(item => item.product_id === wishlistItem.product_id);
+                if (localItem) localItem.id = data.wishlist_id;
+            } else {
+                console.error('Failed to add to wishlist:', data);
+                showToast('Gagal menambahkan ke wishlist. Silakan coba lagi.');
+            }
+        })
+        .catch(error => {
+            console.error('Error adding to wishlist:', error);
+            showToast('Terjadi kesalahan. Silakan coba lagi.');
+        });
+    }
+
+    function removeFromWishlistOnServer(wishlistId, productId) {
+        fetch(`/auth/wishlist/${wishlistId}`, {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': getCsrfToken()
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (!data.success) {
+                console.error('Failed to remove from wishlist:', data);
+                showToast('Gagal menghapus dari wishlist. Silakan coba lagi.');
+            }
+        })
+        .catch(error => {
+            console.error('Error removing from wishlist:', error);
+            showToast('Terjadi kesalahan. Silakan coba lagi.');
+        });
+    }
+
+    // Load wishlist from server
+    function loadWishlistFromServer() {
+        if (!isUserLoggedIn) return;
+        
+        fetch('/auth/wishlist')
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                wishlist = data.wishlist;
+                updateWishlistUI();
+            }
+        })
+        .catch(error => {
+            console.error('Error loading wishlist:', error);
+        });
+    }
+
+    // Update UI based on wishlist data
+    function updateWishlistUI() {
+        wishlist.forEach(item => {
+            const productCard = document.querySelector(`[data-product-id="${item.product_id}"]`);
+            if (productCard) {
+                const button = productCard.querySelector('.wishlist-btn');
                 const icon = button.querySelector('i');
-                const productCard = button.closest('.product-card');
-                const productName = productCard.dataset.productName;
-                const productPrice = parseInt(productCard.dataset.productPrice);
-                
-                // Toggle active class pada button
-                button.classList.toggle('active');
-                
-                // Toggle icon antara outline dan filled
-                if (icon.classList.contains('bi-heart')) {
-                    icon.classList.remove('bi-heart');
-                    icon.classList.add('bi-heart-fill');
-                    
-                    // Tambah ke wishlist
-                    if (!wishlist.find(item => item.product_id === productId)) {
-                        const wishlistItem = {
-                            id: Date.now(), // Temporary ID (dalam database akan auto-increment)
-                            user_id: currentUser ? currentUser.id : null,
-                            product_id: productId,
-                            product_name: productName,
-                            product_price: productPrice,
-                            created_at: new Date().toISOString()
-                        };
-                        
-                        wishlist.push(wishlistItem);
-                        showToast(`${productName} ditambahkan ke wishlist!`);
-                        
-                        // Kirim ke server
-                        addToWishlistOnServer(wishlistItem);
-                    }
-                } else {
-                    icon.classList.remove('bi-heart-fill');
-                    icon.classList.add('bi-heart');
-                    
-                    // Hapus dari wishlist
-                    const itemToRemove = wishlist.find(item => item.product_id === productId);
-                    wishlist = wishlist.filter(item => item.product_id !== productId);
-                    showToast(`${productName} dihapus dari wishlist!`);
-                    
-                    // Hapus dari server
-                    if (itemToRemove) {
-                        removeFromWishlistOnServer(itemToRemove.id, productId);
-                    }
-                }
-                
-                console.log('Current wishlist:', wishlist);
+                button.classList.add('active');
+                icon.classList.remove('bi-heart');
+                icon.classList.add('bi-heart-fill');
             }
+        });
+    }
 
-            function showLoginModal() {
-                const modal = new bootstrap.Modal(document.getElementById('loginRequiredModal'));
-                modal.show();
-            }
+    // Helper function to get CSRF token
+    function getCsrfToken() {
+        const token = document.querySelector('meta[name="csrf-token"]');
+        return token ? token.getAttribute('content') : '';
+    }
 
-            function showToast(message) {
-                const toastElement = document.getElementById('wishlistToast');
-                const toastBody = document.getElementById('toastMessage');
-                toastBody.textContent = message;
-                
-                const toast = new bootstrap.Toast(toastElement);
-                toast.show();
-            }
-
-            // Functions untuk komunikasi dengan server
-            function addToWishlistOnServer(wishlistItem) {
-                // AJAX call untuk menambah item ke wishlist di database
-                fetch('/api/wishlist', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRF-TOKEN': getCsrfToken(), // Jika menggunakan CSRF protection
-                    },
-                    body: JSON.stringify({
-                        product_id: wishlistItem.product_id,
-                        user_id: wishlistItem.user_id
-                    })
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        console.log('Item added to wishlist:', data);
-                        // Update local wishlist dengan ID dari server
-                        const localItem = wishlist.find(item => item.product_id === wishlistItem.product_id);
-                        if (localItem) {
-                            localItem.id = data.wishlist_id;
-                        }
-                    } else {
-                        console.error('Failed to add to wishlist:', data);
-                        showToast('Gagal menambahkan ke wishlist. Silakan coba lagi.');
-                    }
-                })
-                .catch(error => {
-                    console.error('Error adding to wishlist:', error);
-                    showToast('Terjadi kesalahan. Silakan coba lagi.');
-                });
-            }
-
-            function removeFromWishlistOnServer(wishlistId, productId) {
-                // AJAX call untuk menghapus item dari wishlist di database
-                fetch('/api/wishlist/' + wishlistId, {
-                    method: 'DELETE',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRF-TOKEN': getCsrfToken(), // Jika menggunakan CSRF protection
-                    }
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        console.log('Item removed from wishlist:', data);
-                    } else {
-                        console.error('Failed to remove from wishlist:', data);
-                        showToast('Gagal menghapus dari wishlist. Silakan coba lagi.');
-                    }
-                })
-                .catch(error => {
-                    console.error('Error removing from wishlist:', error);
-                    showToast('Terjadi kesalahan. Silakan coba lagi.');
-                });
-            }
-
-            function loadWishlistFromServer() {
-                if (!isUserLoggedIn) return;
-                
-                // AJAX call untuk mengambil wishlist dari server
-                fetch('/api/wishlist')
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        wishlist = data.wishlist;
-                        updateWishlistUI();
-                        console.log('Wishlist loaded from server:', wishlist);
-                    }
-                })
-                .catch(error => {
-                    console.error('Error loading wishlist:', error);
-                });
-            }
-
-            // Update UI berdasarkan data wishlist yang ada
-            function updateWishlistUI() {
-                wishlist.forEach(item => {
-                    const productCard = document.querySelector(`[data-product-id="${item.product_id}"]`);
-                    if (productCard) {
-                        const button = productCard.querySelector('.wishlist-btn');
-                        const icon = button.querySelector('i');
-                        button.classList.add('active');
-                        icon.classList.remove('bi-heart');
-                        icon.classList.add('bi-heart-fill');
-                    }
-                });
-            }
-
-            // Helper function untuk mendapatkan CSRF token (jika diperlukan)
-            function getCsrfToken() {
-                const token = document.querySelector('meta[name="csrf-token"]');
-                return token ? token.getAttribute('content') : '';
-            }
-
-            // Function untuk set user login status (dipanggil setelah login berhasil)
-            function setUserLoggedIn(user) {
-                isUserLoggedIn = true;
-                currentUser = user;
-                loadWishlistFromServer();
-            }
-
-            // Function untuk logout
-            function logoutUser() {
-                isUserLoggedIn = false;
-                currentUser = null;
-                wishlist = [];
-                // Reset semua heart icons ke state kosong
-                document.querySelectorAll('.wishlist-btn').forEach(button => {
-                    const icon = button.querySelector('i');
-                    button.classList.remove('active');
-                    icon.classList.remove('bi-heart-fill');
-                    icon.classList.add('bi-heart');
-                });
-            }
-
-            // Panggil saat halaman dimuat
-            document.addEventListener('DOMContentLoaded', function() {
-                // Dalam aplikasi nyata, check authentication status dari server
-                // checkAuthenticationStatus();
-                
-                // Load wishlist jika user sudah login
-                loadWishlistFromServer();
-            });
-
-            // Example function untuk check authentication status dari server
-            function checkAuthenticationStatus() {
-                fetch('/api/auth/check')
-                .then(response => response.json())
-                .then(data => {
-                    if (data.authenticated) {
-                        setUserLoggedIn(data.user);
-                    }
-                })
-                .catch(error => {
-                    console.error('Error checking authentication:', error);
-                });
-            }
-        </script>
+    // Initialize when DOM is loaded
+    document.addEventListener('DOMContentLoaded', function() {
+        // Load wishlist if user is logged in
+        if (isUserLoggedIn) {
+            loadWishlistFromServer();
+        }
+    });
+</script>
     </body>
 </html>

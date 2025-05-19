@@ -68,19 +68,38 @@
         </div>
 
         <!-- Wishlist Section -->
-        <div id="wishlist" class="row mb-5">
-            <div class="col-12">
-                <div class="card">
-                    <div class="card-header">
-                        <h4>Your Wishlist</h4>
+<div id="wishlist" class="row mb-5">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h4>Your Wishlist</h4>
+            </div>
+            <div class="card-body">
+                {{#if wishlist.length}}
+                <div class="row">
+                    {{#each wishlist}}
+                    <div class="col-md-3 mb-4">
+                        <div class="card border-0 shadow-sm">
+                            <img src="{{this.image_url}}" class="card-img-top" alt="{{this.name}}">
+                            <div class="card-body">
+                                <h5 class="card-title">{{this.name}}</h5>
+                                <p class="card-text text-primary fw-bold">Rp {{formatPrice this.price}}</p>
+                                <button class="btn btn-outline-danger btn-sm" 
+                                        onclick="removeFromWishlist({{this.id}}, {{this.product_id}})">
+                                    Hapus
+                                </button>
+                            </div>
+                        </div>
                     </div>
-                    <div class="card-body">
-                        <p>Your wishlist is empty.</p>
-                        <!-- Future: wishlist items here -->
-                    </div>
+                    {{/each}}
                 </div>
+                {{else}}
+                <p>Your wishlist is empty.</p>
+                {{/if}}
             </div>
         </div>
+    </div>
+</div>
 
         <!-- Cart Section -->
         <div id="cart" class="row mb-5">

@@ -8,7 +8,26 @@ router.use(authMiddleware.getUser);
 router.get('/', (req, res) => {
     res.render('index');
 });
-
+// Di routes/pages.js
+router.get('/dashboard', isLoggedIn, (req, res) => {
+  db.query(
+    `SELECT w.id, p.* 
+     FROM wishlist w 
+     JOIN products p ON w.product_id = p.id 
+     WHERE w.user_id = ?`,
+    [req.user.id],
+    (error, wishlist) => {
+      if (error) {
+        console.log(error);
+        return res.render('dashboard', { wishlist: [] });
+      }
+      res.render('dashboard', { 
+        user: req.user,
+        wishlist 
+      });
+    }
+  );
+});
 router.get('/register', (req, res) => {
     res.render('register');
 });

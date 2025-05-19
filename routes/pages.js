@@ -9,7 +9,7 @@ router.get('/', (req, res) => {
     res.render('index');
 });
 // Di routes/pages.js
-router.get('/dashboard', isLoggedIn, (req, res) => {
+router.get('/dashboard', authMiddleware.isLoggedIn, (req, res) => {
   db.query(
     `SELECT w.id, p.* 
      FROM wishlist w 

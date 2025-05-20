@@ -166,3 +166,45 @@ exports.logout = (req, res) => {
     res.redirect('/');
 };
 //wishlist
+exports.wishlist = (req, res) => {
+    const { product_id } = req.body;
+
+    if (!req.user) {
+        return res.status(401).json({ message: 'Anda harus login terlebih dahulu' });
+    }
+
+    const userId = req.user.id;
+
+    const query = 'INSERT IGNORE INTO wishlist (user_id, product_id) VALUES (?, ?)';
+    db.query(query, [userId, product_id], (error, results) => {
+        if (error) {
+            console.log(error);
+            return res.status(500).json({ message: 'Gagal menambahkan ke wishlist' });
+        }
+        return res.status(200).json({ message: 'Berhasil ditambahkan ke wishlist!' });
+    });
+};
+
+exports.getWishlist = (req, res) => {
+    if (!req.user) return res.redirect('/login');
+
+    const userId = req.user.id;
+
+    const query = `
+        SELECT products.* FROM wishlist
+        JOIN products ON wishlist.product_id = products.id
+        WHERE wishlist.user_id = ?
+    `;
+
+    db.query(query, [userId], (err, results) => {
+        if (err) {
+            console.error(err);
+            return res.render('dashboard', { wishlist: [] });
+        }
+
+        return res.render('dashboard', {
+            user: req.user,
+            wishlist: results
+        });
+    });
+};

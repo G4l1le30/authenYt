@@ -217,20 +217,25 @@
         </div>
         <div class="row">
             {{#each products}}
-            <div class="col-md-3 mb-4">
-                <div class="card border-0 shadow-sm position-relative">
-                    <div onclick="toggleWishlist({{this.id}})" class="favorite-icon position-absolute top-0 end-0 p-2" style="cursor: pointer;">
-                        <i class="bi bi-heart-fill text-danger"></i>
-                    </div>
-                    <img src="{{this.image_url}}" class="card-img-top" alt="{{this.name}}">
-                    <div class="card-body">
-                        <h5 class="card-title">{{this.name}}</h5>
-                        <p class="card-text text-primary fw-bold">Rp {{this.price}}</p>
-                        <button class="btn btn-outline-primary btn-sm">Details</button>
-                    </div>
-                </div>
-            </div>
-            {{/each}}
+<div class="col-md-3 mb-4">
+    <div class="card border-0 shadow-sm position-relative">
+        <div onclick="toggleWishlist({{this.id}})" class="favorite-icon position-absolute top-0 end-0 p-2" style="cursor: pointer;">
+            {{#if (includes ../wishlistProductIds this.id)}}
+                <i class="bi bi-heart-fill text-danger"></i> <!-- Sudah di wishlist -->
+            {{else}}
+                <i class="bi bi-heart"></i> <!-- Belum di wishlist -->
+            {{/if}}
+        </div>
+        <img src="{{this.image_url}}" class="card-img-top" alt="{{this.name}}">
+        <div class="card-body">
+            <h5 class="card-title">{{this.name}}</h5>
+            <p class="card-text text-primary fw-bold">Rp {{this.price}}</p>
+            <button class="btn btn-outline-primary btn-sm">Details</button>
+        </div>
+    </div>
+</div>
+{{/each}}
+
         </div>
     </div>
 </section>

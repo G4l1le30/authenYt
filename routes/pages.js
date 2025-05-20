@@ -14,15 +14,28 @@ const db = mysql.createConnection({
 // Apply middleware to retrieve user for all routes
 router.use(authMiddleware.getUser);
 
-router.get('/', (req, res) => {
-    db.query('SELECT * FROM products', (err, results) => {
-        if (err) {
-            console.log(err);
-            return res.render('index', { products: [] });
+router.get('/', authMiddleware.getUser, (req, res) => {
+    db.query('SELECT * FROM products', (err, products) => {
+        if (err) return res.render('index', { products: [] });
+
+        if (!req.user) {
+            // User belum login, tidak kirim wishlist id
+            return res.render('index', { products, wishlistProductIds: [] });
         }
-        res.render('index', { products: results });
+
+        const userId = req.user.id;
+
+        db.query('SELECT product_id FROM wishlist WHERE user_id = ?', [userId], (err2, wishlistRows) => {
+            if (err2) {
+                return res.render('index', { products, wishlistProductIds: [] });
+            }
+
+            const wishlistProductIds = wishlistRows.map(row => row.product_id);
+            res.render('index', { products, wishlistProductIds });
+        });
     });
 });
+
 
 router.get('/allProduk', (req, res)=>{
     res.render('allProduk')

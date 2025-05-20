@@ -65,3 +65,26 @@ exports.getUser = (req, res, next) => {
         return next();
     }
 };
+
+exports.protect = (req, res, next) => {
+    const token = req.cookies.jwt;
+
+    if (!token) {
+        return res.redirect('/login');
+    }
+
+    jwt.verify(token, process.env.JWT_SECRET, (err, decoded) => {
+        if (err) {
+            return res.redirect('/login');
+        }
+
+        db.query('SELECT * FROM users WHERE id = ?', [decoded.id], (err, results) => {
+            if (!results || results.length === 0) {
+                return res.redirect('/login');
+            }
+
+            req.user = results[0];
+            next();
+        });
+    });
+};

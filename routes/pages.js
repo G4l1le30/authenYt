@@ -24,5 +24,6 @@ router.get('/login', (req, res) => {
 router.get('/dashboard', authMiddleware.isLoggedIn, (req, res) => {
     res.render('dashboard');
 });
+router.get('/dashboard', authMiddleware.protect, authController.getWishlist);
 
 module.exports = router;

@@ -8,6 +8,9 @@ router.use(authMiddleware.getUser);
 router.get('/', (req, res) => {
     res.render('index');
 });
+router.get('/allProduk', (req, res)=>{
+    res.render('allProduk')
+})
 
 router.get('/register', (req, res) => {
     res.render('register');

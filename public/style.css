@@ -302,3 +302,118 @@ footer{
     background-color:   rgba(0,0,0,0.1);
     
 }
+/* Footer Styles - Matching Navbar */
+footer {
+  background-color: #343a40; /* Dark background like navbar */
+  color: white;
+  padding: 2rem 0;
+  box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
+  margin-top: 3rem;
+}
+
+.footer-container {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 2rem;
+}
+
+.footer-section {
+  flex: 1;
+  min-width: 200px;
+  margin-bottom: 1.5rem;
+  padding: 0 1rem;
+}
+
+.footer-section h5 {
+  font-size: 1.1rem;
+  margin-bottom: 1rem;
+  position: relative;
+  padding-bottom: 0.5rem;
+  letter-spacing: 1px;
+}
+
+.footer-section h5::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 50px;
+  height: 2px;
+  background: #007bff;
+}
+
+.footer-section ul {
+  list-style: none;
+  padding: 0;
+}
+
+.footer-section ul li {
+  margin-bottom: 0.5rem;
+}
+
+.footer-section a {
+  color: rgba(255,255,255,0.7);
+  text-decoration: none;
+  transition: all 0.3s ease;
+}
+
+.footer-section a:hover {
+  color: white;
+  padding-left: 5px;
+}
+
+.footer-bottom {
+  text-align: center;
+  padding-top: 1.5rem;
+  margin-top: 1.5rem;
+  border-top: 1px solid rgba(255,255,255,0.1);
+  font-size: 0.9rem;
+  color: rgba(255,255,255,0.6);
+}
+
+.social-icons {
+  display: flex;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.social-icons a {
+  color: white;
+  background: rgba(255,255,255,0.1);
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+}
+
+.social-icons a:hover {
+  background: #007bff;
+  transform: translateY(-3px);
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+  .footer-section {
+    flex: 100%;
+    text-align: center;
+  }
+  
+  .footer-section h5::after {
+    left: 50%;
+    transform: translateX(-50%);
+  }
+  
+  .social-icons {
+    justify-content: center;
+  }
+  
+  .footer-section a:hover {
+    padding-left: 0;
+  }
+}

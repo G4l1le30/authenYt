@@ -156,42 +156,7 @@ exports.login = async (req, res) => {
         console.log(error);
     }
 };
-// In your controller
-const getIndex = async (req, res) => {
-    try {
-        const products = await Product.findAll({
-            include: [{ model: Category }]
-        });
-        
-        let productsWithWishlist = products;
-        
-        if (req.user) {
-            // Get user's wishlist
-            const wishlist = await Wishlist.findAll({
-                where: { user_id: req.user.id },
-                attributes: ['product_id']
-            });
-            
-            const wishlistProductIds = wishlist.map(item => item.product_id);
-            
-            // Add inWishlist flag to products
-            productsWithWishlist = products.map(product => ({
-                ...product.get({ plain: true }),
-                inWishlist: wishlistProductIds.includes(product.id)
-            }));
-        } else {
-            productsWithWishlist = products.map(product => product.get({ plain: true }));
-        }
-        
-        res.render('index', {
-            user: req.user,
-            products: productsWithWishlist
-        });
-    } catch (error) {
-        console.error(error);
-        res.status(500).send('Server Error');
-    }
-};
+
 exports.logout = (req, res) => {
     // Clear JWT cookie
     res.cookie('jwt', 'logout', {

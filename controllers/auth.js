@@ -2,7 +2,7 @@ const mysql = require('mysql')
 const jwt=require('jsonwebtoken')
 const bcrypt = require('bcrypt') // GANTI dari bcryptjs ke bcrypt
 const dotenv = require('dotenv')
-dotenv.config()
+
 
 // Database connection - gunakan konfigurasi yang sama seperti di app.js
 const db = mysql.createConnection({

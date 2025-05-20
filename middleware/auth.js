@@ -39,7 +39,7 @@ exports.isLoggedIn = (req, res, next) => {
         return res.redirect('/login');
     }
 };
-/*
+
 exports.getUser = (req, res, next) => {
     if (!req.cookies.jwt) {
         res.locals.user = null;
@@ -63,28 +63,5 @@ exports.getUser = (req, res, next) => {
         console.log(error);
         res.locals.user = null;
         return next();
-    }
-};
-*/
-exports.isLoggedIn = (req, res, next) => {
-    if (req.session.userId) {
-        return next();
-    }
-    res.redirect('/login');
-};
-
-exports.getUser = (req, res, next) => {
-    if (req.session.userId) {
-        const sql = 'SELECT * FROM users WHERE id = ?';
-        db.query(sql, [req.session.userId], (err, results) => {
-            if (err || results.length === 0) {
-                return next();
-            }
-            req.user = results[0];
-            res.locals.user = results[0]; // Untuk akses di view
-            next();
-        });
-    } else {
-        next();
     }
 };

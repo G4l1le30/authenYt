@@ -22,20 +22,7 @@ router.get('/login', (req, res) => {
 
 // Protected route - only accessible when logged in
 router.get('/dashboard', authMiddleware.isLoggedIn, (req, res) => {
-    const wishlistQuery = `
-        SELECT w.id, p.* 
-        FROM wishlist w
-        JOIN products p ON w.product_id = p.id
-        WHERE w.user_id = ?
-    `;
-    
-    db.query(wishlistQuery, [req.user.id], (err, wishlist) => {
-        if (err) throw err;
-        
-        res.render('dashboard', {
-            user: req.user,
-            wishlist: wishlist
-        });
-    });
+    res.render('dashboard');
 });
+
 module.exports = router;

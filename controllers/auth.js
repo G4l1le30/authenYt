@@ -168,6 +168,8 @@ exports.logout = (req, res) => {
 //wishlist
 exports.wishlist = (req, res) => {
     const { product_id } = req.body;
+      console.log('User:', req.user);
+  console.log('Product ID:', req.body.product_id);
 
     if (!req.user) {
         return res.status(401).json({ message: 'Anda harus login terlebih dahulu' });

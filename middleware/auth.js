@@ -65,31 +65,3 @@ exports.getUser = (req, res, next) => {
         return next();
     }
 };
-
-// Middleware to check user status for all routes
-exports.checkUser = async (req, res, next) => {
-  try {
-    const token = req.cookies.jwt;
-
-    if (!token) {
-      req.user = null;
-      return next();
-    }
-
-    try {
-      // Verify token
-      const decoded = await promisify(jwt.verify)(token, process.env.JWT_SECRET);
-      
-      // Add user ID to request object
-      req.user = { id: decoded.id };
-    } catch (error) {
-      req.user = null;
-    }
-    
-    next();
-  } catch (error) {
-    console.error(error);
-    req.user = null;
-    next();
-  }
-};

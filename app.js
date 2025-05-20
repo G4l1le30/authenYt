@@ -1,50 +1,67 @@
-const express = require('express');
-const app = express();
-const path = require('path');
-const dotenv = require('dotenv');
+const express= require('express')
+const app=express()
+const path=require('path') //default js, gaperlu diinstall
+//konfigurasi .env
+const dotenv = require('dotenv')
+dotenv.config({path: './.env'})
+//cookie-parser
 const cookieParser = require('cookie-parser');
-const mysql = require('mysql');
-const hbs = require('hbs');
 
-// Konfigurasi .env
-dotenv.config({ path: './.env' });
-
-// Middleware
+// Use cookie parser middleware
 app.use(cookieParser());
-app.use(express.static(path.join(__dirname, './public')));
-app.use(express.urlencoded({ extended: false }));
-app.use(express.json());
 
-// Set view engine
-app.set('view engine', 'hbs');
-
-// Helper untuk format harga
-hbs.registerHelper('formatPrice', function(price) {
-  return new Intl.NumberFormat('id-ID').format(price);
-});
-
-// Koneksi MySQL
+//koneksi mysql
+const mysql = require('mysql')
+const { register } = require('module')
 const db = mysql.createConnection({
-  host: process.env.DATABASE_HOST,
-  user: process.env.DATABASE_USER,
-  password: process.env.DATABASE_PASSWORD,
-  database: process.env.DATABASE
-});
+    host:process.env.DATABASE_HOST,
+    user:process.env.DATABASE_USER,
+    password:process.env.DATABASE_PASSWORD,
+    database: process.env.DATABASE
+})
+//extension handlebar (hbs)
+const publicDirectory=path.join(__dirname, './public/') //dirname: variabel nodejs untuk kasih akses current dir
+//kalau ditambah /public, sekarang app ngeliat semua yang ada di folder public
+app.use(express.static(publicDirectory))
 
+//get data dari form
+//parsing url encoded bodies (saat di sent oleh html forms)
+app.use(express.urlencoded({extended: false}))
+
+app.use(express.json())
+
+app.set('view engine', 'hbs')
+
+//konek mysql
 db.connect((err) => {
-  if (err) {
-    console.log(err);
-  } else {
-    console.log("MySQL connected");
-  }
-});
-
-// Routes
-app.use('/', require('./routes/pages'));
-app.use('/auth', require('./routes/auth'));
-
-// Port
+    if(err){
+        console.log(err)
+    } else{
+        console.log("MySQL connected")
+    }
+})
+//inisialisasi port
 const port = process.env.PORT || 5000;
-app.listen(port, () => {
-  console.log(`Server started on port ${port}`);
-});
+// //testing request 
+// app.get("/",(req, res)=> {
+//    // res.send("<h1>test</h1>")
+//    res.render("index")
+// })
+// //request dari index ke register
+// app.get("/register",(req, res)=>{
+//     res.render("register")
+// })
+////request dari index ke login
+//app.get("/login",(req, res)=>{
+//    res.render("login")
+//})
+
+//define routes
+app.use('/',require('./routes/pages'))
+app.use('/auth',require('./routes/auth'))
+
+
+//deklarasi port 
+app.listen(port, ()=>{
+    console.log(`server started on port ${port}`)
+})

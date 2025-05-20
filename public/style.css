@@ -290,3 +290,8 @@
 .favorite-icon:hover {
   color: #ff4d6d; /* warna merah lebih terang saat hover */
 }
+.favorite-icon:hover svg {
+    fill: red;
+    transform: scale(1.2);
+    transition: all 0.3s ease;
+}

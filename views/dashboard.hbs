@@ -120,26 +120,26 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/js/bootstrap.bundle.min.js" integrity="sha384-j1CDi7MgGQ12Z7Qab0qlWQ/Qqz24Gc6BM0thvEMVjHnfYGF0rmFCozFSxQBxwHKO" crossorigin="anonymous"></script>
      
     <script>
-        function removeFromWishlist(wishlistId, productId) {
-            fetch(`/auth/wishlist/${wishlistId}`, {
-                method: 'DELETE',
-                headers: {
-                    'Content-Type': 'application/json',
-                }
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    window.location.reload();
-                } else {
-                    alert('Gagal menghapus dari wishlist');
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                alert('Terjadi kesalahan');
-            });
+        router.delete('/wishlist/:id', isAuthenticated, async (req, res) => {
+    try {
+        const wishlistItem = await Wishlist.findOne({
+            where: {
+                id: req.params.id,
+                user_id: req.user.id
+            }
+        });
+        
+        if (!wishlistItem) {
+            return res.status(404).json({ success: false, message: 'Item tidak ditemukan' });
         }
+        
+        await wishlistItem.destroy();
+        res.json({ success: true });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ success: false, message: 'Server error' });
+    }
+});
     </script>
 </body>
 </html>

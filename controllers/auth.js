@@ -166,3 +166,122 @@ exports.logout = (req, res) => {
 
     res.redirect('/');
 };
+
+// Get user data
+exports.getUserData = async (req, res, next) => {
+  try {
+    if (req.user) {
+      const [userData] = await pool.query('SELECT id, name, email FROM users WHERE id = ?', [req.user.id]);
+      req.userData = userData[0];
+    }
+    next();
+  } catch (error) {
+    console.error(error);
+    next();
+  }
+};
+
+// Wishlist functions
+exports.toggleWishlist = async (req, res) => {
+  try {
+    // Ensure user is logged in
+    if (!req.user) {
+      return res.status(401).json({ 
+        success: false, 
+        message: 'Please login to add items to your wishlist' 
+      });
+    }
+
+    const { product_id } = req.body;
+    const user_id = req.user.id;
+
+    // Check if item already exists in wishlist
+    const [existing] = await pool.query(
+      'SELECT * FROM wishlist WHERE user_id = ? AND product_id = ?', 
+      [user_id, product_id]
+    );
+
+    if (existing.length > 0) {
+      // Item exists, remove from wishlist
+      await pool.query(
+        'DELETE FROM wishlist WHERE user_id = ? AND product_id = ?', 
+        [user_id, product_id]
+      );
+      
+      return res.json({ 
+        success: true, 
+        message: 'Item removed from wishlist',
+        action: 'removed'
+      });
+    } else {
+      // Item doesn't exist, add to wishlist
+      await pool.query(
+        'INSERT INTO wishlist (user_id, product_id) VALUES (?, ?)', 
+        [user_id, product_id]
+      );
+      
+      return res.json({ 
+        success: true, 
+        message: 'Item added to wishlist',
+        action: 'added'
+      });
+    }
+  } catch (error) {
+    console.error('Wishlist error:', error);
+    return res.status(500).json({ 
+      success: false, 
+      message: 'Server error while updating wishlist' 
+    });
+  }
+};
+
+// Get user's wishlist
+exports.getWishlist = async (req, res, next) => {
+  try {
+    if (req.user) {
+      // Join wishlist with products to get full product details
+      const [wishlist] = await pool.query(`
+        SELECT w.id, w.product_id, p.name, p.price, p.image_url, p.description 
+        FROM wishlist w
+        JOIN products p ON w.product_id = p.id
+        WHERE w.user_id = ?
+      `, [req.user.id]);
+      
+      req.wishlist = wishlist;
+    } else {
+      req.wishlist = [];
+    }
+    next();
+  } catch (error) {
+    console.error('Get wishlist error:', error);
+    req.wishlist = [];
+    next();
+  }
+};
+
+// Remove item from wishlist
+exports.removeFromWishlist = async (req, res) => {
+  try {
+    if (!req.user) {
+      return res.status(401).json({ 
+        success: false, 
+        message: 'Please login to manage your wishlist' 
+      });
+    }
+
+    const { wishlist_id } = req.body;
+
+    await pool.query('DELETE FROM wishlist WHERE id = ? AND user_id = ?', [wishlist_id, req.user.id]);
+    
+    return res.json({ 
+      success: true, 
+      message: 'Item removed from wishlist' 
+    });
+  } catch (error) {
+    console.error('Remove from wishlist error:', error);
+    return res.status(500).json({ 
+      success: false, 
+      message: 'Server error while removing from wishlist' 
+    });
+  }
+};

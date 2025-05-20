@@ -210,3 +210,20 @@ exports.getWishlist = (req, res) => {
         });
     });
 };
+exports.removeFromWishlist = (req, res) => {
+    if (!req.user) return res.status(401).json({ message: 'Anda harus login terlebih dahulu' });
+
+    const wishlistId = req.params.id; // id wishlist item (biasanya primary key di tabel wishlist)
+
+    const query = 'DELETE FROM wishlist WHERE id = ? AND user_id = ?';
+    db.query(query, [wishlistId, req.user.id], (err, results) => {
+        if (err) {
+            console.log(err);
+            return res.status(500).json({ message: 'Gagal menghapus dari wishlist' });
+        }
+        if (results.affectedRows === 0) {
+            return res.status(404).json({ message: 'Item wishlist tidak ditemukan' });
+        }
+        return res.json({ success: true, message: 'Berhasil menghapus dari wishlist' });
+    });
+};

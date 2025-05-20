@@ -48,7 +48,7 @@
               <div class="card-body">
                 <h5 class="card-title">{{this.name}}</h5>
                 <p class="text-primary fw-bold">Rp {{this.price}}</p>
-                <button class="btn btn-outline-danger btn-sm" onclick="removeFromWishlist('{{this.wishlist_id}}')">Hapus</button>
+                <button class="btn btn-outline-danger btn-sm" onclick="removeFromWishlist('{{this.id}}')">Hapus</button>
               </div>
             </div>
           </div>
@@ -73,20 +73,27 @@
 
   <script>
     function removeFromWishlist(wishlistId) {
-      fetch(`/auth/wishlist/${wishlistId}`, {
+    fetch(`/auth/wishlist/${wishlistId}`, {
         method: 'DELETE',
-        headers: { 'Content-Type': 'application/json' }
-      })
-      .then(res => res.json())
-      .then(data => {
-        if (data.success) {
-          location.reload();
-        } else {
-          alert(data.message || 'Gagal menghapus dari wishlist');
+        headers: {
+            'Content-Type': 'application/json'
         }
-      })
-      .catch(() => alert('Terjadi kesalahan'));
-    }
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.success) {
+            alert('Berhasil menghapus dari wishlist');
+            window.location.reload();
+        } else {
+            alert(data.message || 'Gagal menghapus dari wishlist');
+        }
+    })
+    .catch(err => {
+        alert('Terjadi kesalahan');
+        console.error(err);
+    });
+}
+
   </script>
 </body>
 </html>

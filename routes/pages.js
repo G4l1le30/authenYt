@@ -2,6 +2,13 @@ const express = require('express');
 const router = express.Router();
 const authMiddleware = require('../middleware/auth');
 const authController = require('../controllers/auth');
+const mysql = require('mysql');
+const db = mysql.createConnection({
+  host: process.env.DATABASE_HOST,
+  user: process.env.DATABASE_USER,
+  password: process.env.DATABASE_PASSWORD,
+  database: process.env.DATABASE
+});
 
 
 // Apply middleware to retrieve user for all routes

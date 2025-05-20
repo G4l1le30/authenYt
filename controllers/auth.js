@@ -2,6 +2,7 @@ const mysql = require('mysql')
 const jwt=require('jsonwebtoken')
 const bcrypt = require('bcrypt') // GANTI dari bcryptjs ke bcrypt
 const dotenv = require('dotenv')
+dotenv.config()
 
 // Database connection - gunakan konfigurasi yang sama seperti di app.js
 const db = mysql.createConnection({
@@ -171,7 +172,7 @@ exports.logout = (req, res) => {
 exports.getUserData = async (req, res, next) => {
   try {
     if (req.user) {
-      const [userData] = await pool.query('SELECT id, name, email FROM users WHERE id = ?', [req.user.id]);
+      const [userData] = await db.query('SELECT id, name, email FROM users WHERE id = ?', [req.user.id]);
       req.userData = userData[0];
     }
     next();
@@ -196,14 +197,14 @@ exports.toggleWishlist = async (req, res) => {
     const user_id = req.user.id;
 
     // Check if item already exists in wishlist
-    const [existing] = await pool.query(
+    const [existing] = await db.query(
       'SELECT * FROM wishlist WHERE user_id = ? AND product_id = ?', 
       [user_id, product_id]
     );
 
     if (existing.length > 0) {
       // Item exists, remove from wishlist
-      await pool.query(
+      await db.query(
         'DELETE FROM wishlist WHERE user_id = ? AND product_id = ?', 
         [user_id, product_id]
       );
@@ -215,7 +216,7 @@ exports.toggleWishlist = async (req, res) => {
       });
     } else {
       // Item doesn't exist, add to wishlist
-      await pool.query(
+      await db.query(
         'INSERT INTO wishlist (user_id, product_id) VALUES (?, ?)', 
         [user_id, product_id]
       );
@@ -240,7 +241,7 @@ exports.getWishlist = async (req, res, next) => {
   try {
     if (req.user) {
       // Join wishlist with products to get full product details
-      const [wishlist] = await pool.query(`
+      const [wishlist] = await db.query(`
         SELECT w.id, w.product_id, p.name, p.price, p.image_url, p.description 
         FROM wishlist w
         JOIN products p ON w.product_id = p.id
@@ -271,7 +272,7 @@ exports.removeFromWishlist = async (req, res) => {
 
     const { wishlist_id } = req.body;
 
-    await pool.query('DELETE FROM wishlist WHERE id = ? AND user_id = ?', [wishlist_id, req.user.id]);
+    await db.query('DELETE FROM wishlist WHERE id = ? AND user_id = ?', [wishlist_id, req.user.id]);
     
     return res.json({ 
       success: true, 

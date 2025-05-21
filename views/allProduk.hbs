@@ -1,0 +1,40 @@
+<div class="product-list container my-4 d-flex flex-wrap gap-4 justify-content-center">
+  {{#each products}}
+  <div class="product-card position-relative" data-product-id="{{this.id}}" style="width: 250px;">
+    <img src="{{this.image_url}}" alt="{{this.name}}" class="img-fluid rounded" />
+    <div class="overlay-detail position-absolute top-0 start-0 w-100 h-100 d-flex justify-content-center align-items-center" style="opacity: 0; transition: 0.3s;">
+      <button class="btn btn-dark btn-detail">Detail</button>
+    </div>
+    <h5 class="mt-2 text-center">{{this.name}}</h5>
+    <p class="text-center text-muted">Rp {{this.price}}</p>
+  </div>
+  {{/each}}
+</div>
+
+<!-- Modal -->
+<div class="modal fade" id="productDetailModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-dialog-centered">
+    <div class="modal-content p-3">
+      <div class="modal-header">
+        <h5 class="modal-title" id="modalTitle">Product Detail</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body d-flex gap-4">
+        <div class="product-images flex-shrink-0" style="width: 300px;">
+          <!-- Images akan dimasukkan JS -->
+        </div>
+        <div class="product-info flex-grow-1">
+          <p id="modalDescription"></p>
+          <p><strong>Price:</strong> Rp <span id="modalPrice"></span></p>
+          <p><strong>Category:</strong> <span id="modalCategory"></span></p>
+          <!-- Placeholder untuk ukuran, warna, quantity -->
+          <div class="mb-3">
+            <label for="quantityInput" class="form-label">Quantity</label>
+            <input type="number" id="quantityInput" min="1" value="1" class="form-control" style="width: 100px;">
+          </div>
+          <button class="btn btn-primary" id="btnAddToCart">Add to Cart</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

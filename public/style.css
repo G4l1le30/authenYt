@@ -49,10 +49,29 @@
 
 /* Product Cards */
 .product-card {
-  transition: transform 0.3s ease;
+  position: relative;
+  overflow: hidden;
 }
-.product-card:hover {
-  transform: translateY(-5px);
+
+.overlay-detail {
+  background: rgba(0,0,0,0.6);
+  opacity: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  transition: opacity 0.3s ease, transform 0.3s ease;
+  transform: translateY(100%);
+}
+
+.product-card:hover .overlay-detail {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.overlay-detail .btn-detail {
+  border-radius: 50px;
+  padding: 0.5rem 1.5rem;
+  font-weight: 600;
 }
 
 /* Wishlist icon */

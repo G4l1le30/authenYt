@@ -105,7 +105,7 @@
         </section>
 
         <!-- New Arrivals -->
-        <section class="new-arrivals py-5">
+        <section class="new-arrivals py-5" data-aos="fade-up">
             <div class="container">
                 <div class="d-flex justify-content-between align-items-center mb-5">
                     <h2 class="section-title">NEW ARRIVALS</h2>
@@ -343,5 +343,13 @@
                 }
             }
         </script>
+        <script src="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.js"></script>
+<script>
+  AOS.init({
+    duration: 1000,  // durasi animasi dalam ms
+    once: true,      // animasi hanya sekali ketika muncul
+  });
+</script>
+
     </body>
 </html>

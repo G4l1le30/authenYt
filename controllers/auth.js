@@ -213,10 +213,10 @@ exports.getWishlist = (req, res) => {
 exports.removeFromWishlist = (req, res) => {
     if (!req.user) return res.status(401).json({ message: 'Anda harus login terlebih dahulu' });
 
-    const wishlistId = req.params.id; // id wishlist item (biasanya primary key di tabel wishlist)
+    const productId = req.params.id; // Ini adalah product_id dari tombol hapus
 
-    const query = 'DELETE FROM wishlist WHERE id = ? AND user_id = ?';
-    db.query(query, [wishlistId, req.user.id], (err, results) => {
+    const query = 'DELETE FROM wishlist WHERE product_id = ? AND user_id = ?';
+    db.query(query, [productId, req.user.id], (err, results) => {
         if (err) {
             console.log(err);
             return res.status(500).json({ message: 'Gagal menghapus dari wishlist' });

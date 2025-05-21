@@ -71,5 +71,6 @@ router.get('/dashboard', authMiddleware.isLoggedIn, (req, res) => {
 });
 */
 router.get('/dashboard', authMiddleware.protect, authController.getWishlist);
+router.post('/api/wishlist/toggle', authMiddleware.protect, productController.toggleWishlist);
 
 module.exports = router;

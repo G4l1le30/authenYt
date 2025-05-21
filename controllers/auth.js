@@ -168,24 +168,35 @@ exports.logout = (req, res) => {
 //wishlist
 exports.wishlist = (req, res) => {
     const { product_id } = req.body;
-      console.log('User:', req.user);
-  console.log('Product ID:', req.body.product_id);
-
     if (!req.user) {
         return res.status(401).json({ message: 'Anda harus login terlebih dahulu' });
     }
-
     const userId = req.user.id;
 
-    const query = 'INSERT IGNORE INTO wishlist (user_id, product_id) VALUES (?, ?)';
-    db.query(query, [userId, product_id], (error, results) => {
-        if (error) {
-            console.log(error);
-            return res.status(500).json({ message: 'Gagal menambahkan ke wishlist' });
+    // Cek dulu apakah sudah ada di wishlist
+    const checkQuery = 'SELECT * FROM wishlist WHERE user_id = ? AND product_id = ?';
+    db.query(checkQuery, [userId, product_id], (err, results) => {
+        if (err) {
+            console.log(err);
+            return res.status(500).json({ message: 'Gagal memeriksa wishlist' });
         }
-        return res.status(200).json({ message: 'Berhasil ditambahkan ke wishlist!' });
+        if (results.length > 0) {
+            // Produk sudah ada di wishlist
+            return res.status(200).json({ message: 'Produk sudah ada di wishlist' });
+        } else {
+            // Kalau belum ada, baru insert
+            const insertQuery = 'INSERT INTO wishlist (user_id, product_id) VALUES (?, ?)';
+            db.query(insertQuery, [userId, product_id], (error, insertResult) => {
+                if (error) {
+                    console.log(error);
+                    return res.status(500).json({ message: 'Gagal menambahkan ke wishlist' });
+                }
+                return res.status(200).json({ message: 'Berhasil ditambahkan ke wishlist!' });
+            });
+        }
     });
 };
+
 
 exports.getWishlist = (req, res) => {
     if (!req.user) return res.redirect('/login');

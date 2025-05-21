@@ -26,6 +26,9 @@
     border-color: #007bff;
     box-shadow: 0 0 0 0.2rem rgba(0,123,255,0.25);
 }
+.offcanvas-body{
+  color:black
+}
 .btn-primary {
     background: linear-gradient(45deg, #007bff, #0056b3);
     border: none;

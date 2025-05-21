@@ -46,14 +46,6 @@
   <main class="container my-4 d-flex flex-wrap gap-4 justify-content-center">
     {{#each products}}
     <div class="product-card position-relative" data-product-id="{{this.id}}" style="width: 250px;">
-      <button class="wishlist-btn" data-product-id="{{id}}">
-  {{#if (includes ../wishlistProductIds id)}}
-    <i class="fas fa-heart favorite-icon active"></i>
-  {{else}}
-    <i class="far fa-heart favorite-icon"></i>
-  {{/if}}
-</button>
-
       <img src="{{this.image_url}}" alt="{{this.name}}" class="img-fluid rounded" />
       <div class="overlay-detail position-absolute top-0 start-0 w-100 h-100 d-flex justify-content-center align-items-center">
         <button class="btn btn-dark btn-detail">Detail</button>

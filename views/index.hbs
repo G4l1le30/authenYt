@@ -11,62 +11,46 @@
     <body>
         <!-- Navbar -->
         <nav class="navbar navbar-expand-lg navbar-dark bg-dark px-3">
-  <div class="container-fluid">
-    <!-- Brand -->
+  <div class="container-fluid d-flex justify-content-between align-items-center">
+
+    <!-- Brand di kiri -->
     <a class="navbar-brand" href="/">SHOP.CO</a>
 
-    <!-- Toggler -->
-    <button class="navbar-toggler" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasNavbar" aria-controls="offcanvasNavbar" aria-label="Toggle navigation">
-      <span class="navbar-toggler-icon"></span>
-    </button>
-
-    <!-- Offcanvas menu -->
-    <div class="offcanvas offcanvas-end text-bg-dark" tabindex="-1" id="offcanvasNavbar" aria-labelledby="offcanvasNavbarLabel">
-      <div class="offcanvas-header">
-        <h5 class="offcanvas-title" id="offcanvasNavbarLabel">Menu</h5>
-        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas" aria-label="Close"></button>
-      </div>
-      <div class="offcanvas-body">
-        <ul class="navbar-nav justify-content-end flex-grow-1 pe-3">
-          <li class="nav-item"><a class="nav-link active" href="/">Home</a></li>
-          <li class="nav-item"><a class="nav-link" href="/allProduk">Shop</a></li>
-          <li class="nav-item"><a class="nav-link" href="#">About</a></li>
-          <li class="nav-item"><a class="nav-link" href="#">Contact</a></li>
-          {{#if user}}
-          <li class="nav-item"><a class="nav-link" href="/dashboard">Dashboard</a></li>
-          <li class="nav-item"><a class="nav-link" href="/dashboard#orders">Orders</a></li>
-          <li class="nav-item"><a class="nav-link" href="/dashboard#wishlist">Wishlist</a></li>
-          <li class="nav-item"><a class="nav-link" href="/dashboard#cart">Cart</a></li>
-          <li class="nav-item"><a class="nav-link text-danger" href="/auth/logout">Logout</a></li>
-          {{else}}
-          <li class="nav-item"><a class="nav-link" href="/login">Login</a></li>
-          <li class="nav-item"><a class="nav-link" href="/register">Register</a></li>
-          {{/if}}
-        </ul>
-      </div>
-    </div>
-
-    <!-- Right side icons -->
-    <div class="d-flex align-items-center">
-      <a href="#search" class="text-white me-3" title="Search">
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-          <path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5
-            16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5
-            16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5
-            4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5
-            9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5
-            14z"/>
-        </svg>
-      </a>
+    <!-- Menu utama di tengah -->
+    <ul class="navbar-nav mx-auto mb-2 mb-lg-0">
+      <li class="nav-item"><a class="nav-link" href="/">Home</a></li>
+      <li class="nav-item"><a class="nav-link" href="/allProduk">Shop</a></li>
+      <li class="nav-item"><a class="nav-link" href="#">About</a></li>
+      <li class="nav-item"><a class="nav-link" href="#">Contact</a></li>
       {{#if user}}
-      <a href="/dashboard#cart" class="text-white" title="Cart">
-        <i class="bi bi-cart fs-5"></i>
-      </a>
+      <li class="nav-item"><a class="nav-link" href="/dashboard">Dashboard</a></li>
+      <li class="nav-item"><a class="nav-link" href="/dashboard#orders">Orders</a></li>
+      <li class="nav-item"><a class="nav-link" href="/dashboard#wishlist">Wishlist</a></li>
+      <li class="nav-item"><a class="nav-link" href="/dashboard#cart">Cart</a></li>
       {{/if}}
+    </ul>
+
+    <!-- My Account accordion di kanan -->
+    {{#if user}}
+    <div class="dropdown">
+      <button class="btn btn-outline-light dropdown-toggle" type="button" id="myAccountDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+        My Account
+      </button>
+      <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="myAccountDropdown">
+        <li><a class="dropdown-item" href="/dashboard">Profile</a></li>
+        <li><a class="dropdown-item" href="/dashboard#orders">Orders</a></li>
+        <li><a class="dropdown-item" href="/dashboard#wishlist">Wishlist</a></li>
+        <li><a class="dropdown-item" href="/dashboard#cart">Cart</a></li>
+        <li><hr class="dropdown-divider"></li>
+        <li><a class="dropdown-item text-danger" href="/auth/logout">Logout</a></li>
+      </ul>
     </div>
+    {{else}}
+    <a href="/login" class="btn btn-outline-light">Login</a>
+    {{/if}}
+
   </div>
 </nav>
-
 
         <!-- Hero Section -->
         <section class="hero-section py-5">

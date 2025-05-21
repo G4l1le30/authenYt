@@ -128,3 +128,11 @@ footer {
   }
 }
 
+.offcanvas, .offcanvas-body, .offcanvas-header {
+  background-color: #212529 !important; /* warna gelap */
+  color: white !important;
+}
+
+.offcanvas .btn-close {
+  filter: invert(1); /* tombol close putih */
+}

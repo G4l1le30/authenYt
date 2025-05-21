@@ -38,10 +38,15 @@ router.get('/', authMiddleware.getUser, (req, res) => {
     });
 });
 
-
-router.get('/allProduk', (req, res)=>{
-    res.render('allProduk')
-})
+router.get('/allProduk', (req, res) => {
+  db.query('SELECT * FROM products', (err, products) => {
+    if (err) {
+      console.error(err);
+      return res.render('allProduk', { products: [] });
+    }
+    res.render('allProduk', { products });
+  });
+});
 
 router.get('/register', (req, res) => {
     res.render('register');

@@ -37,16 +37,25 @@ router.get('/', authMiddleware.getUser, (req, res) => {
         });
     });
 });
-
-router.get('/allProduk', (req, res) => {
+router.get('/allProduk', authMiddleware.getUser, (req, res) => {
   db.query('SELECT * FROM products', (err, products) => {
-    if (err) {
-      console.error(err);
-      return res.render('allProduk', { products: [] });
+    if (err) return res.render('allProduk', { products: [] });
+
+    if (!req.user) {
+      return res.render('allProduk', { products, wishlistProductIds: [] });
     }
-    res.render('allProduk', { products });
+
+    const userId = req.user.id;
+
+    db.query('SELECT product_id FROM wishlist WHERE user_id = ?', [userId], (err2, wishlistRows) => {
+      if (err2) return res.render('allProduk', { products, wishlistProductIds: [] });
+
+      const wishlistProductIds = wishlistRows.map(row => row.product_id);
+      res.render('allProduk', { products, wishlistProductIds });
+    });
   });
 });
+
 
 router.get('/register', (req, res) => {
     res.render('register');

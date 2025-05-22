@@ -12,12 +12,114 @@
     </head>
     <body>
         <!-- Navbar -->
-        <nav class="navbar navbar-expand-lg navbar-dark bg-dark px-3">
-  <div class="container-fluid d-flex justify-content-between align-items-center">
+      <!-- Navbar -->
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+  <div class="container">
+    <!-- Brand -->
+    <a class="navbar-brand fw-bold" href="#">SHOP.CO</a>
+    
+    <!-- Desktop Menu -->
+    <div class="navbar-collapse collapse d-none d-lg-flex" id="navbarNav">
+      <ul class="navbar-nav me-auto">
+        <li class="nav-item">
+          <a class="nav-link active" href="#home">Home</a>
+        </li>
+        <li class="nav-item dropdown">
+          <a class="nav-link dropdown-toggle" href="#" id="shopDropdown" role="button" data-bs-toggle="dropdown">
+            Shop
+          </a>
+          <ul class="dropdown-menu">
+            <li><a class="dropdown-item" href="#">Men's Clothing</a></li>
+            <li><a class="dropdown-item" href="#">Women's Clothing</a></li>
+            <li><a class="dropdown-item" href="#">Accessories</a></li>
+            <li><hr class="dropdown-divider"></li>
+            <li><a class="dropdown-item" href="#">Sale Items</a></li>
+          </ul>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="#about">About</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="#contact">Contact</a>
+        </li>
+      </ul>
+    </div>
+    
+    <!-- Right side buttons -->
+    <div class="d-flex align-items-center">
+      <!-- My Account Dropdown -->
+      <div class="dropdown me-3">
+        <button class="btn btn-outline-light dropdown-toggle" type="button" id="accountDropdown" data-bs-toggle="dropdown">
+          My Account
+        </button>
+        <ul class="dropdown-menu dropdown-menu-end">
+          <li><a class="dropdown-item" href="#">Profile</a></li>
+          <li><a class="dropdown-item" href="#">Orders</a></li>
+          <li><a class="dropdown-item" href="#">Wishlist</a></li>
+          <li><hr class="dropdown-divider"></li>
+          <li><a class="dropdown-item" href="#">Logout</a></li>
+        </ul>
+      </div>
+      
+      <!-- Mobile Hamburger Button -->
+      <button class="navbar-toggler d-lg-none" type="button" data-bs-toggle="offcanvas" data-bs-target="#mobileMenu">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+    </div>
+  </div>
+</nav>
 
-    <!-- Brand di kiri -->
-    <a class="navbar-brand" href="/">SHOP.CO</a>
-
+<!-- Mobile Offcanvas Menu -->
+<div class="offcanvas offcanvas-start" tabindex="-1" id="mobileMenu">
+  <div class="offcanvas-header">
+    <h5 class="offcanvas-title">SHOP.CO</h5>
+    <button type="button" class="btn-close" data-bs-dismiss="offcanvas"></button>
+  </div>
+  <div class="offcanvas-body">
+    <nav class="nav flex-column">
+      <a class="nav-link active" href="#home">
+        <i class="fas fa-home me-2"></i>Home
+      </a>
+      
+      <!-- Shop Dropdown in Mobile -->
+      <div class="dropdown">
+        <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown">
+          <i class="fas fa-shopping-bag me-2"></i>Shop
+        </a>
+        <ul class="dropdown-menu">
+          <li><a class="dropdown-item" href="#">Men's Clothing</a></li>
+          <li><a class="dropdown-item" href="#">Women's Clothing</a></li>
+          <li><a class="dropdown-item" href="#">Accessories</a></li>
+          <li><hr class="dropdown-divider"></li>
+          <li><a class="dropdown-item" href="#">Sale Items</a></li>
+        </ul>
+      </div>
+      
+      <a class="nav-link" href="#about">
+        <i class="fas fa-info-circle me-2"></i>About
+      </a>
+      <a class="nav-link" href="#contact">
+        <i class="fas fa-envelope me-2"></i>Contact
+      </a>
+      
+      <!-- Mobile Account Links -->
+      <hr class="my-3">
+      <h6 class="text-muted px-3 mb-2">Account</h6>
+      <a class="nav-link" href="#">
+        <i class="fas fa-user me-2"></i>Profile
+      </a>
+      <a class="nav-link" href="#">
+        <i class="fas fa-shopping-cart me-2"></i>Orders
+      </a>
+      <a class="nav-link" href="#">
+        <i class="fas fa-heart me-2"></i>Wishlist
+      </a>
+      <a class="nav-link" href="#">
+        <i class="fas fa-sign-out-alt me-2"></i>Logout
+      </a>
+    </nav>
+  </div>
+</div>
     <!-- Menu utama di tengah -->
     <ul class="navbar-nav mx-auto mb-2 mb-lg-0">
       <li class="nav-item"><a class="nav-link" href="/">Home</a></li>

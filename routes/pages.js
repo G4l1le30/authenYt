@@ -107,4 +107,13 @@ router.put('/api/cart/:id', authMiddleware.protect, cartController.updateCartIte
 // Hapus item cart
 router.delete('/api/cart/:id', authMiddleware.protect, cartController.deleteCartItem);
 
+/**
+ * ====================
+ *      PRODUCT ROUTES
+ * ====================
+ */
+
+// Rute untuk menerima form produk yang di-upload
+router.post('/sell', authMiddleware.protect, productController.uploadProduct);
+
 module.exports = router;

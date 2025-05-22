@@ -49,12 +49,15 @@ exports.toggleWishlist = (req, res) => {
   const userId = req.user.id;
   const { productId } = req.body;
 
+  console.log(`User ${userId} is toggling wishlist for product ${productId}`);
+
   // Cek apakah sudah ada di wishlist
   const checkQuery = 'SELECT id FROM wishlist WHERE user_id = ? AND product_id = ?';
   db.query(checkQuery, [userId, productId], (err, results) => {
     if (err) return res.status(500).json({ message: 'Database error' });
 
     if (results.length > 0) {
+      console.log('Product already in wishlist, removing it');
       // Jika ada, hapus dari wishlist
       const deleteQuery = 'DELETE FROM wishlist WHERE user_id = ? AND product_id = ?';
       db.query(deleteQuery, [userId, productId], (err) => {
@@ -62,6 +65,7 @@ exports.toggleWishlist = (req, res) => {
         return res.json({ inWishlist: false });
       });
     } else {
+      console.log('Product not in wishlist, adding it');
       // Jika belum ada, tambah ke wishlist
       const insertQuery = 'INSERT INTO wishlist (user_id, product_id) VALUES (?, ?)';
       db.query(insertQuery, [userId, productId], (err) => {

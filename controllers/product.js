@@ -115,6 +115,7 @@ exports.showProductDetailPage = (req, res) => {
   });
 };
 <<<<<<< HEAD
+<<<<<<< HEAD
 const multer = require('multer');
 const path = require('path');
 
@@ -147,5 +148,7 @@ exports.uploadProduct = (req, res) => {
 };
 
 module.exports = { uploadProduct, upload };
+=======
+>>>>>>> parent of 75b795e (test)
 =======
 >>>>>>> parent of 75b795e (test)

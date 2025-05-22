@@ -8,74 +8,161 @@
         <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-4Q6Gf2aSP4eDXB8Miphtr37CMZZQ5oXLH2yaXMJ2w8e2ZtHTl7GptT4jmndRuHDT" crossorigin="anonymous" />
         <link href="/style.css" rel="stylesheet" />
         <link href="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.css" rel="stylesheet" />
-
     </head>
     <body>
         <!-- Navbar -->
-        <nav class="navbar navbar-expand-lg navbar-dark bg-dark px-3">
-  <div class="container-fluid d-flex justify-content-between align-items-center">
+        <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+            <div class="container">
+                <!-- Brand -->
+                <a class="navbar-brand fw-bold" href="#">SHOP.CO</a>
+                
+                <!-- Desktop Menu -->
+                <div class="navbar-collapse collapse d-none d-lg-flex" id="navbarNav">
+                    <ul class="navbar-nav mx-auto">
+                        <li class="nav-item">
+                            <a class="nav-link active" href="/">Home</a>
+                        </li>
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" id="shopDropdown" role="button" data-bs-toggle="dropdown">
+                                Shop
+                            </a>
+                            <ul class="dropdown-menu">
+                                <li><a class="dropdown-item" href="#">Men's Clothing</a></li>
+                                <li><a class="dropdown-item" href="#">Women's Clothing</a></li>
+                                <li><a class="dropdown-item" href="#">Accessories</a></li>
+                                <li><a class="dropdown-item" href="/allProduk">All Products</a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item" href="#">Sale Items</a></li>
+                            </ul>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#about">About</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#contact">Contact</a>
+                        </li>
+                    </ul>
+                </div>
+                
+                <!-- Right side buttons -->
+                <div class="d-flex align-items-center">
+                    <!-- My Account Dropdown -->
+                    {{#if user}}
+                    <div class="dropdown me-3">
+                        <button class="btn btn-outline-light dropdown-toggle" type="button" id="accountDropdown" data-bs-toggle="dropdown">
+                            My Account
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            <li><a class="dropdown-item" href="/dashboard">Profile</a></li>
+                            <li><a class="dropdown-item" href="/dashboard#orders">Orders</a></li>
+                            <li><a class="dropdown-item" href="/dashboard#wishlist">Wishlist</a></li>
+                            <li><a class="dropdown-item" href="/dashboard#cart">Cart</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item text-danger" href="/auth/logout">Logout</a></li>
+                        </ul>
+                    </div>
+                    {{else}}
+                    <a href="/login" class="btn btn-outline-light me-3">Login</a>
+                    {{/if}}
+                    
+                    <!-- Mobile Hamburger Button -->
+                    <button class="navbar-toggler d-lg-none" type="button" data-bs-toggle="offcanvas" data-bs-target="#mobileMenu">
+                        <span class="navbar-toggler-icon"></span>
+                    </button>
+                </div>
+            </div>
+        </nav>
 
-    <!-- Brand di kiri -->
-    <a class="navbar-brand" href="/">SHOP.CO</a>
-
-    <!-- Menu utama di tengah -->
-    <ul class="navbar-nav mx-auto mb-2 mb-lg-0">
-      <li class="nav-item"><a class="nav-link" href="/">Home</a></li>
-      <li class="nav-item"><a class="nav-link" href="/allProduk">Shop</a></li>
-      <li class="nav-item"><a class="nav-link" href="#">About</a></li>
-      <li class="nav-item"><a class="nav-link" href="#">Contact</a></li>
-
-    </ul>
-
-    <!-- My Account accordion di kanan -->
-    {{#if user}}
-    <div class="dropdown">
-      <button class="btn btn-outline-light dropdown-toggle" type="button" id="myAccountDropdown" data-bs-toggle="dropdown" aria-expanded="false">
-        My Account
-      </button>
-      <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="myAccountDropdown">
-        <li><a class="dropdown-item" href="/dashboard">Profile</a></li>
-        <li><a class="dropdown-item" href="/dashboard#orders">Orders</a></li>
-        <li><a class="dropdown-item" href="/dashboard#wishlist">Wishlist</a></li>
-        <li><a class="dropdown-item" href="/dashboard#cart">Cart</a></li>
-        <li><hr class="dropdown-divider"></li>
-        <li><a class="dropdown-item text-danger" href="/auth/logout">Logout</a></li>
-      </ul>
-    </div>
-    {{else}}
-    <a href="/login" class="btn btn-outline-light">Login</a>
-    {{/if}}
-
-  </div>
-</nav>
+        <!-- Mobile Offcanvas Menu -->
+        <div class="offcanvas offcanvas-start" tabindex="-1" id="mobileMenu">
+            <div class="offcanvas-header">
+                <h5 class="offcanvas-title">SHOP.CO</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="offcanvas"></button>
+            </div>
+            <div class="offcanvas-body">
+                <nav class="nav flex-column">
+                    <a class="nav-link active" href="/">
+                        <i class="bi bi-house me-2"></i>Home
+                    </a>
+                    
+                    <!-- Shop Dropdown in Mobile -->
+                    <div class="dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown">
+                            <i class="bi bi-shop me-2"></i>Shop
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="#">Men's Clothing</a></li>
+                            <li><a class="dropdown-item" href="#">Women's Clothing</a></li>
+                            <li><a class="dropdown-item" href="#">Accessories</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item" href="#">Sale Items</a></li>
+                        </ul>
+                    </div>
+                    
+                    <a class="nav-link" href="#about">
+                        <i class="bi bi-info-circle me-2"></i>About
+                    </a>
+                    <a class="nav-link" href="#contact">
+                        <i class="bi bi-envelope me-2"></i>Contact
+                    </a>
+                    
+                    <!-- Mobile Account Links -->
+                    <hr class="my-3">
+                    {{#if user}}
+                    <h6 class="text-muted px-3 mb-2">Account</h6>
+                    <a class="nav-link" href="/dashboard">
+                        <i class="bi bi-person me-2"></i>Profile
+                    </a>
+                    <a class="nav-link" href="/dashboard#orders">
+                        <i class="bi bi-bag me-2"></i>Orders
+                    </a>
+                    <a class="nav-link" href="/dashboard#wishlist">
+                        <i class="bi bi-heart me-2"></i>Wishlist
+                    </a>
+                    <a class="nav-link" href="/dashboard#cart">
+                        <i class="bi bi-cart me-2"></i>Cart
+                    </a>
+                    <a class="nav-link text-danger" href="/auth/logout">
+                        <i class="bi bi-box-arrow-right me-2"></i>Logout
+                    </a>
+                    {{else}}
+                    <a class="nav-link" href="/login">
+                        <i class="bi bi-box-arrow-in-right me-2"></i>Login
+                    </a>
+                    {{/if}}
+                </nav>
+            </div>
+        </div>
 
         <!-- Hero Section -->
-        <section class="hero-section py-5">
+        <section class="hero-section py-5" id="home">
             <div class="container">
                 <div class="row align-items-center">
-                    <div class="col-lg-6">
-                        <h1 class="display-3 fw-bold mb-4">FIND CLOTHES<br>THAT MATCHES<br>YOUR STYLE</h1>
+                    <div class="col-lg-6 mb-4 mb-lg-0">
+                        <h1 class="display-3 fw-bold mb-4" style="padding-top: 10px;">FIND CLOTHES<br>THAT MATCHES<br>YOUR STYLE</h1>
                         <p class="lead mb-4">Browse through our diverse range of meticulously crafted garments, designed to bring out your individuality and cater to your sense of style.</p>
-                        <button class="btn btn-dark btn-lg px-4 me-2">Shop Now</button>
-                        <a href="#" class="btn btn-outline-dark btn-lg px-4">Browse Collections</a>
+                        <div class="mb-5">
+                            <button class="btn btn-dark btn-lg px-4 me-2 mb-2">Shop Now</button>
+                            <a href="#" class="btn btn-outline-dark btn-lg px-4 mb-2">Browse Collections</a>
+                        </div>
                         
-                        <div class="d-flex justify-content-between mt-5 pt-4">
-                            <div class="text-center">
+                        <div class="d-flex justify-content-between flex-wrap mt-5 pt-4">
+                            <div class="text-center flex-fill">
                                 <h2 class="fw-bold">200+</h2>
-                                <p>International Brands</p>
+                                <p class="mb-0">International Brands</p>
                             </div>
-                            <div class="text-center">
+                            <div class="text-center flex-fill">
                                 <h2 class="fw-bold">2,000+</h2>
-                                <p>High-Quality Products</p>
+                                <p class="mb-0">High-Quality Products</p>
                             </div>
-                            <div class="text-center">
+                            <div class="text-center flex-fill">
                                 <h2 class="fw-bold">30,000+</h2>
-                                <p>Happy Customers</p>
+                                <p class="mb-0">Happy Customers</p>
                             </div>
                         </div>
                     </div>
                     <div class="col-lg-6">
-                        <img src="/img/product-item-1.jpg" class="img-fluid rounded" alt="Fashion showcase">
+                        <img src="/img/product-item-1.jpg" class="img-fluid rounded shadow" alt="Fashion showcase">
                     </div>
                 </div>
             </div>
@@ -116,12 +203,12 @@
                     {{#each products}}
                     <div class="col-md-3 mb-4">
                         <div class="card border-0 shadow-sm position-relative">
-               
                             <img src="{{this.image_url}}" class="card-img-top" alt="{{this.name}}">
                             <div class="card-body">
                                 <h5 class="card-title">{{this.name}}</h5>
                                 <p class="card-text text-primary fw-bold">${{this.price}}</p>
-<a href="/product/{{this.id}}" class="btn btn-dark btn-detail">Detail</a>                            </div>
+                                <a href="/product/{{this.id}}" class="btn btn-dark btn-detail">Detail</a>
+                            </div>
                         </div>
                     </div>
                     {{/each}}
@@ -141,7 +228,6 @@
                     {{#each products}}
                     <div class="col-md-3 mb-4">
                         <div class="card border-0 shadow-sm position-relative">
-
                             <img src="{{this.image_url}}" class="card-img-top" alt="{{this.name}}">
                             <div class="card-body">
                                 <h5 class="card-title">{{this.name}}</h5>
@@ -233,14 +319,17 @@
                 </div>
             </div>
         </section>
-<div class="toast-container position-fixed bottom-0 end-0 p-3">
-  <div id="wishlistToast" class="toast align-items-center text-bg-dark border-0" role="alert">
-    <div class="d-flex">
-      <div class="toast-body" id="wishlistToastBody">Status...</div>
-      <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
-    </div>
-  </div>
-</div>
+
+        <!-- Toast Notifications -->
+        <div class="toast-container position-fixed bottom-0 end-0 p-3">
+            <div id="wishlistToast" class="toast align-items-center text-bg-dark border-0" role="alert">
+                <div class="d-flex">
+                    <div class="toast-body" id="wishlistToastBody">Status...</div>
+                    <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+                </div>
+            </div>
+        </div>
+
         <!-- Footer -->
         <footer class="bg-dark text-white py-5">
             <div class="container">
@@ -311,14 +400,12 @@
         </footer>
 
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/js/bootstrap.bundle.min.js" integrity="sha384-j1CDi7MgGQ12Z7Qab0qlWQ/Qqz24Gc6BM0thvEMVjHnfYGF0rmFCozFSxQBxwHKO" crossorigin="anonymous"></script>
-                <script src="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.js"></script>
-<script>
-  AOS.init({
-    duration: 1000,  // durasi animasi dalam ms
-    once: true,      // animasi hanya sekali ketika muncul
-  });
-</script>
-
-
+        <script src="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.js"></script>
+        <script>
+            AOS.init({
+                duration: 1000,  // durasi animasi dalam ms
+                once: true,      // animasi hanya sekali ketika muncul
+            });
+        </script>
     </body>
 </html>

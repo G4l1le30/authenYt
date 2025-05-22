@@ -80,6 +80,27 @@ document.querySelectorAll('.btn-detail').forEach(btn => {
 });
 
 // TODO: Add to cart handler (bisa kita buat setelah ini)
+btnAddToCart.addEventListener('click', async () => {
+  const productId = btnAddToCart.getAttribute('data-product-id') || modal.getRelatedTarget()?.closest('.product-card')?.dataset.productId;
+  const quantity = parseInt(quantityInput.value);
+
+  try {
+    const res = await fetch('/api/cart/add', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ product_id: productId, quantity }),
+    });
+
+    if (!res.ok) throw new Error('Failed to add to cart');
+
+    alert('Product added to cart!');
+    modal.hide(); // optional: close modal
+  } catch (error) {
+    alert(error.message);
+  }
+});
 // Toggle wishlist
 /*
 document.querySelectorAll('.favorite-icon').forEach(button => {

@@ -147,4 +147,4 @@ exports.uploadProduct = (req, res) => {
 };
 
 // Tidak perlu router.post di sini, karena itu harus ada di routes/pages.js
-module.exports = { uploadProduct, upload };
+// module.exports = {uploadProduct, upload};

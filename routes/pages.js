@@ -44,18 +44,17 @@ router.get('/allProduk', authMiddleware.getUser, (req, res) => {
     if (!req.user) {
       return res.render('allProduk', { products, wishlistProductIds: [] });
     }
-
+    
     const userId = req.user.id;
-
+    
     db.query('SELECT product_id FROM wishlist WHERE user_id = ?', [userId], (err2, wishlistRows) => {
-      if (err2) return res.render('allProduk', { products, wishlistProductIds: [] });
-
-      const wishlistProductIds = wishlistRows.map(row => row.product_id);
-      res.render('allProduk', { products, wishlistProductIds });
+        if (err2) return res.render('allProduk', { products, wishlistProductIds: [] });
+        
+        const wishlistProductIds = wishlistRows.map(row => row.product_id.toString());
+        res.render('allProduk', { products, wishlistProductIds, user: req.user });
     });
   });
 });
-
 
 router.get('/register', (req, res) => {
     res.render('register');
@@ -72,5 +71,12 @@ router.get('/dashboard', authMiddleware.isLoggedIn, (req, res) => {
 */
 router.get('/dashboard', authMiddleware.protect, authController.getWishlist);
 router.post('/api/wishlist/toggle', authMiddleware.protect, productController.toggleWishlist);
+router.get('/api/product/:id', productController.getProductDetail);
+// Untuk API, mengembalikan JSON
+router.get('/api/product/:id', productController.getProductDetail);
+
+// Untuk halaman render detail produk
+router.get('/product/:id', authMiddleware.getUser, productController.showProductDetailPage);
+
 
 module.exports = router;

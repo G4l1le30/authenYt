@@ -42,26 +42,34 @@ exports.getProductDetail = (req, res) => {
     });
   });
 };
-
 exports.toggleWishlist = (req, res) => {
-  if (!req.user) return res.status(401).json({ message: 'Unauthorized' });
+  if (!req.user) {
+    console.log('Unauthorized user trying to add to wishlist');
+    return res.status(401).json({ message: 'Unauthorized' });
+  }
 
   const userId = req.user.id;
   const { productId } = req.body;
 
-  console.log(`User ${userId} is toggling wishlist for product ${productId}`);
+  console.log(`User ${userId} is toggling wishlist for product ${productId}`); // Log user dan productId
 
   // Cek apakah sudah ada di wishlist
   const checkQuery = 'SELECT id FROM wishlist WHERE user_id = ? AND product_id = ?';
   db.query(checkQuery, [userId, productId], (err, results) => {
-    if (err) return res.status(500).json({ message: 'Database error' });
+    if (err) {
+      console.log('Error checking wishlist:', err);
+      return res.status(500).json({ message: 'Database error' });
+    }
 
     if (results.length > 0) {
       console.log('Product already in wishlist, removing it');
       // Jika ada, hapus dari wishlist
       const deleteQuery = 'DELETE FROM wishlist WHERE user_id = ? AND product_id = ?';
       db.query(deleteQuery, [userId, productId], (err) => {
-        if (err) return res.status(500).json({ message: 'Database error' });
+        if (err) {
+          console.log('Error removing product from wishlist:', err);
+          return res.status(500).json({ message: 'Database error' });
+        }
         return res.json({ inWishlist: false });
       });
     } else {
@@ -69,9 +77,40 @@ exports.toggleWishlist = (req, res) => {
       // Jika belum ada, tambah ke wishlist
       const insertQuery = 'INSERT INTO wishlist (user_id, product_id) VALUES (?, ?)';
       db.query(insertQuery, [userId, productId], (err) => {
-        if (err) return res.status(500).json({ message: 'Database error' });
+        if (err) {
+          console.log('Error adding product to wishlist:', err);
+          return res.status(500).json({ message: 'Database error' });
+        }
         return res.json({ inWishlist: true });
       });
     }
+  });
+};
+// controllers/product.js
+exports.showProductDetailPage = (req, res) => {
+  const productId = req.params.id;
+  const sqlProduct = `
+    SELECT p.*, c.name AS category_name
+    FROM products p
+    LEFT JOIN categories c ON p.category_id = c.id
+    WHERE p.id = ?
+  `;
+  const sqlImages = `SELECT * FROM product_images WHERE product_id = ?`;
+
+  db.query(sqlProduct, [productId], (err, productRows) => {
+    if (err) return res.status(500).send('Database error');
+    if (productRows.length === 0) return res.status(404).send('Product not found');
+
+    db.query(sqlImages, [productId], (err2, images) => {
+      if (err2) return res.status(500).send('Database error');
+
+      const product = productRows[0];
+      product.images = images; // <-- ini yang bikin 'product.images' bisa di-loop di template
+
+      res.render('singleproduct', {
+        product,
+        user: res.locals.user
+      });
+    });
   });
 };

@@ -116,13 +116,7 @@
                     {{#each products}}
                     <div class="col-md-3 mb-4">
                         <div class="card border-0 shadow-sm position-relative">
-                            <div onclick="toggleWishlist({{this.id}})" class="favorite-icon position-absolute top-0 end-0 p-2" style="cursor: pointer;">
-                                {{#if (includes ../wishlistProductIds this.id)}}
-                                    <i class="bi bi-heart-fill text-danger"></i>
-                                {{else}}
-                                    <i class="bi bi-heart"></i>
-                                {{/if}}
-                            </div>
+               
                             <img src="{{this.image_url}}" class="card-img-top" alt="{{this.name}}">
                             <div class="card-body">
                                 <h5 class="card-title">{{this.name}}</h5>
@@ -148,13 +142,7 @@
                     {{#each products}}
                     <div class="col-md-3 mb-4">
                         <div class="card border-0 shadow-sm position-relative">
-                            <div onclick="toggleWishlist({{this.id}})" class="favorite-icon position-absolute top-0 end-0 p-2" style="cursor: pointer;">
-                                {{#if (includes ../wishlistProductIds this.id)}}
-                                    <i class="bi bi-heart-fill text-danger"></i>
-                                {{else}}
-                                    <i class="bi bi-heart"></i>
-                                {{/if}}
-                            </div>
+
                             <img src="{{this.image_url}}" class="card-img-top" alt="{{this.name}}">
                             <div class="card-body">
                                 <h5 class="card-title">{{this.name}}</h5>
@@ -246,7 +234,14 @@
                 </div>
             </div>
         </section>
-
+<div class="toast-container position-fixed bottom-0 end-0 p-3">
+  <div id="wishlistToast" class="toast align-items-center text-bg-dark border-0" role="alert">
+    <div class="d-flex">
+      <div class="toast-body" id="wishlistToastBody">Status...</div>
+      <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+    </div>
+  </div>
+</div>
         <!-- Footer -->
         <footer class="bg-dark text-white py-5">
             <div class="container">
@@ -317,39 +312,14 @@
         </footer>
 
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/js/bootstrap.bundle.min.js" integrity="sha384-j1CDi7MgGQ12Z7Qab0qlWQ/Qqz24Gc6BM0thvEMVjHnfYGF0rmFCozFSxQBxwHKO" crossorigin="anonymous"></script>
-        <script>
-            async function toggleWishlist(productId) {
-                try {
-                    const response = await fetch('/auth/wishlist', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ product_id: productId })
-                    });
-
-                    const data = await response.json();
-
-                    if (response.ok) {
-                        alert(data.message);
-                        if (data.message === 'Berhasil ditambahkan ke wishlist!') {
-                            window.location.reload();
-                        }
-                    } else {
-                        alert(data.message || 'Gagal menambahkan ke wishlist');
-                    }
-                } catch (error) {
-                    console.error('Error:', error);
-                    alert('Anda harus login terlebih dahulu');
-                    window.location.href = '/login';
-                }
-            }
-        </script>
-        <script src="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.js"></script>
+                <script src="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.js"></script>
 <script>
   AOS.init({
     duration: 1000,  // durasi animasi dalam ms
     once: true,      // animasi hanya sekali ketika muncul
   });
 </script>
+
 
     </body>
 </html>

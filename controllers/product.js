@@ -114,3 +114,24 @@ exports.showProductDetailPage = (req, res) => {
     });
   });
 };
+// Add this to your product.js controller
+exports.uploadProduct = (req, res) => {
+    // Your product upload logic here
+    console.log('Upload product functionality');
+    res.status(200).json({ message: 'Product upload endpoint' });
+
+    // Example implementation:
+    /*
+    const { name, price, description } = req.body;
+    const userId = req.user.id; // From auth middleware
+
+    const sql = 'INSERT INTO products (name, price, description, user_id) VALUES (?, ?, ?, ?)';
+    db.query(sql, [name, price, description, userId], (err, result) => {
+        if (err) {
+            console.error(err);
+            return res.status(500).json({ error: 'Database error' });
+        }
+        res.status(201).json({ message: 'Product created', productId: result.insertId });
+    });
+    */
+};

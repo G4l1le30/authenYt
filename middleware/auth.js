@@ -66,7 +66,7 @@ exports.getUser = (req, res, next) => {
     }
 };
 
-exports.protect = (req, res, next) => {
+exports.ensureAuth = (req, res, next) => {
     const token = req.cookies.jwt;
 
     if (!token) {
@@ -88,3 +88,4 @@ exports.protect = (req, res, next) => {
         });
     });
 };
+exports.protect = exports.ensureAuth;

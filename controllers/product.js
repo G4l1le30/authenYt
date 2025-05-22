@@ -114,26 +114,25 @@ exports.showProductDetailPage = (req, res) => {
     });
   });
 };
-
 const multer = require('multer');
 const path = require('path');
 
-// Setup untuk upload gambar
+// Multer storage configuration
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    cb(null, './public/img/products'); // Folder untuk menyimpan gambar
+    cb(null, './public/img/products'); // Folder to store the uploaded image
   },
   filename: (req, file, cb) => {
-    cb(null, Date.now() + path.extname(file.originalname)); // Nama file unik
+    cb(null, Date.now() + path.extname(file.originalname)); // File name with a timestamp
   }
 });
 
 const upload = multer({ storage: storage });
 
-// Fungsi untuk menangani form jual produk
+// Function to handle product upload (after the file is uploaded)
 exports.uploadProduct = (req, res) => {
   const { name, description, price, category } = req.body;
-  const imageUrl = '/img/products/' + req.file.filename; // Menyimpan path gambar
+  const imageUrl = '/img/products/' + req.file.filename; // Path for the uploaded image
 
   const sqlInsert = `
     INSERT INTO products (name, description, price, category, image_url)
@@ -142,9 +141,8 @@ exports.uploadProduct = (req, res) => {
 
   db.query(sqlInsert, [name, description, price, category, imageUrl], (err, result) => {
     if (err) return res.status(500).send('Database error');
-    res.redirect('/allProduk'); // Redirect ke halaman semua produk setelah berhasil
+    res.redirect('/allProduk'); // Redirect to the products page after successful upload
   });
 };
 
-// Tidak perlu router.post di sini, karena itu harus ada di routes/pages.js
 module.exports = { uploadProduct, upload };

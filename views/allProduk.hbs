@@ -11,7 +11,7 @@
   <!-- Navbar -->
   <nav class="navbar navbar-expand-lg navbar-dark bg-dark shadow-sm">
     <div class="container">
-      <a class="navbar-brand" href="/">SHOP.CO</a>
+      <a class="navbar-brand" href="/">FashionShop</a>
       <button
         class="navbar-toggler"
         type="button"
@@ -48,27 +48,25 @@
   <!-- Product List -->
   <main class="container my-4 d-flex flex-wrap gap-4 justify-content-center">
   {{#each products}}
-  
-    <div class="product-card position-relative" data-product-id="{{this.id}}" style="width: 250px;">
+  <div class="product-card position-relative" data-product-id="{{this.id}}" style="width: 250px;">
     <img src="{{this.image_url}}" alt="{{this.name}}" class="img-fluid rounded" />
-<button onclick="toggleWishlist(event, {{this.id}})" class="favorite-icon btn btn-link p-0 position-absolute top-0 end-0 m-2" aria-label="Toggle Wishlist" type="button">
-      {{#if (includes wishlistProductIds this.id)}}
-        <!-- Filled heart -->
-        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="#dc3545" viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41 1.01 4.5 2.09C13.09 4.01 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+    <!-- Wishlist Toggle -->
+    <button class="favorite-icon btn btn-link p-0 position-absolute top-0 end-0 m-2" aria-label="Toggle Wishlist" type="button">
+      {{#if (includes ../wishlistProductIds this.id)}}
+      <!-- Filled heart -->
+      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="#dc3545" viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41 1.01 4.5 2.09C13.09 4.01 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
       {{else}}
-        <!-- Outline heart -->
-        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" stroke="#dc3545" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.72-7.72 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+      <!-- Outline heart -->
+      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" stroke="#dc3545" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.72-7.72 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
       {{/if}}
     </button>
-<div class="overlay-detail position-absolute top-0 start-0 w-100 h-100 d-flex justify-content-center align-items-center">
-  <a href="/product/{{this.id}}" class="btn btn-dark btn-detail">Detail</a>
-</div>
-
+    <div class="overlay-detail position-absolute top-0 start-0 w-100 h-100 d-flex justify-content-center align-items-center">
+      <button class="btn btn-dark btn-detail">Detail</button>
+    </div>
     <h5 class="mt-2 text-center">{{this.name}}</h5>
     <p class="text-center text-muted">Rp {{this.price}}</p>
   </div>
-{{/each}}
-
+  {{/each}}
 </main>
 
 
@@ -102,8 +100,8 @@
   <!-- Footer -->
   <footer class="footer-section bg-dark text-white py-4 mt-5 shadow-sm">
     <div class="container text-center">
-      <h5>SHOP.CO</h5>
-      <p>&#169; 2025 SHOP.CO. All rights reserved.</p>
+      <h5>FashionShop</h5>
+      <p>&#169; 2025 FashionShop. All rights reserved.</p>
       <div class="social-icons d-flex justify-content-center gap-3">
         <a href="#" aria-label="Facebook"><i class="bi bi-facebook"></i></a>
         <a href="#" aria-label="Twitter"><i class="bi bi-twitter"></i></a>
@@ -114,14 +112,5 @@
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
   <script src="/script.js"></script>
-  <div class="toast-container position-fixed bottom-0 end-0 p-3">
-  <div id="wishlistToast" class="toast align-items-center text-bg-dark border-0" role="alert">
-    <div class="d-flex">
-      <div class="toast-body" id="wishlistToastBody">Status...</div>
-      <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
-    </div>
-  </div>
-</div>
-
 </body>
 </html>

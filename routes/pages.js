@@ -1,10 +1,14 @@
 const express = require('express');
 const router = express.Router();
+const mysql = require('mysql');
+
+// Middleware dan Controller
 const authMiddleware = require('../middleware/auth');
 const authController = require('../controllers/auth');
-const mysql = require('mysql');
 const productController = require('../controllers/product');
+const cartController = require('../controllers/cart');
 
+// MySQL Connection
 const db = mysql.createConnection({
   host: process.env.DATABASE_HOST,
   user: process.env.DATABASE_USER,
@@ -12,83 +16,95 @@ const db = mysql.createConnection({
   database: process.env.DATABASE
 });
 
-
-// Apply middleware to retrieve user for all routes
+// Middleware untuk attach user jika login
 router.use(authMiddleware.getUser);
 
-router.get('/', authMiddleware.getUser, (req, res) => {
-    db.query('SELECT * FROM products', (err, products) => {
-        if (err) return res.render('index', { products: [] });
+/**
+ * ====================
+ *      PUBLIC ROUTES
+ * ====================
+ */
 
-        if (!req.user) {
-            // User belum login, tidak kirim wishlist id
-            return res.render('index', { products, wishlistProductIds: [] });
-        }
-
-        const userId = req.user.id;
-
-        db.query('SELECT product_id FROM wishlist WHERE user_id = ?', [userId], (err2, wishlistRows) => {
-            if (err2) {
-                return res.render('index', { products, wishlistProductIds: [] });
-            }
-
-            const wishlistProductIds = wishlistRows.map(row => row.product_id);
-            res.render('index', { products, wishlistProductIds });
-        });
-    });
-});
-router.get('/allProduk', authMiddleware.getUser, (req, res) => {
+// Homepage - daftar produk + wishlist jika login
+router.get('/', (req, res) => {
   db.query('SELECT * FROM products', (err, products) => {
-    if (err) return res.render('allProduk', { products: [] });
+    if (err) return res.render('index', { products: [], wishlistProductIds: [] });
 
     if (!req.user) {
-      return res.render('allProduk', { products, wishlistProductIds: [] });
+      return res.render('index', { products, wishlistProductIds: [] });
     }
-    
-    const userId = req.user.id;
-    
-    db.query('SELECT product_id FROM wishlist WHERE user_id = ?', [userId], (err2, wishlistRows) => {
-        if (err2) return res.render('allProduk', { products, wishlistProductIds: [] });
-        
-        const wishlistProductIds = wishlistRows.map(row => row.product_id.toString());
-        res.render('allProduk', { products, wishlistProductIds, user: req.user });
+
+    db.query('SELECT product_id FROM wishlist WHERE user_id = ?', [req.user.id], (err2, wishlistRows) => {
+      if (err2) return res.render('index', { products, wishlistProductIds: [] });
+
+      const wishlistProductIds = wishlistRows.map(r => r.product_id.toString());
+      res.render('index', { products, wishlistProductIds });
     });
   });
 });
 
-router.get('/register', (req, res) => {
-    res.render('register');
+// Halaman semua produk
+router.get('/allProduk', (req, res) => {
+  db.query('SELECT * FROM products', (err, products) => {
+    if (err) return res.render('allProduk', { products: [], wishlistProductIds: [] });
+
+    if (!req.user) {
+      return res.render('allProduk', { products, wishlistProductIds: [] });
+    }
+
+    db.query('SELECT product_id FROM wishlist WHERE user_id = ?', [req.user.id], (err2, wishlistRows) => {
+      if (err2) return res.render('allProduk', { products, wishlistProductIds: [] });
+
+      const wishlistProductIds = wishlistRows.map(r => r.product_id.toString());
+      res.render('allProduk', { products, wishlistProductIds, user: req.user });
+    });
+  });
 });
 
-router.get('/login', (req, res) => {
-    res.render('login');
-});
-/*
-// Protected route - only accessible when logged in
-router.get('/dashboard', authMiddleware.isLoggedIn, (req, res) => {
-    res.render('dashboard');
-});
-*/
-router.get('/dashboard', authMiddleware.protect, authController.getWishlist);
-router.post('/api/wishlist/toggle', authMiddleware.protect, productController.toggleWishlist);
+// Auth pages
+router.get('/register', (req, res) => res.render('register'));
+router.get('/login', (req, res) => res.render('login'));
+
+/**
+ * ====================
+ *      PROTECTED ROUTES
+ * ====================
+ */
+
+// Wishlist dashboard
+router.get('/dashboard', authMiddleware.ensureAuth, authController.getWishlist);
+
+// Toggle wishlist
+router.post('/api/wishlist/toggle', authMiddleware.ensureAuth, productController.toggleWishlist);
+
+/**
+ * ====================
+ *      PRODUCT ROUTES
+ * ====================
+ */
+
+// API untuk ambil detail produk (JSON)
 router.get('/api/product/:id', productController.getProductDetail);
-// Untuk API, mengembalikan JSON
-router.get('/api/product/:id', productController.getProductDetail);
 
-// Untuk halaman render detail produk
-router.get('/product/:id', authMiddleware.getUser, productController.showProductDetailPage);
-/*
-// Rute untuk halaman "Sell" (Upload Produk)
-router.get('/sell', authMiddleware.protect, (req, res) => {
-    res.render('sell', { user: req.user }); // Mengirimkan data user yang sedang login
-});
+// Halaman detail produk
+router.get('/product/:id', productController.showProductDetailPage);
 
-<<<<<<< HEAD
-// Rute untuk menerima form produk yang di-upload
-router.post('/sell', authMiddleware.protect, productController.uploadProduct); // Menangani form submit
-*/
+/**
+ * ====================
+ *      CART ROUTES
+ * ====================
+ */
+
+// Tambah ke cart
+router.post('/api/cart/add', authMiddleware.protect, cartController.addToCart);
+
+// Tampilkan isi cart
+router.get('/cart', authMiddleware.protect, cartController.getCart);
+
+// Update item cart
+router.put('/api/cart/:id', authMiddleware.protect, cartController.updateCartItem);
+
+// Hapus item cart
+router.delete('/api/cart/:id', authMiddleware.protect, cartController.deleteCartItem);
+
 module.exports = router;
-=======
-
-module.exports = router;
->>>>>>> 58ed7d73e7d17d7c9b27058c23301b4641c13cc6

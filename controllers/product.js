@@ -114,6 +114,7 @@ exports.showProductDetailPage = (req, res) => {
     });
   });
 };
+
 const multer = require('multer');
 const path = require('path');
 
@@ -129,7 +130,7 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage: storage });
 
-// Fungsi untuk menangani form sell
+// Fungsi untuk menangani form jual produk
 exports.uploadProduct = (req, res) => {
   const { name, description, price, category } = req.body;
   const imageUrl = '/img/products/' + req.file.filename; // Menyimpan path gambar
@@ -145,5 +146,5 @@ exports.uploadProduct = (req, res) => {
   });
 };
 
-// Tambahkan middleware untuk upload produk
-router.post('/sell', upload.single('image'), productController.uploadProduct);
+// Tidak perlu router.post di sini, karena itu harus ada di routes/pages.js
+module.exports = { uploadProduct, upload };

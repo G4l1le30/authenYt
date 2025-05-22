@@ -78,5 +78,12 @@ router.get('/api/product/:id', productController.getProductDetail);
 // Untuk halaman render detail produk
 router.get('/product/:id', authMiddleware.getUser, productController.showProductDetailPage);
 
+// Rute untuk halaman "Sell" (Upload Produk)
+router.get('/sell', authMiddleware.protect, (req, res) => {
+    res.render('sell', { user: req.user }); // Mengirimkan data user yang sedang login
+});
+
+// Rute untuk menerima form produk yang di-upload
+router.post('/sell', authMiddleware.protect, productController.uploadProduct); // Menangani form submit
 
 module.exports = router;

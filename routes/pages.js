@@ -77,6 +77,12 @@ router.get('/api/product/:id', productController.getProductDetail);
 
 // Untuk halaman render detail produk
 router.get('/product/:id', authMiddleware.getUser, productController.showProductDetailPage);
+// Route to display the sell form
+router.get('/sell', authMiddleware.protect, (req, res) => {
+  res.render('sell', { user: req.user }); // Send the user data to the form
+});
 
+// Route to handle form submission (upload product)
+router.post('/sell', authMiddleware.protect, productController.upload.single('image'), productController.uploadProduct); // Handle form data and file upload
 
 module.exports = router;

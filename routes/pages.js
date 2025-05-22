@@ -88,7 +88,3 @@ router.get('/sell', authMiddleware.protect, (req, res) => {
 router.post('/sell', authMiddleware.protect, productController.uploadProduct); // Menangani form submit
 */
 module.exports = router;
-=======
-
-module.exports = router;
->>>>>>> 58ed7d73e7d17d7c9b27058c23301b4641c13cc6

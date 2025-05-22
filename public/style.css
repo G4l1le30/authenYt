@@ -88,27 +88,6 @@
   transform: scale(1.2);
   transition: all 0.3s ease;
 }
-.favorite-icon svg {
-  width: 28px; /* sedikit lebih besar */
-  height: 28px;
-  transition: all 0.3s ease;
-}
-
-.favorite-icon svg path {
-  transition: fill 0.3s ease;
-}
-
-.favorite-icon.active svg {
-  fill: #dc3545 !important; /* Merah penuh saat aktif */
-  stroke: none !important; /* hilangkan outline stroke saat aktif */
-  transform: scale(1.1);
-}
-
-.favorite-icon:not(.active) svg {
-  fill: none;
-  stroke: #dc3545;
-}
-
 
 /* Buttons */
 .btn-primary {

@@ -58,16 +58,14 @@ const port = process.env.PORT || 5000;
 
 //define routes
 const hbs = require('hbs');
-hbs.registerHelper('includes', function(array, value) {
-  if (!array) return false;
-  const strArray = array.map(String);
-  return strArray.includes(String(value));
-});
 
+hbs.registerHelper('includes', function(array, value) {
+    if (!array) return false;
+    return array.includes(value);
+});
 
 app.use('/',require('./routes/pages'))
 app.use('/auth',require('./routes/auth'))
-
 
 
 //deklarasi port 

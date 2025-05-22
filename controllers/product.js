@@ -114,3 +114,36 @@ exports.showProductDetailPage = (req, res) => {
     });
   });
 };
+const multer = require('multer');
+const path = require('path');
+
+// Setup untuk upload gambar
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, './public/img/products'); // Folder untuk menyimpan gambar
+  },
+  filename: (req, file, cb) => {
+    cb(null, Date.now() + path.extname(file.originalname)); // Nama file unik
+  }
+});
+
+const upload = multer({ storage: storage });
+
+// Fungsi untuk menangani form sell
+exports.uploadProduct = (req, res) => {
+  const { name, description, price, category } = req.body;
+  const imageUrl = '/img/products/' + req.file.filename; // Menyimpan path gambar
+
+  const sqlInsert = `
+    INSERT INTO products (name, description, price, category, image_url)
+    VALUES (?, ?, ?, ?, ?)
+  `;
+
+  db.query(sqlInsert, [name, description, price, category, imageUrl], (err, result) => {
+    if (err) return res.status(500).send('Database error');
+    res.redirect('/allProduk'); // Redirect ke halaman semua produk setelah berhasil
+  });
+};
+
+// Tambahkan middleware untuk upload produk
+router.post('/sell', upload.single('image'), productController.uploadProduct);

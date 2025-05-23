@@ -56,9 +56,10 @@ exports.uploadProduct = async (req, res) => {
     // Simpan produk, set image_url ke gambar pertama
     const mainImageUrl = '/img/uploaded/' + files[0].filename;
 
+    // Tambahkan user_id di query INSERT
     const [result] = await db.query(
-      `INSERT INTO products (name, price, description, stock, category_id, image_url) VALUES (?, ?, ?, ?, ?, ?)`,
-      [name, price, description, stock, category_id, mainImageUrl]
+      `INSERT INTO products (name, price, description, stock, category_id, image_url, user_id) VALUES (?, ?, ?, ?, ?, ?, ?)`,
+      [name, price, description, stock, category_id, mainImageUrl, userId]
     );
 
     const productId = result.insertId;
@@ -77,6 +78,7 @@ exports.uploadProduct = async (req, res) => {
     res.status(500).json({ error: 'Failed to upload product' });
   }
 };
+
 
 // Ambil detail produk lengkap dengan semua gambar
 exports.getProductDetail = (req, res) => {

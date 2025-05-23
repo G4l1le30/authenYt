@@ -72,7 +72,7 @@ router.get('/login', (req, res) => res.render('login'));
  */
 
 // Wishlist dashboard
-router.get('/dashboard', authMiddleware.ensureAuth, authController.getWishlist);
+router.get('/dashboard', authMiddleware.ensureAuth, authController.getDashboard);
 
 // Toggle wishlist
 router.post('/api/wishlist/toggle', authMiddleware.ensureAuth, productController.toggleWishlist);
@@ -114,6 +114,20 @@ router.delete('/api/cart/:id', authMiddleware.protect, cartController.deleteCart
  */
 
 // Rute untuk menerima form produk yang di-upload
-router.post('/sell', authMiddleware.protect, productController.uploadProduct);
+
+// Tambahkan multer upload middleware ke route POST /sell
+router.get('/sell', authMiddleware.protect, async (req, res) => {
+  // Ambil kategori dari DB pakai db.js mysql2 (async/await)
+  try {
+    const [categories] = await require('../db').query('SELECT * FROM categories');
+    res.render('sell', { categories, user: req.user });
+  } catch (err) {
+    console.error(err);
+    res.render('sell', { categories: [], user: req.user, error: 'Failed to load categories' });
+  }
+});
+
+router.post('/sell', authMiddleware.protect, productController.upload.array('images', 5), productController.uploadProduct);
+
 
 module.exports = router;

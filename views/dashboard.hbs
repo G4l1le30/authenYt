@@ -34,6 +34,33 @@
         <p>Email: {{user.email}}</p>
       </div>
     </div>
+    <!-- Your Products -->
+<div class="card mb-4" id="your-products">
+  <div class="card-header"><h4>Your Products</h4></div>
+  <div class="card-body">
+    {{#if yourProducts.length}}
+    <div class="row">
+      {{#each yourProducts}}
+      <div class="col-md-3 mb-4">
+        <div class="card h-100 shadow-sm">
+          <img src="{{this.image_url}}" class="card-img-top" alt="{{this.name}}">
+          <div class="card-body">
+            <h5 class="card-title">{{this.name}}</h5>
+            <p class="text-primary fw-bold">Rp {{this.price}}</p>
+            <p>Stock: {{this.stock}}</p>
+            <p>{{this.description}}</p>
+            <!-- Opsional: tombol edit / delete -->
+          </div>
+        </div>
+      </div>
+      {{/each}}
+    </div>
+    {{else}}
+    <p>You have no products listed for sale.</p>
+    {{/if}}
+  </div>
+</div>
+
 
     <!-- Wishlist -->
     <div class="card mb-4" id="wishlist">

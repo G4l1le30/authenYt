@@ -1,22 +1,81 @@
 const dotenv = require('dotenv')
 const mysql=require('mysql')
-const db = mysql.createConnection({
-    host: process.env.DATABASE_HOST,
-    user: process.env.DATABASE_USER,
-    password: process.env.DATABASE_PASSWORD,
-    database: process.env.DATABASE
-})
-// Ambil semua produk lengkap thumbnail
-exports.getAllProducts = (req, res) => {
-  const sql = `
-    SELECT p.*, c.name AS category_name
-    FROM products p
-    LEFT JOIN categories c ON p.category_id = c.id
-  `;
-  db.query(sql, (err, products) => {
-    if (err) return res.status(500).send('Database error');
+const db = require('../db')
+const multer = require('multer');
+const fs = require('fs');
+const path = require('path');
+
+// Setup multer untuk upload gambar produk
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    const uploadDir = path.join(__dirname, '../public/img/uploaded');
+    if (!fs.existsSync(uploadDir)) {
+      fs.mkdirSync(uploadDir, { recursive: true });
+    }
+    cb(null, uploadDir);
+  },
+  filename: function (req, file, cb) {
+    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+    const ext = path.extname(file.originalname);
+    cb(null, file.fieldname + '-' + uniqueSuffix + ext);
+  }
+});
+exports.upload = multer({ storage: storage });
+
+
+
+// Ambil semua produk lengkap thumbnail (async/await)
+exports.getAllProducts = async (req, res) => {
+  try {
+    const [products] = await db.query(`
+      SELECT p.*, c.name AS category_name 
+      FROM products p
+      LEFT JOIN categories c ON p.category_id = c.id
+    `);
     res.json(products);
-  });
+  } catch (err) {
+    console.error(err);
+    res.status(500).send('Database error');
+  }
+};
+
+exports.uploadProduct = async (req, res) => {
+  try {
+    const userId = req.user.id; // Dari middleware auth
+    const { name, price, description, stock, category_id } = req.body;
+    const files = req.files;
+
+    if (!name || !price || !category_id || !stock) {
+      return res.status(400).json({ error: 'Name, price, category and stock are required' });
+    }
+
+    if (!files || files.length === 0) {
+      return res.status(400).json({ error: 'At least one product image is required' });
+    }
+
+    // Simpan produk, set image_url ke gambar pertama
+    const mainImageUrl = '/img/uploaded/' + files[0].filename;
+
+    const [result] = await db.query(
+      `INSERT INTO products (name, price, description, stock, category_id, image_url) VALUES (?, ?, ?, ?, ?, ?)`,
+      [name, price, description, stock, category_id, mainImageUrl]
+    );
+
+    const productId = result.insertId;
+
+    // Simpan gambar produk lain ke product_images
+    const imagePromises = files.map(file => {
+      const url = '/img/uploaded/' + file.filename;
+      return db.query(`INSERT INTO product_images (product_id, image_url) VALUES (?, ?)`, [productId, url]);
+    });
+
+    await Promise.all(imagePromises);
+
+    res.status(201).json({ message: 'Product uploaded successfully', productId });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Failed to upload product' });
+  }
 };
 
 // Ambil detail produk lengkap dengan semua gambar
@@ -114,6 +173,7 @@ exports.showProductDetailPage = (req, res) => {
     });
   });
 };
+/*
 // Add this to your product.js controller
 exports.uploadProduct = (req, res) => {
     // Your product upload logic here
@@ -121,7 +181,7 @@ exports.uploadProduct = (req, res) => {
     res.status(200).json({ message: 'Product upload endpoint' });
 
     // Example implementation:
-    /*
+   
     const { name, price, description } = req.body;
     const userId = req.user.id; // From auth middleware
 
@@ -133,5 +193,5 @@ exports.uploadProduct = (req, res) => {
         }
         res.status(201).json({ message: 'Product created', productId: result.insertId });
     });
-    */
 };
+    */

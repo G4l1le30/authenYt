@@ -4,12 +4,7 @@ const bcrypt = require('bcrypt') // GANTI dari bcryptjs ke bcrypt
 const dotenv = require('dotenv')
 
 // Database connection - gunakan konfigurasi yang sama seperti di app.js
-const db = mysql.createConnection({
-    host: process.env.DATABASE_HOST,
-    user: process.env.DATABASE_USER,
-    password: process.env.DATABASE_PASSWORD,
-    database: process.env.DATABASE
-})
+const db = require('../db')
 
 exports.register = async (req, res) => {
     console.log(req.body)
@@ -237,4 +232,39 @@ exports.removeFromWishlist = (req, res) => {
         }
         return res.json({ success: true, message: 'Berhasil menghapus dari wishlist' });
     });
+};
+
+
+exports.getDashboard = async (req, res) => {
+  if (!req.user) return res.redirect('/login');
+
+  const userId = req.user.id;
+
+  try {
+    // Ambil wishlist user
+    const [wishlist] = await db.query(`
+      SELECT products.* FROM wishlist
+      JOIN products ON wishlist.product_id = products.id
+      WHERE wishlist.user_id = ?
+    `, [userId]);
+
+    // Ambil produk yang dijual user
+    const [yourProducts] = await db.query(`
+      SELECT * FROM products WHERE user_id = ?
+    `, [userId]);
+
+    res.render('dashboard', {
+      user: req.user,
+      wishlist,
+      yourProducts
+    });
+  } catch (err) {
+    console.error(err);
+    res.render('dashboard', {
+      user: req.user,
+      wishlist: [],
+      yourProducts: [],
+      error: 'Failed to load dashboard data'
+    });
+  }
 };

@@ -4,17 +4,20 @@ const path = require('path');
 const dotenv = require('dotenv');
 dotenv.config({ path: './.env' });
 const cookieParser = require('cookie-parser');
-const mysql = require('mysql');
+const mysql = require('mysql2/promise');  // Ganti ke mysql2 dengan promise
 
-// Database connection
-const db = mysql.createConnection({
+// Buat connection pool
+const pool = mysql.createPool({
   host: process.env.DATABASE_HOST,
   user: process.env.DATABASE_USER,
   password: process.env.DATABASE_PASSWORD,
-  database: process.env.DATABASE
+  database: process.env.DATABASE,
+  waitForConnections: true,
+  connectionLimit: 10,
+  queueLimit: 0
 });
 
-// Middleware and parsers
+// Middleware dan parsers
 app.use(cookieParser());
 app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
@@ -26,14 +29,17 @@ app.use(express.static(publicDirectory));
 // View engine setup
 app.set('view engine', 'hbs');
 
-// Connect to MySQL
-db.connect((err) => {
-  if (err) {
-    console.log(err);
-  } else {
+// Test koneksi database (async/await)
+async function testConnection() {
+  try {
+    const conn = await pool.getConnection();
     console.log('MySQL connected');
+    conn.release();
+  } catch (err) {
+    console.error('Database connection failed:', err);
   }
-});
+}
+testConnection();
 
 // Handlebars helper
 const hbs = require('hbs');
@@ -43,14 +49,12 @@ hbs.registerHelper('includes', function (array, value) {
   return strArray.includes(String(value));
 });
 
-// Import routes and middleware
+// Import routes dan middleware
 const pagesRoutes = require('./routes/pages');
 const authRoutes = require('./routes/auth');
-// You DO NOT have ./routes/cart, so don't require it!
 const cartRoutes = require('./routes/cart');
-app.use('/api/cart', cartRoutes);
 
-// Use routes
+app.use('/api/cart', cartRoutes);
 app.use('/', pagesRoutes);
 app.use('/auth', authRoutes);
 
@@ -59,3 +63,5 @@ const port = process.env.PORT || 5000;
 app.listen(port, () => {
   console.log(`Server started on port ${port}`);
 });
+
+module.exports = pool; // Optional, jika perlu diimport di file lain untuk query

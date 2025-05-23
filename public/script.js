@@ -102,7 +102,7 @@ btnAddToCart.addEventListener('click', async () => {
   }
 });
 // Toggle wishlist
-/*
+
 document.querySelectorAll('.favorite-icon').forEach(button => {
   button.addEventListener('click', async (e) => {
     e.stopPropagation(); // prevent card click events if any
@@ -141,7 +141,7 @@ document.querySelectorAll('.favorite-icon').forEach(button => {
     }
   });
 });
-*/
+
 /*
 async function toggleWishlist(e, productId) {
     e.preventDefault();

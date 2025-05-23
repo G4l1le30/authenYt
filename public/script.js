@@ -194,7 +194,7 @@ async function toggleWishlist(e, productId) {
   e.preventDefault();
   e.stopPropagation();
 
-  const button = e.currentTarget;
+  const button = e.target.closest('.favorite-icon');;
 
   try {
     const response = await fetch('/api/wishlist/toggle', {

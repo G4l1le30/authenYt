@@ -10,213 +10,108 @@
         <link href="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.css" rel="stylesheet" />
     </head>
     <body>
-        <!-- Navbar -->
-        <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
-            <div class="container">
-                <!-- Brand -->
-                <a class="navbar-brand fw-bold" href="#">SHOP.CO</a>
-                
-                <!-- Desktop Menu -->
-                <div class="navbar-collapse collapse d-none d-lg-flex" id="navbarNav">
-                    <ul class="navbar-nav mx-auto">
-                        <li class="nav-item">
-                            <a class="nav-link active" href="/">Home</a>
-                        </li>
-                        <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle" href="#" id="shopDropdown" role="button" data-bs-toggle="dropdown">
-                                Shop
-                            </a>
-                            <ul class="dropdown-menu">
-                                <li><a class="dropdown-item" href="#">Men's Clothing</a></li>
-                                <li><a class="dropdown-item" href="#">Women's Clothing</a></li>
-                                <li><a class="dropdown-item" href="#">Accessories</a></li>
-                                <li><a class="dropdown-item" href="/allProduk">All Products</a></li>
-                                <li><hr class="dropdown-divider"></li>
-                                <li><a class="dropdown-item" href="#">Sale Items</a></li>
-                            </ul>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="#about">About</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="#contact">Contact</a>
-                        </li>
+       <nav class="navbar navbar-expand-lg navbar-light bg-white fixed-top custom-navbar"> <!-Ubah class->
+    <div class="container"> <!- Gunakan container biasa untuk padding ->
+        <a class="navbar-brand fw-bold" href="/">SHOP.CO</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavDesktop" aria-controls="navbarNavDesktop" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNavDesktop">
+            <ul class="navbar-nav mx-auto"> <!- mx-auto untuk tengahkan ->
+                <li class="nav-item">
+                    <a class="nav-link" href="#">Shop</a> <!- Contoh link ->
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#">On Sale</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link active" href="/allProduk">New Arrivals</a> <!- Misalnya ini aktif ->
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#">Brands</a>
+                </li>
+            </ul>
+            <div class="d-flex align-items-center navbar-icons">
+                <a href="#" class="nav-icon-item me-3"><i class="bi bi-search"></i></a>
+                <a href="/dashboard#cart" class="nav-icon-item me-3">
+                    <i class="bi bi-cart3"></i>
+                    </a>
+                {{#if user}}
+                <div class="dropdown">
+                    <a href="#" class="nav-icon-item" id="accountDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                        <i class="bi bi-person-circle"></i>
+                    </a>
+                    <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="accountDropdown">
+                        <li><a class="dropdown-item" href="/dashboard">Profile</a></li>
+                        <li><a class="dropdown-item" href="/auth/logout">Logout</a></li>
                     </ul>
                 </div>
-                
-                <!-- Right side buttons -->
-                <div class="d-flex align-items-center">
-                    <!-- My Account Dropdown -->
-                    {{#if user}}
-                    <div class="dropdown me-3">
-                        <button class="btn btn-outline-light dropdown-toggle" type="button" id="accountDropdown" data-bs-toggle="dropdown">
-                            My Account
-                        </button>
-                        <ul class="dropdown-menu dropdown-menu-end">
-                            <li><a class="dropdown-item" href="/dashboard">Profile</a></li>
-                            <li><a class="dropdown-item" href="/dashboard#orders">Orders</a></li>
-                            <li><a class="dropdown-item" href="/dashboard#wishlist">Wishlist</a></li>
-                            <li><a class="dropdown-item" href="/dashboard#cart">Cart</a></li>
-                            <li class="nav-item"><a class="nav-link" href="/sell">Sell Product</a></li>
-
-                            <li><hr class="dropdown-divider"></li>
-                            <li><a class="dropdown-item text-danger" href="/auth/logout">Logout</a></li>
-                        </ul>
-                    </div>
-                    {{else}}
-                    <a href="/login" class="btn btn-outline-light me-3">Login</a>
-                    {{/if}}
-                    
-                    <!-- Mobile Hamburger Button -->
-                    <button class="navbar-toggler d-lg-none" type="button" data-bs-toggle="offcanvas" data-bs-target="#mobileMenu">
-                        <span class="navbar-toggler-icon"></span>
-                    </button>
-                </div>
-            </div>
-        </nav>
-
-        <!-- Mobile Offcanvas Menu -->
-        <div class="offcanvas offcanvas-start" tabindex="-1" id="mobileMenu">
-            <div class="offcanvas-header">
-                <h5 class="offcanvas-title">SHOP.CO</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="offcanvas"></button>
-            </div>
-            <div class="offcanvas-body">
-                <nav class="nav flex-column">
-                    <a class="nav-link active" href="/">
-                        <i class="bi bi-house me-2"></i>Home
-                    </a>
-                    
-                    <!-- Shop Dropdown in Mobile -->
-                    <div class="dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown">
-                            <i class="bi bi-shop me-2"></i>Shop
-                        </a>
-                        <ul class="dropdown-menu">
-                            <li><a class="dropdown-item" href="#">Men's Clothing</a></li>
-                            <li><a class="dropdown-item" href="#">Women's Clothing</a></li>
-                            <li><a class="dropdown-item" href="#">Accessories</a></li>
-                            <li><hr class="dropdown-divider"></li>
-                            <li><a class="dropdown-item" href="#">Sale Items</a></li>
-                        </ul>
-                    </div>
-                    
-                    <a class="nav-link" href="#about">
-                        <i class="bi bi-info-circle me-2"></i>About
-                    </a>
-                    <a class="nav-link" href="#contact">
-                        <i class="bi bi-envelope me-2"></i>Contact
-                    </a>
-                    
-                    <!-- Mobile Account Links -->
-                    <hr class="my-3">
-                    {{#if user}}
-                    <h6 class="text-muted px-3 mb-2">Account</h6>
-                    <a class="nav-link" href="/dashboard">
-                        <i class="bi bi-person me-2"></i>Profile
-                    </a>
-                    <a class="nav-link" href="/dashboard#orders">
-                        <i class="bi bi-bag me-2"></i>Orders
-                    </a>
-                    <a class="nav-link" href="/dashboard#wishlist">
-                        <i class="bi bi-heart me-2"></i>Wishlist
-                    </a>
-                    <a class="nav-link" href="/dashboard#cart">
-                        <i class="bi bi-cart me-2"></i>Cart
-                    </a>
-                    <a class="nav-link text-danger" href="/auth/logout">
-                        <i class="bi bi-box-arrow-right me-2"></i>Logout
-                    </a>
-                    {{else}}
-                    <a class="nav-link" href="/login">
-                        <i class="bi bi-box-arrow-in-right me-2"></i>Login
-                    </a>
-                    {{/if}}
-                </nav>
+                {{else}}
+                <a href="/login" class="nav-icon-item"><i class="bi bi-person-circle"></i></a>
+                {{/if}}
             </div>
         </div>
-
+    </div>
+</nav>
         <!-- Hero Section -->
-        <section class="hero-section py-5" id="home">
-            <div class="container">
-                <div class="row align-items-center">
-                    <div class="col-lg-6 mb-4 mb-lg-0">
-                        <h1 class="display-3 fw-bold mb-4" style="padding-top: 10px;">FIND CLOTHES<br>THAT MATCHES<br>YOUR STYLE</h1>
-                        <p class="lead mb-4">Browse through our diverse range of meticulously crafted garments, designed to bring out your individuality and cater to your sense of style.</p>
-                        <div class="mb-5">
-                            <button class="btn btn-dark btn-lg px-4 me-2 mb-2">Shop Now</button>
-                            <a href="#" class="btn btn-outline-dark btn-lg px-4 mb-2">Browse Collections</a>
-                        </div>
-                        
-                        <div class="d-flex justify-content-between flex-wrap mt-5 pt-4">
-                            <div class="text-center flex-fill">
-                                <h2 class="fw-bold">200+</h2>
-                                <p class="mb-0">International Brands</p>
-                            </div>
-                            <div class="text-center flex-fill">
-                                <h2 class="fw-bold">2,000+</h2>
-                                <p class="mb-0">High-Quality Products</p>
-                            </div>
-                            <div class="text-center flex-fill">
-                                <h2 class="fw-bold">30,000+</h2>
-                                <p class="mb-0">Happy Customers</p>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-lg-6">
-                        <img src="/img/product-item-1.jpg" class="img-fluid rounded shadow" alt="Fashion showcase">
-                    </div>
-                </div>
+        <section class="hero-main" style="background-image: url('/img/hero.jpg');">
+    <div class="hero-overlay"></div> <div class="container hero-content text-center">
+        <h1 class="hero-title display-4 fw-bold mb-4">FIND CLOTHES<br>THAT MATCHES<br>YOUR STYLE</h1>
+        <div class="row hero-stats mt-5 pt-4 justify-content-center">
+            <div class="col-6 col-md-auto hero-stat-item">
+                <h2 class="fw-bold">200+</h2>
+                <p class="mb-0">International Brands</p>
             </div>
-        </section>
+            <div class="col-6 col-md-auto hero-stat-item">
+                <h2 class="fw-bold">2,000+</h2>
+                <p class="mb-0">High-Quality Products</p>
+            </div>
+            <div class="col-6 col-md-auto hero-stat-item">
+                <h2 class="fw-bold">30,000+</h2>
+                <p class="mb-0">Happy Customers</p>
+            </div>
+        </div>
+    </div>
+</section>
 
         <!-- Brands Section -->
-        <section class="brands-section py-4 bg-light">
-            <div class="container">
-                <div class="row justify-content-around align-items-center">
-                    <div class="col-auto">
-                        <h3 class="text-uppercase mb-0">Versace</h3>
-                    </div>
-                    <div class="col-auto">
-                        <h3 class="text-uppercase mb-0">ZYN</h3>
-                    </div>
-                    <div class="col-auto">
-                        <h3 class="text-uppercase mb-0">Gucci</h3>
-                    </div>
-                    <div class="col-auto">
-                        <h3 class="text-uppercase mb-0">Prada</h3>
-                    </div>
-                    <div class="col-auto">
-                        <h3 class="text-uppercase mb-0">Calvin Klein</h3>
-                    </div>
-                </div>
+        <section class="brands-bar-section bg-dark py-3"> <!- py-3 atau py-4 untuk padding atas bawah ->
+    <div class="container">
+        <div class="d-flex flex-wrap justify-content-around align-items-center">
+            <div class="brand-item text-uppercase">Versace</div>
+            <div class="brand-item text-uppercase">Zara</div>
+            <div class="brand-item text-uppercase">Gucci</div>
+            <div class="brand-item text-uppercase">Prada</div>
+            <div class="brand-item text-uppercase">Calvin Klein</div>
             </div>
-        </section>
+    </div>
+</section>
 
         <!-- New Arrivals -->
-        <section class="new-arrivals py-5" data-aos="fade-up">
-            <div class="container">
-                <div class="d-flex justify-content-between align-items-center mb-5">
-                    <h2 class="section-title">NEW ARRIVALS</h2>
-                    <a href="/allProduk" class="btn btn-outline-dark">View All</a>
-                </div>
-                
-                <div class="row">
-                    {{#each products}}
-                    <div class="col-md-3 mb-4">
-                        <div class="card border-0 shadow-sm position-relative">
-                            <img src="{{this.image_url}}" class="card-img-top" alt="{{this.name}}">
-                            <div class="card-body">
-                                <h5 class="card-title">{{this.name}}</h5>
-                                <p class="card-text text-primary fw-bold">${{this.price}}</p>
-                                <a href="/product/{{this.id}}" class="btn btn-dark btn-detail">Detail</a>
-                            </div>
+        <section class="new-arrivals-section py-5"> <!- py-5 untuk padding atas bawah ->
+    <div class="container">
+        <h2 class="section-title">NEW ARRIVALS</h2> <div class="row g-4"> {{#each products}} <div class="col-lg-3 col-md-4 col-sm-6 mb-4"> <div class="product-card-new custom-card h-100"> <a href="/product/{{this.id}}" class="product-image-link">
+                        <img src="{{this.image_url}}" class="card-img-top product-card-img" alt="{{this.name}}">
+                    </a>
+                    <div class="card-body text-center product-card-body"> <h5 class="product-name mb-2">{{this.name}}</h5>
+                        
+                        <div class="product-rating mb-2">
+                            {{{generateStars this.rating}}} 
+
                         </div>
-                    </div>
-                    {{/each}}
+
+                        <p class="product-price fw-bold mb-0">${{this.price}}</p>
+                        </div>
                 </div>
             </div>
-        </section>
+            {{else}}
+            <div class="col">
+                <p class="text-center">No new arrivals at the moment.</p>
+            </div>
+            {{/each}}
+        </div>
+        </div>
+</section>
 
         <!-- Top Selling -->
         <section class="top-selling py-5 bg-light" data-aos="zoom-in">

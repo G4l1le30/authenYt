@@ -114,108 +114,155 @@
 </section>
 
         <!-- Top Selling -->
-        <section class="top-selling py-5 bg-light" data-aos="zoom-in">
-            <div class="container">
-                <div class="d-flex justify-content-between align-items-center mb-5">
-                    <h2 class="section-title">TOP SELLING</h2>
-                    <a href="/allProduk" class="btn btn-outline-dark">View All</a>
-                </div>
-                
-                <div class="row">
-                    {{#each products}}
-                    <div class="col-md-3 mb-4">
-                        <div class="card border-0 shadow-sm position-relative">
-                            <img src="{{this.image_url}}" class="card-img-top" alt="{{this.name}}">
-                            <div class="card-body">
-                                <h5 class="card-title">{{this.name}}</h5>
-                                <p class="card-text text-primary fw-bold">${{this.price}}</p>
-                                <button class="btn btn-outline-dark btn-sm">Add to Cart</button>
-                            </div>
+        <section class="top-selling-section py-5 bg-light"> <div class="container">
+        <h2 class="section-title">TOP SELLING</h2>
+        
+        <div class="row g-4">
+            {{#each products_top_selling}} <div class="col-lg-3 col-md-4 col-sm-6 mb-4">
+                <div class="product-card-new custom-card h-100"> <a href="/product/{{this.id}}" class="product-image-link">
+                        <img src="{{this.image_url}}" class="card-img-top product-card-img" alt="{{this.name}}">
+                    </a>
+                    <div class="card-body text-center product-card-body">
+                        <h5 class="product-name mb-2">{{this.name}}</h5>
+                        
+                        <div class="product-rating mb-2">
+                            {{#if this.rating}}
+                                {{#stars this.rating}}
+                                    <i class="bi bi-star-fill"></i>
+                                {{/stars}}
+                                {{#stars (subtract 5 this.rating) type="empty"}}
+                                     <i class="bi bi-star"></i>
+                                {{/stars}}
+                                <span class="rating-value ms-1">({{this.rating}}/5)</span>
+                            {{/if}}
                         </div>
+
+                        <p class="product-price fw-bold mb-0">${{this.price}}</p>
                     </div>
-                    {{/each}}
                 </div>
             </div>
-        </section>
+            {{else}}
+            <div class="col">
+                <p class="text-center">No top selling products at the moment.</p>
+            </div>
+            {{/each}}
+        </div>
+        </div>
+</section>
 
         <!-- Browse by Dress Style -->
-        <section class="dress-style py-5" data-aos="flip-left">
-            <div class="container">
-                <h2 class="section-title text-center mb-5">BROWSE BY DRESS STYLE</h2>
-                
-                <div class="row g-4">
-                    <div class="col-md-6">
-                        <div class="card bg-dark text-white" style="height: 300px;">
-                            <div class="card-body d-flex align-items-center justify-content-center">
-                                <h3 class="card-title">Casual</h3>
-                            </div>
+        <section class="dress-style-section py-5"> <div class="container">
+        <h2 class="section-title">BROWSE BY DRESS STYLE</h2>
+        
+        <div class="row g-4"> <div class="col-md-6 col-lg-3 mb-4"> <a href="/products?category=casual" class="dress-style-card-link">
+                    <div class="dress-style-card custom-card text-white" style="background-image: url('/path/to/your/casual-image.jpg');">
+                        <div class="dress-style-card-overlay"></div>
+                        <div class="dress-style-card-content">
+                            <h3 class="dress-style-title">Casual</h3>
                         </div>
                     </div>
-                    <div class="col-md-6">
-                        <div class="card bg-secondary text-white" style="height: 300px;">
-                            <div class="card-body d-flex align-items-center justify-content-center">
-                                <h3 class="card-title">Formal</h3>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-6">
-                        <div class="card bg-primary text-white" style="height: 300px;">
-                            <div class="card-body d-flex align-items-center justify-content-center">
-                                <h3 class="card-title">Party</h3>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-6">
-                        <div class="card bg-success text-white" style="height: 300px;">
-                            <div class="card-body d-flex align-items-center justify-content-center">
-                                <h3 class="card-title">Gym</h3>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+                </a>
             </div>
-        </section>
 
+            <div class="col-md-6 col-lg-3 mb-4">
+                <a href="/products?category=formal" class="dress-style-card-link">
+                    <div class="dress-style-card custom-card text-white" style="background-image: url('/path/to/your/formal-image.jpg');">
+                        <div class="dress-style-card-overlay"></div>
+                        <div class="dress-style-card-content">
+                            <h3 class="dress-style-title">Formal</h3>
+                        </div>
+                    </div>
+                </a>
+            </div>
+
+            <div class="col-md-6 col-lg-3 mb-4">
+                <a href="/products?category=party" class="dress-style-card-link">
+                    <div class="dress-style-card custom-card text-white" style="background-image: url('/path/to/your/party-image.jpg');">
+                        <div class="dress-style-card-overlay"></div>
+                        <div class="dress-style-card-content">
+                            <h3 class="dress-style-title">Party</h3>
+                        </div>
+                    </div>
+                </a>
+            </div>
+
+            <div class="col-md-6 col-lg-3 mb-4">
+                 <a href="/products?category=gym" class="dress-style-card-link">
+                    <div class="dress-style-card custom-card text-white" style="background-image: url('/path/to/your/gym-image.jpg');">
+                        <div class="dress-style-card-overlay"></div>
+                        <div class="dress-style-card-content">
+                            <h3 class="dress-style-title">Gym</h3>
+                        </div>
+                    </div>
+                </a>
+            </div>
+        </div>
+    </div>
+</section>
         <!-- Customer Testimonials -->
-        <section class="testimonials py-5 bg-light">
-            <div class="container">
-                <h2 class="section-title text-center mb-5">OUR HAPPY CUSTOMERS</h2>
-                
-                <div class="row justify-content-center">
-                    <div class="col-md-8">
-                        <div class="card border-0 shadow-sm">
-                            <div class="card-body text-center p-5">
-                                <img src="https://via.placeholder.com/100" class="rounded-circle mb-3" alt="Customer">
-                                <h4 class="mb-3">Sarah M.</h4>
-                                <div class="mb-3">
-                                    <i class="bi bi-star-fill text-warning"></i>
-                                    <i class="bi bi-star-fill text-warning"></i>
-                                    <i class="bi bi-star-fill text-warning"></i>
-                                    <i class="bi bi-star-fill text-warning"></i>
-                                    <i class="bi bi-star-fill text-warning"></i>
-                                </div>
-                                <p class="lead">"I absolutely love shopping at SHOP.CO! The quality of their products is exceptional and their customer service is top-notch. I highly recommend them to all my friends!"</p>
-                            </div>
-                        </div>
-                    </div>
+        <section class="testimonials-section py-5 bg-light"> <div class="container">
+        <h2 class="section-title">OUR HAPPY CUSTOMERS</h2>
+        
+        <div class="row">
+            <div class="col-md-6 col-lg-4 mb-4">
+                <div class="testimonial-card custom-card p-4 h-100">
+                    <div class="testimonial-rating mb-2">
+                        <i class="bi bi-star-fill"></i>
+                        <i class="bi bi-star-fill"></i>
+                        <i class="bi bi-star-fill"></i>
+                        <i class="bi bi-star-fill"></i>
+                        <i class="bi bi-star-half"></i> </div>
+                    <h5 class="testimonial-name mb-2">Sarah J.</h5>
+                    <p class="testimonial-quote">"I'm absolutely in love with the quality and style. Found my new favorite brand!"</p>
                 </div>
             </div>
-        </section>
 
-        <!-- Newsletter -->
-        <section class="newsletter py-5">
-            <div class="container">
-                <div class="row justify-content-center">
-                    <div class="col-md-8 text-center">
-                        <h2 class="section-title mb-4">STAY UPTO DATE ABOUT OUR LATEST OFFERS</h2>
-                        <div class="input-group mb-3 mx-auto" style="max-width: 500px;">
-                            <input type="email" class="form-control" placeholder="Enter your email address">
-                            <button class="btn btn-dark" type="button">Subscribe</button>
-                        </div>
+            <div class="col-md-6 col-lg-4 mb-4">
+                <div class="testimonial-card custom-card p-4 h-100">
+                    <div class="testimonial-rating mb-2">
+                        <i class="bi bi-star-fill"></i>
+                        <i class="bi bi-star-fill"></i>
+                        <i class="bi bi-star-fill"></i>
+                        <i class="bi bi-star-fill"></i>
+                        <i class="bi bi-star-fill"></i>
                     </div>
+                    <h5 class="testimonial-name mb-2">Alex K.</h5>
+                    <p class="testimonial-quote">"The customer service was exceptional, and the delivery was super fast. Highly recommend."</p>
                 </div>
             </div>
-        </section>
+
+            <div class="col-md-6 col-lg-4 mb-4">
+                <div class="testimonial-card custom-card p-4 h-100">
+                    <div class="testimonial-rating mb-2">
+                        <i class="bi bi-star-fill"></i>
+                        <i class="bi bi-star-fill"></i>
+                        <i class="bi bi-star-fill"></i>
+                        <i class="bi bi-star-fill"></i>
+                        <i class="bi bi-star"></i> </div>
+                    <h5 class="testimonial-name mb-2">Maria P.</h5>
+                    <p class="testimonial-quote">"Great prices for such high-quality clothing. Will definitely be shopping here again."</p>
+                </div>
+            </div>
+            </div>
+    </div>
+</section>
+        <!-- Newsletter -->
+<section class="newsletter-section py-5">
+    <div class="container">
+        <div class="newsletter-box bg-dark text-white p-5 rounded-4"> <div class="row justify-content-center align-items-center">
+                <div class="col-lg-8 text-center">
+                    <h2 class="section-title newsletter-title mb-3">STAY UPTO DATE ABOUT OUR LATEST OFFERS</h2>
+                    <form id="newsletterForm">
+                        <div class="input-group newsletter-input-group mx-auto" style="max-width: 550px;">
+                            <input type="email" id="newsletterEmail" class="form-control form-control-lg newsletter-input" placeholder="Enter your email address" required>
+                            <button class="btn btn-light newsletter-button" type="submit">Subscribe to Newsletter</button>
+                        </div>
+                    </form>
+                    <p id="newsletterMessage" class="mt-3" style="min-height: 1.5em;"></p> </div>
+            </div>
+        </div>
+    </div>
+</section>
 
         <!-- Toast Notifications -->
         <div class="toast-container position-fixed bottom-0 end-0 p-3">
@@ -228,73 +275,66 @@
         </div>
 
         <!-- Footer -->
-        <footer class="bg-dark text-white py-5">
-            <div class="container">
-                <div class="row">
-                    <div class="col-lg-4 mb-4">
-                        <h3 class="text-uppercase mb-4">SHOP.CO</h3>
-                        <p>We have clothes that suits your style and which you're proud to wear. From women to men.</p>
-                        <div class="social-icons mt-4">
-                            <a href="#" class="text-white me-3"><i class="bi bi-twitter fs-4"></i></a>
-                            <a href="#" class="text-white me-3"><i class="bi bi-facebook fs-4"></i></a>
-                            <a href="#" class="text-white me-3"><i class="bi bi-instagram fs-4"></i></a>
-                            <a href="#" class="text-white"><i class="bi bi-pinterest fs-4"></i></a>
-                        </div>
-                    </div>
-                    
-                    <div class="col-lg-2 col-md-4 mb-4">
-                        <h5 class="text-uppercase mb-4">Company</h5>
-                        <ul class="list-unstyled">
-                            <li class="mb-2"><a href="#" class="text-white text-decoration-none">About</a></li>
-                            <li class="mb-2"><a href="#" class="text-white text-decoration-none">Features</a></li>
-                            <li class="mb-2"><a href="#" class="text-white text-decoration-none">Works</a></li>
-                            <li><a href="#" class="text-white text-decoration-none">Career</a></li>
-                        </ul>
-                    </div>
-                    
-                    <div class="col-lg-2 col-md-4 mb-4">
-                        <h5 class="text-uppercase mb-4">Help</h5>
-                        <ul class="list-unstyled">
-                            <li class="mb-2"><a href="#" class="text-white text-decoration-none">Customer Support</a></li>
-                            <li class="mb-2"><a href="#" class="text-white text-decoration-none">Delivery Details</a></li>
-                            <li class="mb-2"><a href="#" class="text-white text-decoration-none">Terms & Conditions</a></li>
-                            <li><a href="#" class="text-white text-decoration-none">Privacy Policy</a></li>
-                        </ul>
-                    </div>
-                    
-                    <div class="col-lg-2 col-md-4 mb-4">
-                        <h5 class="text-uppercase mb-4">Resources</h5>
-                        <ul class="list-unstyled">
-                            <li class="mb-2"><a href="#" class="text-white text-decoration-none">Free eBooks</a></li>
-                            <li class="mb-2"><a href="#" class="text-white text-decoration-none">Development Tutorial</a></li>
-                            <li class="mb-2"><a href="#" class="text-white text-decoration-none">How to - Blog</a></li>
-                            <li><a href="#" class="text-white text-decoration-none">Youtube Playlist</a></li>
-                        </ul>
-                    </div>
-                    
-                    <div class="col-lg-2 col-md-4 mb-4">
-                        <h5 class="text-uppercase mb-4">Contact</h5>
-                        <ul class="list-unstyled">
-                            <li class="mb-2"><a href="#" class="text-white text-decoration-none">Instagram</a></li>
-                            <li class="mb-2"><a href="#" class="text-white text-decoration-none">Facebook</a></li>
-                            <li class="mb-2"><a href="#" class="text-white text-decoration-none">Twitter</a></li>
-                            <li><a href="#" class="text-white text-decoration-none">Email Us</a></li>
-                        </ul>
-                    </div>
-                </div>
-                
-                <hr class="my-4 bg-secondary">
-                
-                <div class="row">
-                    <div class="col-md-6 text-center text-md-start">
-                        <p class="mb-0">&copy; 2025 SHOP.CO. All rights reserved.</p>
-                    </div>
-                    <div class="col-md-6 text-center text-md-end">
-                        <img src="/img/icon-pay-05.png" alt="Payment methods" class="img-fluid" style="max-height: 30px;">
-                    </div>
-                </div>
+        <footer class="main-footer bg-dark text-white py-5">
+    <div class="container">
+        <div class="row gy-4"> <div class="col-lg-4 col-md-12 mb-4 mb-lg-0"> <h3 class="footer-brand text-uppercase mb-3">SHOP.CO</h3>
+                <p class="footer-description">We have clothes that suit your style and which you're proud to wear. From women to men.</p>
+                <div class="social-icons-footer mt-3">
+                    <a href="#" class="social-icon-item me-2"><i class="bi bi-twitter"></i></a>
+                    <a href="#" class="social-icon-item me-2"><i class="bi bi-facebook"></i></a>
+                    <a href="#" class="social-icon-item me-2"><i class="bi bi-instagram"></i></a>
+                    <a href="#" class="social-icon-item"><i class="bi bi-github"></i></a> </div>
             </div>
-        </footer>
+            
+            <div class="col-lg-2 col-md-3 col-6"> <h5 class="footer-heading text-uppercase mb-3">Company</h5>
+                <ul class="list-unstyled footer-links">
+                    <li class="mb-2"><a href="#">About</a></li>
+                    <li class="mb-2"><a href="#">Features</a></li>
+                    <li class="mb-2"><a href="#">Works</a></li>
+                    <li><a href="#">Career</a></li>
+                </ul>
+            </div>
+            
+            <div class="col-lg-2 col-md-3 col-6">
+                <h5 class="footer-heading text-uppercase mb-3">Help</h5>
+                <ul class="list-unstyled footer-links">
+                    <li class="mb-2"><a href="#">Customer Support</a></li>
+                    <li class="mb-2"><a href="#">Delivery Details</a></li>
+                    <li class="mb-2"><a href="#">Terms & Conditions</a></li>
+                    <li><a href="#">Privacy Policy</a></li>
+                </ul>
+            </div>
+
+            <div class="col-lg-2 col-md-3 col-6">
+                <h5 class="footer-heading text-uppercase mb-3">FAQ</h5> <ul class="list-unstyled footer-links">
+                    <li class="mb-2"><a href="#">Account</a></li>
+                    <li class="mb-2"><a href="#">Manage Deliveries</a></li>
+                    <li class="mb-2"><a href="#">Orders</a></li>
+                    <li><a href="#">Payments</a></li>
+                </ul>
+            </div>
+            
+            <div class="col-lg-2 col-md-3 col-6">
+                <h5 class="footer-heading text-uppercase mb-3">Resources</h5>
+                <ul class="list-unstyled footer-links">
+                    <li class="mb-2"><a href="#">Free eBooks</a></li>
+                    <li class="mb-2"><a href="#">Development Tutorial</a></li>
+                    <li class="mb-2"><a href="#">How to - Blog</a></li>
+                    <li><a href="#">Youtube Playlist</a></li>
+                </ul>
+            </div>
+        </div>
+        
+        <hr class="my-4 footer-divider">
+        
+        <div class="row align-items-center">
+            <div class="col-md-6 text-center text-md-start mb-2 mb-md-0">
+                <p class="footer-copyright mb-0">&copy; {{currentYear}} SHOP.CO. All rights reserved.</p> </div>
+            <div class="col-md-6 text-center text-md-end">
+                <img src="/img/icon-pay-05.png" alt="Payment methods" class="img-fluid payment-icons" style="max-height: 28px;"> </div>
+        </div>
+    </div>
+</footer>
 
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/js/bootstrap.bundle.min.js" integrity="sha384-j1CDi7MgGQ12Z7Qab0qlWQ/Qqz24Gc6BM0thvEMVjHnfYGF0rmFCozFSxQBxwHKO" crossorigin="anonymous"></script>
         <script src="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.js"></script>
@@ -303,6 +343,29 @@
                 duration: 1000,  // durasi animasi dalam ms
                 once: true,      // animasi hanya sekali ketika muncul
             });
+            const newsletterForm = document.getElementById('newsletterForm');
+if (newsletterForm) {
+    const newsletterEmail = document.getElementById('newsletterEmail');
+    const newsletterMessage = document.getElementById('newsletterMessage');
+
+    newsletterForm.addEventListener('submit', function(event) {
+        event.preventDefault();
+        // Di sini Anda bisa menambahkan logika untuk mengirim email ke backend
+        // Untuk contoh, kita hanya tampilkan pesan sukses
+        if (newsletterEmail.value && newsletterEmail.checkValidity()) {
+            newsletterMessage.textContent = 'Thank you for subscribing!';
+            newsletterMessage.style.color = 'lightgreen'; // Atau warna yang sesuai
+            newsletterEmail.value = ''; // Kosongkan input
+        } else {
+            newsletterMessage.textContent = 'Please enter a valid email address.';
+            newsletterMessage.style.color = 'pink'; // Atau warna error
+        }
+        setTimeout(() => {
+            newsletterMessage.textContent = '';
+        }, 5000); // Hilangkan pesan setelah 5 detik
+    });
+}
+            
         </script>
     </body>
 </html>

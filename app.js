@@ -4,18 +4,10 @@ const path = require('path');
 const dotenv = require('dotenv');
 dotenv.config({ path: './.env' });
 const cookieParser = require('cookie-parser');
-const mysql = require('mysql2/promise');  // Ganti ke mysql2 dengan promise
+const hbs = require('hbs');
 
-// Buat connection pool
-const pool = mysql.createPool({
-  host: process.env.DATABASE_HOST,
-  user: process.env.DATABASE_USER,
-  password: process.env.DATABASE_PASSWORD,
-  database: process.env.DATABASE,
-  waitForConnections: true,
-  connectionLimit: 10,
-  queueLimit: 0
-});
+const pool = require('./db');  // pool MySQL2 promise
+const authMiddleware = require('./middleware/auth');
 
 // Middleware dan parsers
 app.use(cookieParser());
@@ -29,6 +21,13 @@ app.use(express.static(publicDirectory));
 // View engine setup
 app.set('view engine', 'hbs');
 
+// Handlebars helper
+hbs.registerHelper('includes', function (array, value) {
+  if (!array) return false;
+  const strArray = array.map(String);
+  return strArray.includes(String(value));
+});
+
 // Test koneksi database (async/await)
 async function testConnection() {
   try {
@@ -41,13 +40,8 @@ async function testConnection() {
 }
 testConnection();
 
-// Handlebars helper
-const hbs = require('hbs');
-hbs.registerHelper('includes', function (array, value) {
-  if (!array) return false;
-  const strArray = array.map(String);
-  return strArray.includes(String(value));
-});
+// Inject user ke semua views (buat akses user di hbs via {{user}})
+app.use(authMiddleware.getUser);
 
 // Import routes dan middleware
 const pagesRoutes = require('./routes/pages');
@@ -64,4 +58,4 @@ app.listen(port, () => {
   console.log(`Server started on port ${port}`);
 });
 
-module.exports = pool; // Optional, jika perlu diimport di file lain untuk query
+module.exports = pool; // Optional jika ingin import pool di file lain

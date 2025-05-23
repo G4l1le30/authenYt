@@ -1,91 +1,69 @@
 const jwt = require('jsonwebtoken');
-const mysql = require('mysql');
+const pool = require('../db');  // pastikan app.js export pool dengan benar
 
-// Database connection
-const db = mysql.createConnection({
-    host: process.env.DATABASE_HOST,
-    user: process.env.DATABASE_USER,
-    password: process.env.DATABASE_PASSWORD,
-    database: process.env.DATABASE
-});
-
-exports.isLoggedIn = (req, res, next) => {
-    // Check if token exists
-    if (!req.cookies.jwt) {
-        return res.redirect('/login');
-    }
-
-    try {
-        // Verify token
-        const decoded = jwt.verify(req.cookies.jwt, process.env.JWT_SECRET);
-        
-        // Check if user still exists
-        db.query('SELECT * FROM users WHERE id = ?', [decoded.id], (error, result) => {
-            if (error) {
-                console.log(error);
-                return res.redirect('/login');
-            }
-
-            if (result.length === 0) {
-                return res.redirect('/login');
-            }
-
-            // User exists, store user data in request
-            req.user = result[0];
-            return next();
-        });
-    } catch (error) {
-        console.log(error);
-        return res.redirect('/login');
-    }
-};
-
-exports.getUser = (req, res, next) => {
-    if (!req.cookies.jwt) {
-        res.locals.user = null;
-        return next();
-    }
-
-    try {
-        const decoded = jwt.verify(req.cookies.jwt, process.env.JWT_SECRET);
-        
-        db.query('SELECT * FROM users WHERE id = ?', [decoded.id], (error, result) => {
-            if (error || result.length === 0) {
-                res.locals.user = null;
-                return next();
-            }
-
-            // Pass user data to template
-            res.locals.user = result[0];
-            return next();
-        });
-    } catch (error) {
-        console.log(error);
-        res.locals.user = null;
-        return next();
-    }
-};
-
-exports.ensureAuth = (req, res, next) => {
+// Middleware cek apakah user sudah login dan inject data user ke req.user
+exports.isLoggedIn = async (req, res, next) => {
+  try {
     const token = req.cookies.jwt;
+    if (!token) return res.redirect('/login');
 
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+
+    // Query user dari database dengan promise
+    const [rows] = await pool.query('SELECT * FROM users WHERE id = ?', [decoded.id]);
+    if (rows.length === 0) return res.redirect('/login');
+
+    req.user = rows[0];
+    next();
+  } catch (error) {
+    console.log('Auth isLoggedIn error:', error);
+    return res.redirect('/login');
+  }
+};
+
+// Middleware untuk inject data user ke template/view (res.locals.user)
+exports.getUser = async (req, res, next) => {
+  try {
+    const token = req.cookies.jwt;
     if (!token) {
-        return res.redirect('/login');
+      res.locals.user = null;
+      return next();
     }
 
-    jwt.verify(token, process.env.JWT_SECRET, (err, decoded) => {
-        if (err) {
-            return res.redirect('/login');
-        }
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
-        db.query('SELECT * FROM users WHERE id = ?', [decoded.id], (err, results) => {
-            if (!results || results.length === 0) {
-                return res.redirect('/login');
-            }
+    const [rows] = await pool.query('SELECT * FROM users WHERE id = ?', [decoded.id]);
+    if (rows.length === 0) {
+      res.locals.user = null;
+      return next();
+    }
 
-            req.user = results[0];
-            next();
-        });
-    });
+    res.locals.user = rows[0];
+    next();
+  } catch (error) {
+    console.log('Auth getUser error:', error);
+    res.locals.user = null;
+    next();
+  }
 };
+
+// Middleware untuk proteksi route (harus login)
+exports.ensureAuth = async (req, res, next) => {
+  try {
+    const token = req.cookies.jwt;
+    if (!token) return res.redirect('/login');
+
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+
+    const [rows] = await pool.query('SELECT * FROM users WHERE id = ?', [decoded.id]);
+    if (rows.length === 0) return res.redirect('/login');
+
+    req.user = rows[0];
+    next();
+  } catch (error) {
+    console.log('Auth ensureAuth error:', error);
+    return res.redirect('/login');
+  }
+};
+
 exports.protect = exports.ensureAuth;

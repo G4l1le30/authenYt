@@ -119,19 +119,16 @@ router.get('/seller/:userId', async (req, res) => {
 // Halaman semua produk
 router.get('/allProduk', async (req, res) => {
   try {
-// Ganti menjadi:
-const [products] = await pool.query('SELECT id, name, price, image_url, description, stock, rating FROM products'); // Tambahkan rating
-    let wishlistProductIds = [];
+    const [products] = await pool.query('SELECT id, name, price, image_url, description, stock, rating FROM products');
 
-    if (req.user) {
-      const [wishlistRows] = await pool.query('SELECT product_id FROM wishlist WHERE user_id = ?', [req.user.id]);
-      wishlistProductIds = wishlistRows.map(r => r.product_id.toString());
-    }
-
-    res.render('allProduk', { products, wishlistProductIds, user: req.user });
+    res.render('allProduk', { 
+        products, 
+        user: req.user 
+        // Tidak perlu wishlistProductIds lagi jika sudah dihapus dari template
+    });
   } catch (err) {
     console.error(err);
-    res.render('allProduk', { products: [], wishlistProductIds: [] });
+    res.render('allProduk', { products: [], user: req.user }); // Kirim user juga saat error
   }
 });
 

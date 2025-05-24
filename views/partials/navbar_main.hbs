@@ -1,0 +1,49 @@
+<!--
+<div style="background-color: yellow; color: black; padding: 5px; text-align: left; font-size: 12px;">
+    User di Navbar: {{#if user}}Ada User (ID: {{user.id}}, Nama: {{user.name}}){{else}}User TIDAK ADA atau null{{/if}}<br>
+    </div>
+    -->
+    <nav class="navbar navbar-expand-lg navbar-light bg-white fixed-top custom-navbar"> <!-Ubah class->
+        <div class="container"> <!- Gunakan container biasa untuk padding ->
+            <a class="navbar-brand fw-bold" href="/">SHOP.CO</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavDesktop" aria-controls="navbarNavDesktop" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNavDesktop">
+                <ul class="navbar-nav mx-auto"> <!- mx-auto untuk tengahkan ->
+                    <li class="nav-item">
+                        <a class="nav-link active" href="/allProduk">Shop</a> <!- Contoh link ->
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#">On Sale</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="/allProduk">New Arrivals</a> <!- Misalnya ini aktif ->
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#">Brands</a>
+                    </li>
+                </ul>
+                <div class="d-flex align-items-center navbar-icons">
+                    <a href="#" class="nav-icon-item me-3"><i class="bi bi-search"></i></a>
+                    <a href="/dashboard#cart" class="nav-icon-item me-3">
+                        <i class="bi bi-cart3"></i>
+                        </a>
+                    {{#if user}}
+                    <div class="dropdown">
+                        <a href="#" class="nav-icon-item" id="accountDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="bi bi-person-circle"></i>
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="accountDropdown">
+                            <li><a class="dropdown-item" href="/dashboard">Profile</a></li>
+                            <li><a class="dropdown-item" href="/sell">Sell</a></li>
+                            <li><a class="dropdown-item" href="/auth/logout">Logout</a></li>
+                        </ul>
+                    </div>
+                    {{else}}
+                    <a href="/login" class="nav-icon-item"><i class="bi bi-person-circle"></i></a>
+                    {{/if}}
+                </div>
+            </div>
+        </div>
+    </nav>

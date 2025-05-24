@@ -1,122 +1,207 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>{{product.name}} - Detail Produk</title>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
-  <link rel="stylesheet" href="/style.css" />
-  <style>
-    .btn-primary {
-      background-color: #ee4d2d;
-      border-color: #ee4d2d;
-    }
-    .btn-primary:hover {
-      background-color: #d63c1d;
-      border-color: #d63c1d;
-    }
-    .quantity-input {
-      max-width: 140px;
-    }
-    .carousel-item img {
-      max-height: 450px;
-      object-fit: contain;
-      width: 100%;
-    }
-  </style>
-</head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{{product.name}} - Detail Produk</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="/style.css" />
+    </head>
 <body>
-  {{> navbar_main}}
-  <main class="container my-5">
-    <div class="row g-4">
-      <div class="col-md-6">
-        <!-- Bootstrap Carousel for product images -->
-        <div id="productImagesCarousel" class="carousel slide" data-bs-ride="carousel"  data-bs-interval="3000">
-          <div class="carousel-inner">
-            {{#each product.images}}
-            <div class="carousel-item {{#if @first}}active{{/if}}">
-              <img src="{{this.image_url}}" class="d-block w-100" alt="{{../product.name}}" />
+    {{> navbar_main }} <main class="container single-product-main my-5 pt-3">
+        <div class="row g-lg-5 g-md-4 g-3">
+            <div class="col-lg-6 col-md-5">
+                <div id="productImagesCarousel" class="carousel slide" data-bs-ride="carousel" data-bs-interval="3000">
+                    <div class="carousel-inner">
+                        {{#if product.images.length}}
+                            {{#each product.images}}
+                            <div class="carousel-item {{#if @first}}active{{/if}}">
+                                <img src="{{this.image_url}}" class="d-block w-100" alt="Image for {{../product.name}}" />
+                            </div>
+                            {{/each}}
+                        {{else}}
+                            <div class="carousel-item active">
+                                <img src="{{product.image_url}}" class="d-block w-100" alt="{{product.name}}" />
+                            </div>
+                        {{/if}}
+                    </div>
+                    {{#if (gt product.images.length 1)}}
+                        <button class="carousel-control-prev" type="button" data-bs-target="#productImagesCarousel" data-bs-slide="prev">
+                            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                            <span class="visually-hidden">Previous</span>
+                        </button>
+                        <button class="carousel-control-next" type="button" data-bs-target="#productImagesCarousel" data-bs-slide="next">
+                            <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                            <span class="visually-hidden">Next</span>
+                        </button>
+                    {{/if}}
+                </div>
             </div>
-            {{/each}}
-          </div>
-          <button class="carousel-control-prev" type="button" data-bs-target="#productImagesCarousel" data-bs-slide="prev">
-            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-            <span class="visually-hidden">Previous</span>
-          </button>
-          <button class="carousel-control-next" type="button" data-bs-target="#productImagesCarousel" data-bs-slide="next">
-            <span class="carousel-control-next-icon" aria-hidden="true"></span>
-            <span class="visually-hidden">Next</span>
-          </button>
+
+            <div class="col-lg-6 col-md-7 product-details-column">
+                <h1 class="product-name-display">{{product.name}}</h1>
+                <span class="product-category">Category: {{product.category_name}}</span>
+                <div class="product-rating-display my-2">
+                    {{{generateStars product.rating}}}
+                </div>
+                <p class="product-price-display">Rp {{product.price}}</p>
+                <p class="product-description">{{product.description}}</p>
+                
+                <div class="mb-3 quantity-control-group">
+                    <label for="quantitySingleProduct" class="form-label">Quantity:</label>
+                    <div class="input-group">
+                        <button class="btn btn-outline-secondary" type="button" id="button-minus-single">-</button>
+                        <input type="number" id="quantitySingleProduct" class="form-control text-center" min="1" value="1" />
+                        <button class="btn btn-outline-secondary" type="button" id="button-plus-single">+</button>
+                    </div>
+                </div>
+
+                <div class="product-actions d-grid gap-2">
+                    <button class="btn btn-primary" id="btnAddToCartSingle">Add to Cart</button>
+                    {{#if user}}
+                    <button class="btn btn-outline-danger btn-wishlist-single" id="btnToggleWishlistPage" data-product-id="{{product.id}}">
+                        {{#if isWishlisted}}
+                            <i class="bi bi-heart-fill"></i> <span>Remove from Wishlist</span>
+                        {{else}}
+                            <i class="bi bi-heart"></i> <span>Add to Wishlist</span>
+                        {{/if}}
+                    </button>
+                    {{/if}}
+                    <a href="/allProduk" class="btn btn-secondary">Back to Products</a>
+                </div>
+            </div>
         </div>
-      </div>
+    </main>
 
-      <div class="col-md-6">
-        <h1>{{product.name}}</h1>
-        <p><strong>Category:</strong> {{product.category_name}}</p>
-        <p>{{product.description}}</p>
-        <h3>Rp {{product.price}}</h3>
-
-        <div class="mb-3 quantity-input">
-          <label for="quantity" class="form-label">Quantity</label>
-          <div class="input-group">
-            <button class="btn btn-outline-secondary" type="button" id="button-minus">-</button>
-            <input type="number" id="quantity" class="form-control text-center" min="1" value="1" />
-            <button class="btn btn-outline-secondary" type="button" id="button-plus">+</button>
-          </div>
+    <div class="toast-container position-fixed bottom-0 end-0 p-3" style="z-index: 1100">
+        <div id="wishlistToastSinglePage" class="toast align-items-center text-bg-dark border-0" role="alert" aria-live="assertive" aria-atomic="true">
+            <div class="d-flex">
+                <div class="toast-body" id="wishlistToastBodySinglePage"></div>
+                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+            </div>
         </div>
-
-        <button class="btn btn-primary w-100 mb-2" id="btnAddToCart">Add to Cart</button>
-        <a href="/allProduk" class="btn btn-secondary w-100">Back to Products</a>
-      </div>
     </div>
-  </main>
 
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-  
-  <script>
-    // Extract productId from URL path, expects /product/:id format
-    const productId = window.location.pathname.split('/').pop();
+    {{> footer_main }}
 
-    const qtyInput = document.getElementById('quantity');
-    const btnMinus = document.getElementById('button-minus');
-    const btnPlus = document.getElementById('button-plus');
-    const btnAddToCart = document.getElementById('btnAddToCart');
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        const currentProductId = '{{product.id}}'; 
 
-    btnMinus.addEventListener('click', () => {
-      let val = parseInt(qtyInput.value);
-      if (val > 1) qtyInput.value = val - 1;
-    });
+        const qtyInputSingle = document.getElementById('quantitySingleProduct');
+        const btnMinusSingle = document.getElementById('button-minus-single');
+        const btnPlusSingle = document.getElementById('button-plus-single');
+        const btnAddToCartPage = document.getElementById('btnAddToCartSingle');
+        const btnToggleWishlistPage = document.getElementById('btnToggleWishlistPage');
 
-    btnPlus.addEventListener('click', () => {
-      let val = parseInt(qtyInput.value);
-      qtyInput.value = val + 1;
-    });
-
-    btnAddToCart.addEventListener('click', async () => {
-      const quantity = parseInt(qtyInput.value);
-
-      try {
-        const response = await fetch('/api/cart/add', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({ product_id: productId, quantity })
-        });
-
-        const data = await response.json();
-
-        if (response.ok) {
-          alert('Product added to cart!');
-          // optionally update cart icon or redirect user here
-        } else {
-          alert('Failed to add to cart: ' + (data.message || 'Unknown error'));
+        if(btnMinusSingle && qtyInputSingle) {
+            btnMinusSingle.addEventListener('click', () => {
+                let val = parseInt(qtyInputSingle.value);
+                if (val > 1) qtyInputSingle.value = val - 1;
+            });
         }
-      } catch (error) {
-        console.error('Error adding to cart:', error);
-        alert('An error occurred while adding to cart.');
-      }
-    });
-  </script>
+        if(btnPlusSingle && qtyInputSingle) {
+            btnPlusSingle.addEventListener('click', () => {
+                let val = parseInt(qtyInputSingle.value);
+                // Pertimbangkan untuk menambahkan validasi terhadap product.stock di sini
+                // if (val < {{product.stock}}) qtyInputSingle.value = val + 1;
+                qtyInputSingle.value = val + 1; 
+            });
+        }
+
+        if (btnAddToCartPage && qtyInputSingle) {
+            btnAddToCartPage.addEventListener('click', async () => {
+                const quantity = parseInt(qtyInputSingle.value);
+                try {
+                    const response = await fetch('/api/cart/add', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ product_id: currentProductId, quantity }),
+                        credentials: 'include'
+                    });
+                    const data = await response.json();
+                    if (response.ok) {
+                        showToastOnPage('🛒 Product added to cart!', 'success'); 
+                    } else {
+                        showToastOnPage('Failed to add to cart: ' + (data.message || 'Unknown error'), 'danger');
+                    }
+                } catch (error) {
+                    console.error('Error adding to cart:', error);
+                    showToastOnPage('An error occurred while adding to cart.', 'danger');
+                }
+            });
+        }
+
+        if (btnToggleWishlistPage) {
+            btnToggleWishlistPage.addEventListener('click', async function() {
+                const productIdFromButton = this.dataset.productId;
+                console.log('[WISHLIST PAGE] Toggling wishlist for product ID:', productIdFromButton);
+
+                let response; 
+                try {
+                    response = await fetch('/auth/wishlist', { 
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ product_id: productIdFromButton }),
+                        credentials: 'include'
+                    });
+
+                    const data = await response.json(); 
+                    console.log('[WISHLIST PAGE] Response Status:', response.status);
+                    console.log('[WISHLIST PAGE] Response Data:', data);
+
+                    if (response.ok) {
+                        const iconElement = this.querySelector('i');
+                        const textElement = this.querySelector('span');
+
+                        if (data.message === 'Berhasil ditambahkan ke wishlist!') {
+                            if(iconElement) iconElement.className = 'bi bi-heart-fill';
+                            if(textElement) textElement.textContent = ' Remove from Wishlist';
+                            showToastOnPage('✅ Ditambahkan ke wishlist!', 'success');
+                        } else {
+                            if(iconElement) iconElement.className = 'bi bi-heart';
+                            if(textElement) textElement.textContent = ' Add to Wishlist';
+                            showToastOnPage('❌ Dihapus dari wishlist!');
+                        }
+                    } else {
+                        showToastOnPage(data.message || 'Gagal memproses wishlist', 'danger');
+                    }
+                } catch (err) {
+                    console.error('[WISHLIST PAGE] Fetch Error:', err);
+                    if (response && response.status === 401) { 
+                         showToastOnPage('Anda harus login untuk wishlist.', 'warning');
+                         // setTimeout(() => { window.location.href = '/login'; }, 2000);
+                    } else {
+                        showToastOnPage('Terjadi kesalahan. Coba lagi.', 'danger');
+                    }
+                }
+            });
+        }
+
+        function showToastOnPage(message, type = 'dark') {
+            const toastEl = document.getElementById('wishlistToastSinglePage');
+            const toastBody = document.getElementById('wishlistToastBodySinglePage');
+            if (!toastEl || !toastBody) {
+                console.error('Toast elements for single page not found!');
+                return;
+            }
+            
+            toastEl.classList.remove('text-bg-dark', 'text-bg-success', 'text-bg-danger', 'text-bg-warning');
+            let toastTypeClass = 'text-bg-dark'; // Default
+            if (type === 'success') toastTypeClass = 'text-bg-success';
+            else if (type === 'danger') toastTypeClass = 'text-bg-danger';
+            else if (type === 'warning') toastTypeClass = 'text-bg-warning';
+            toastEl.classList.add(toastTypeClass);
+
+            toastBody.textContent = message;
+            try {
+                const toast = bootstrap.Toast.getOrCreateInstance(toastEl);
+                toast.show();
+            } catch (e) {
+                console.error('Error showing toast:', e);
+            }
+        }
+    </script>
 </body>
 </html>

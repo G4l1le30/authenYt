@@ -151,35 +151,49 @@ exports.toggleWishlist = (req, res) => {
 
 
 exports.showProductDetailPage = async (req, res) => {
-  const productId = req.params.id;
+    try {
+        const productId = req.params.id;
+        const loggedInUser = req.user; // Dari authMiddleware.getUser -> res.locals.user
 
-  try {
-    const [productRows] = await db.query(`
-      SELECT p.*, c.name AS category_name
-      FROM products p
-      LEFT JOIN categories c ON p.category_id = c.id
-      WHERE p.id = ?
-    `, [productId]);
+        // Ambil detail produk
+        const [productRows] = await db.query(`
+            SELECT p.*, c.name as category_name 
+            FROM products p 
+            LEFT JOIN categories c ON p.category_id = c.id 
+            WHERE p.id = ?
+        `, [productId]);
 
-    if (productRows.length === 0) {
-      return res.status(404).send('Product not found');
+        if (productRows.length === 0) {
+            return res.status(404).render('404', { user: loggedInUser, message: 'Product not found.' });
+        }
+        const product = productRows[0];
+
+        // Ambil semua gambar untuk produk ini
+        const [images] = await db.query('SELECT image_url FROM product_images WHERE product_id = ?', [productId]);
+        product.images = images;
+
+        let isWishlisted = false;
+        if (loggedInUser) {
+            const [wishlistCheck] = await db.query(
+                'SELECT * FROM wishlist WHERE user_id = ? AND product_id = ?',
+                [loggedInUser.id, productId]
+            );
+            if (wishlistCheck.length > 0) {
+                isWishlisted = true;
+            }
+        }
+
+        res.render('singleProduct', {
+            product: product,
+            isWishlisted: isWishlisted, // Kirim status wishlist
+            user: loggedInUser 
+        });
+
+    } catch (error) {
+        console.error('Error fetching product detail page:', error);
+        res.status(500).render('500', { user: req.user, message: 'Error loading product details.' });
     }
-
-    const [images] = await db.query(`SELECT * FROM product_images WHERE product_id = ?`, [productId]);
-
-    const product = productRows[0];
-    product.images = images;
-
-    res.render('singleproduct', {
-      product,
-      user: res.locals.user
-    });
-  } catch (error) {
-    console.error(error);
-    res.status(500).send('Database error');
-  }
 };
-
 /*
 // Add this to your product.js controller
 exports.uploadProduct = (req, res) => {

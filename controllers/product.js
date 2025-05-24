@@ -80,80 +80,77 @@ exports.uploadProduct = async (req, res) => {
 };
 
 
-// Ambil detail produk lengkap dengan semua gambar
-exports.getProductDetail = (req, res) => {
-  const productId = req.params.id;
-  const sqlProduct = `
-    SELECT p.*, c.name AS category_name
-    FROM products p
-    LEFT JOIN categories c ON p.category_id = c.id
-    WHERE p.id = ?
-  `;
-  const sqlImages = `SELECT * FROM product_images WHERE product_id = ?`;
+// Ambil detail produk lengkap dengan semua gambar (API JSON) - PERBAIKI INI
+exports.getProductDetail = async (req, res) => { // Jadikan async
+    const productId = req.params.id;
+    try {
+        const sqlProduct = `
+            SELECT p.*, c.name AS category_name
+            FROM products p
+            LEFT JOIN categories c ON p.category_id = c.id
+            WHERE p.id = ?
+        `;
+        const [productRows] = await db.query(sqlProduct, [productId]); // Gunakan await db.query
 
-  db.query(sqlProduct, [productId], (err, productRows) => {
-    if (err) return res.status(500).send('Database error');
-    if (productRows.length === 0) return res.status(404).send('Product not found');
+        if (productRows.length === 0) {
+            return res.status(404).json({ message: 'Product not found' }); // Kirim JSON error
+        }
 
-    db.query(sqlImages, [productId], (err2, images) => {
-      if (err2) return res.status(500).send('Database error');
-      const product = productRows[0];
-      product.images = images;
-      res.json(product);
-    });
-  });
+        const product = productRows[0];
+
+        const sqlImages = `SELECT image_url FROM product_images WHERE product_id = ?`;
+        const [images] = await db.query(sqlImages, [productId]); // Gunakan await db.query
+        
+        product.images = images;
+        res.json(product); // Kirim JSON sukses
+
+    } catch (error) {
+        console.error('Error in getProductDetail API:', error);
+        res.status(500).json({ message: 'Database error or internal server error' }); // Kirim JSON error
+    }
 };
-exports.toggleWishlist = (req, res) => {
-  if (!req.user) {
-    console.log('Unauthorized user trying to add to wishlist');
-    return res.status(401).json({ message: 'Unauthorized' });
-  }
-
-  const userId = req.user.id;
-  const { productId } = req.body;
-
-  console.log(`User ${userId} is toggling wishlist for product ${productId}`); // Log user dan productId
-
-  // Cek apakah sudah ada di wishlist
-  const checkQuery = 'SELECT id FROM wishlist WHERE user_id = ? AND product_id = ?';
-  db.query(checkQuery, [userId, productId], (err, results) => {
-    if (err) {
-      console.log('Error checking wishlist:', err);
-      return res.status(500).json({ message: 'Database error' });
+// Toggle Wishlist (jika masih ada atau sebagai referensi) - PERBAIKI INI
+exports.toggleWishlist = async (req, res) => { // Jadikan async
+    if (!req.user) {
+        return res.status(401).json({ message: 'Unauthorized' });
     }
 
-    if (results.length > 0) {
-      console.log('Product already in wishlist, removing it');
-      // Jika ada, hapus dari wishlist
-      const deleteQuery = 'DELETE FROM wishlist WHERE user_id = ? AND product_id = ?';
-      db.query(deleteQuery, [userId, productId], (err) => {
-        if (err) {
-          console.log('Error removing product from wishlist:', err);
-          return res.status(500).json({ message: 'Database error' });
-        }
-        return res.json({ inWishlist: false });
-      });
-    } else {
-      console.log('Product not in wishlist, adding it');
-      // Jika belum ada, tambah ke wishlist
-      const insertQuery = 'INSERT INTO wishlist (user_id, product_id) VALUES (?, ?)';
-      db.query(insertQuery, [userId, productId], (err) => {
-        if (err) {
-          console.log('Error adding product to wishlist:', err);
-          return res.status(500).json({ message: 'Database error' });
-        }
-        return res.json({ inWishlist: true });
-      });
+    const userId = req.user.id;
+    // Pastikan nama properti di body sesuai dengan yang dikirim klien
+    // Jika klien mengirim { productId: ... }, maka di sini const { productId } = req.body;
+    // Jika klien mengirim { product_id: ...}, maka const { product_id: productId } = req.body; atau ambil langsung product_id
+    const { product_id: productId } = req.body; // Mengambil product_id dan menamainya productId
+
+    if (!productId) {
+        return res.status(400).json({ message: 'Product ID is required' });
     }
-  });
+
+    try {
+        const checkQuery = 'SELECT id FROM wishlist WHERE user_id = ? AND product_id = ?';
+        const [existing] = await db.query(checkQuery, [userId, productId]);
+
+        if (existing.length > 0) {
+            const deleteQuery = 'DELETE FROM wishlist WHERE user_id = ? AND product_id = ?';
+            await db.query(deleteQuery, [userId, productId]);
+            return res.json({ success: true, inWishlist: false, message: 'Dihapus dari wishlist' }); // Kirim status baru
+        } else {
+            const insertQuery = 'INSERT INTO wishlist (user_id, product_id) VALUES (?, ?)';
+            await db.query(insertQuery, [userId, productId]);
+            return res.json({ success: true, inWishlist: true, message: 'Berhasil ditambahkan ke wishlist!' }); // Kirim status baru
+        }
+    } catch (error) {
+        console.error('Error toggling wishlist:', error);
+        return res.status(500).json({ success: false, message: 'Database error while toggling wishlist' });
+    }
 };
+
 // controllers/product.js
 
 
 exports.showProductDetailPage = async (req, res) => {
     try {
         const productId = req.params.id;
-        const loggedInUser = req.user; // Dari authMiddleware.getUser -> res.locals.user
+        const loggedInUser = req.user;
 
         // Ambil detail produk
         const [productRows] = await db.query(`
@@ -183,9 +180,20 @@ exports.showProductDetailPage = async (req, res) => {
             }
         }
 
+        // === AMBIL DAFTAR ULASAN UNTUK PRODUK INI ===
+        const [reviews] = await db.query(`
+            SELECT r.rating, r.review_text, r.created_at, u.name as reviewer_name 
+            FROM reviews r
+            JOIN users u ON r.user_id = u.id
+            WHERE r.product_id = ?
+            ORDER BY r.created_at DESC 
+        `, [productId]);
+        // ============================================
+        
         res.render('singleProduct', {
             product: product,
-            isWishlisted: isWishlisted, // Kirim status wishlist
+            isWishlisted: isWishlisted,
+            reviews: reviews, // <-- KIRIM DATA ULASAN KE TEMPLATE
             user: loggedInUser 
         });
 

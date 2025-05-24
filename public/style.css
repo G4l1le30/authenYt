@@ -692,3 +692,46 @@ footer {
 .star-rating-input > i.hovered {
     color: #ffc107; /* Warna bintang terpilih/hover (kuning) */
 }
+/* ============== PRODUCT REVIEWS DISPLAY ============== */
+.product-reviews-section h4 {
+    font-weight: 600;
+    margin-bottom: 1.5rem; /* Sedikit jarak di bawah judul "Ulasan Produk" */
+}
+
+.list-group-item.list-group-item-action { /* Kustomisasi item ulasan */
+    padding: 1rem 1.25rem;
+    background-color: #fff; /* Pastikan latar putih jika parentnya berwarna */
+}
+
+.review-user-name {
+    font-weight: 600;
+    color: #333;
+}
+
+.review-date {
+    font-size: 0.85em;
+}
+
+.review-stars { /* Wrapper untuk bintang di setiap item ulasan */
+    color: #FFA500; /* WARNA BINTANG (Orange/Gold) untuk ulasan */
+    /* font-size sudah diatur oleh .review-stars .bi-star-* di bawah */
+}
+
+.review-stars .bi-star-fill, 
+.review-stars .bi-star-half, 
+.review-stars .bi-star {
+    font-size: 0.9em; /* Ukuran bintang di daftar ulasan sedikit lebih kecil */
+    /* Warna akan di-inherit dari .review-stars di atas */
+}
+.review-stars .rating-value {
+    font-size: 0.8em; /* Ukuran teks (4.0/5) sedikit lebih kecil */
+    color: #555555;  /* Warna untuk teks (4.0/5) agar kontras */
+    margin-left: 0.25rem; /* Sedikit jarak dari bintang */
+}
+
+.review-text {
+    font-size: 0.95rem;
+    color: #555;
+    line-height: 1.6;
+    white-space: pre-wrap; /* Agar baris baru di ulasan tetap tampil */
+}

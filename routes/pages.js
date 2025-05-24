@@ -6,7 +6,7 @@ const pool=require('../db')
 const authMiddleware = require('../middleware/auth');
 const authController = require('../controllers/auth');
 const productController = require('../controllers/product');
-const cartController = require('../controllers/cart');
+const cartController = require('../controllers/cart'); //!gada route cart di sini
 
 // MySQL Connection
 /*
@@ -133,8 +133,8 @@ router.get('/allProduk', async (req, res) => {
 });
 
 // Auth pages
-router.get('/register', (req, res) => res.render('register'));
-router.get('/login', (req, res) => res.render('login'));
+router.get('/register', (req, res) => res.render('register',  { user: req.user }));
+router.get('/login', (req, res) => res.render('login',  { user: req.user }));
 
 /**
  * ====================
@@ -155,7 +155,6 @@ router.post('/api/wishlist/toggle', authMiddleware.ensureAuth, productController
  */
 
 // API untuk ambil detail produk (JSON)
-router.get('/api/product/:id', productController.getProductDetail);
 
 // Halaman detail produk
 router.get('/product/:id', productController.showProductDetailPage);
@@ -198,7 +197,6 @@ router.get('/sell', authMiddleware.protect, async (req, res) => {
   }
 });
 
-router.post('/sell', authMiddleware.protect, productController.upload.array('images', 5), productController.uploadProduct);
 
 
 module.exports = router;

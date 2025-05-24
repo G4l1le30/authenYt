@@ -658,7 +658,18 @@ footer {
     border-color: #bd2130;
     color: #FFFFFF;
 }
-
+/*button chat*/
+.product-actions .btn-info { /* Tombol Chat */
+  background-color: #0dcaf0; /* Warna Bootstrap info */
+  border-color: #0dcaf0;
+  color: #000; /* Teks hitam agar kontras dengan info terang */
+}
+.product-actions .btn-info:hover {
+    background-color: #0baccc;
+    border-color: #0a9fb7;
+    color: #000;
+  }
+/* </button chat*/
 .product-actions .btn-secondary { /* Tombol Back */
     background-color: #f8f9fa;
     border-color: #ced4da;
@@ -668,3 +679,16 @@ footer {
     background-color: #e9ecef;
     border-color: #adb5bd;
 } 
+/* ============== PRODUCT REVIEW FORM ============== */
+.star-rating-input > i {
+    font-size: 1.8rem; /* Ukuran ikon bintang input */
+    color: #adb5bd; /* Warna bintang kosong (abu-abu) */
+    cursor: pointer;
+    transition: color 0.2s ease-in-out;
+    margin-right: 0.25rem;
+}
+.star-rating-input > i:hover,
+.star-rating-input > i.selected,
+.star-rating-input > i.hovered {
+    color: #ffc107; /* Warna bintang terpilih/hover (kuning) */
+}

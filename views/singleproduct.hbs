@@ -56,6 +56,7 @@
                         <button class="btn btn-outline-secondary" type="button" id="button-plus-single">+</button>
                     </div>
                 </div>
+                
 
                 <div class="product-actions d-grid gap-2">
                     <button class="btn btn-primary" id="btnAddToCartSingle">Add to Cart</button>
@@ -66,10 +67,58 @@
                         {{else}}
                             <i class="bi bi-heart"></i> <span>Add to Wishlist</span>
                         {{/if}}
+                        
                     </button>
+                    {{#if user}} {{! Hanya tampilkan jika user login }}
+    {{#if (neq product.user_id user.id)}} {{! Hanya tampilkan jika user BUKAN pemilik produk }}
+        <button class="btn btn-info w-100 mt-2" id="btnChatWithSeller" data-seller-id="{{product.user_id}}">
+            <i class="bi bi-chat-dots-fill"></i> Chat dengan Penjual
+        </button>
+    {{/if}}
+{{/if}}
+                    <hr class="my-4">
+
+<div class="product-reviews-section">
+    <h4>Ulasan Produk</h4>
+    <p><em>(Tampilan daftar ulasan akan dibuat nanti)</em></p>
+
+    {{#if user}} {{! Hanya user yang login bisa memberi ulasan }}
+    <div class="card mt-4">
+        <div class="card-header">
+            <h5>Berikan Ulasan Anda</h5>
+        </div>
+        <div class="card-body">
+            <form id="formReviewProduct">
+                <div class="mb-3">
+                    <label for="productRatingStars" class="form-label">Rating Anda:</label>
+                    <div id="productRatingStars" class="star-rating-input">
+                        <i class="bi bi-star" data-value="1"></i>
+                        <i class="bi bi-star" data-value="2"></i>
+                        <i class="bi bi-star" data-value="3"></i>
+                        <i class="bi bi-star" data-value="4"></i>
+                        <i class="bi bi-star" data-value="5"></i>
+                        <input type="hidden" name="rating" id="ratingValueInput" required>
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <label for="reviewText" class="form-label">Ulasan Anda:</label>
+                    <textarea class="form-control" id="reviewText" name="review_text" rows="4" placeholder="Tulis ulasan Anda di sini..."></textarea>
+                </div>
+                <!--Ulasan cuma muncul kalau user sudah beli-->
+                <button type="submit" class="btn btn-success">Kirim Ulasan</button>
+            </form>
+        </div>
+    </div>
+
+    {{else}}
+    <p><a href="/login">Login</a> untuk memberikan ulasan.</p>
+    {{/if}}
+</div>
                     {{/if}}
                     <a href="/allProduk" class="btn btn-secondary">Back to Products</a>
                 </div>
+
+
             </div>
         </div>
     </main>
@@ -192,6 +241,7 @@
             if (type === 'success') toastTypeClass = 'text-bg-success';
             else if (type === 'danger') toastTypeClass = 'text-bg-danger';
             else if (type === 'warning') toastTypeClass = 'text-bg-warning';
+            else if (type === 'info') toastTypeClass = 'text-bg-info';
             toastEl.classList.add(toastTypeClass);
 
             toastBody.textContent = message;
@@ -202,6 +252,113 @@
                 console.error('Error showing toast:', e);
             }
         }
+        const btnChatWithSeller = document.getElementById('btnChatWithSeller');
+if (btnChatWithSeller) {
+    btnChatWithSeller.addEventListener('click', function() {
+        const sellerId = this.dataset.sellerId;
+        // Untuk sekarang, kita tampilkan alert atau log
+        console.log('Ingin chat dengan seller ID:', sellerId);
+        showToastOnPage('💬 Fitur chat dengan penjual akan segera hadir!', 'info'); 
+        // Di sini nantinya bisa memicu modal chat, redirect ke halaman chat, dll.
+    });
+}
+// --- Logika untuk Input Bintang Rating ---
+const ratingStarsContainer = document.getElementById('productRatingStars');
+const ratingValueInput = document.getElementById('ratingValueInput');
+
+if (ratingStarsContainer && ratingValueInput) {
+    const stars = ratingStarsContainer.querySelectorAll('i.bi-star, i.bi-star-fill'); // Bisa juga bi-star-fill jika sudah ada rating awal
+
+    // Fungsi untuk set visual bintang
+    function setStars(rating) {
+        stars.forEach(star => {
+            if (parseInt(star.dataset.value) <= rating) {
+                star.classList.remove('bi-star');
+                star.classList.add('bi-star-fill', 'selected');
+            } else {
+                star.classList.remove('bi-star-fill', 'selected');
+                star.classList.add('bi-star');
+            }
+        });
+    }
+    
+    // Fungsi untuk highlight bintang saat hover
+    function highlightStars(rating) {
+        stars.forEach(star => {
+            if (parseInt(star.dataset.value) <= rating) {
+                star.classList.add('hovered');
+            } else {
+                star.classList.remove('hovered');
+            }
+        });
+    }
+
+    stars.forEach(star => {
+        star.addEventListener('mouseover', () => {
+            highlightStars(parseInt(star.dataset.value));
+        });
+
+        star.addEventListener('mouseout', () => {
+            // Kembalikan ke state selected, atau reset jika tidak ada yang selected
+            const currentSelectedRating = parseInt(ratingValueInput.value) || 0;
+            setStars(currentSelectedRating); 
+            stars.forEach(s => s.classList.remove('hovered')); // Hapus semua highlight hover
+        });
+
+        star.addEventListener('click', () => {
+            const value = parseInt(star.dataset.value);
+            ratingValueInput.value = value; // Simpan nilai rating di input hidden
+            setStars(value); // Set visual bintang permanen (sampai klik berikutnya)
+            console.log('Rating dipilih:', value);
+        });
+    });
+}
+
+
+// --- Logika untuk Submit Form Review ---
+const formReviewProduct = document.getElementById('formReviewProduct');
+if (formReviewProduct) {
+    formReviewProduct.addEventListener('submit', async function(event) {
+        event.preventDefault();
+        
+        const rating = ratingValueInput.value;
+        const review_text = document.getElementById('reviewText').value;
+        // const productId = currentProductId; // Gunakan currentProductId yang sudah ada
+
+        if (!rating) {
+            showToastOnPage('Mohon berikan rating bintang.', 'warning');
+            return;
+        }
+
+        console.log('[REVIEW] Submitting review. Product ID:', currentProductId, 'Rating:', rating, 'Text:', review_text);
+
+        try {
+            const response = await fetch(`/api/products/${currentProductId}/reviews`, { // Endpoint API baru
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ rating: parseInt(rating), review_text }),
+                credentials: 'include' 
+            });
+
+            const data = await response.json();
+            if (response.ok) {
+                showToastOnPage('⭐ Terima kasih atas ulasan Anda!', 'success');
+                formReviewProduct.reset(); // Kosongkan form
+                // Mungkin reset bintang ke state awal juga
+                if(ratingValueInput && ratingStarsContainer) {
+                    ratingValueInput.value = "";
+                    setStars(0); // Reset visual bintang
+                }
+                // Idealnya, muat ulang daftar ulasan di halaman ini (akan dibahas nanti)
+            } else {
+                showToastOnPage(data.message || 'Gagal mengirim ulasan.', 'danger');
+            }
+        } catch (err) {
+            console.error('[REVIEW] Submit Error:', err);
+            showToastOnPage('Terjadi kesalahan saat mengirim ulasan.', 'danger');
+        }
+    });
+}
     </script>
 </body>
 </html>

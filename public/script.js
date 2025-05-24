@@ -37,6 +37,7 @@ document.querySelectorAll('.product-card').forEach(card => {
 });
 
 // Show modal detail produk
+/*
 const modal = new bootstrap.Modal(document.getElementById('productDetailModal'));
 const modalTitle = document.getElementById('modalTitle');
 const modalDescription = document.getElementById('modalDescription');
@@ -80,7 +81,7 @@ document.querySelectorAll('.btn-detail').forEach(btn => {
     }
   });
 });
-
+*/
 // TODO: Add to cart handler (bisa kita buat setelah ini)
 btnAddToCart.addEventListener('click', async () => {
   const productId = btnAddToCart.getAttribute('data-product-id') || modal.getRelatedTarget()?.closest('.product-card')?.dataset.productId;

@@ -6,9 +6,9 @@ const dotenv = require('dotenv');
 dotenv.config({ path: './.env' });
 const cookieParser = require('cookie-parser');
 const hbs = require('hbs');
-
 const pool = require('./db');  // pool MySQL2 promise
 const authMiddleware = require('./middleware/auth');
+const productApiRoutes = require('./routes/product');
 
 // Middleware dan parsers
 app.use(cookieParser());
@@ -46,6 +46,9 @@ hbs.registerHelper('currentYear', function() {
 hbs.registerHelper('eq', function (a, b) {
   return a === b;
 });
+hbs.registerHelper('neq', function (a, b) {
+  return a !== b;
+});
 
 // TAMBAHKAN HELPER INI:
 hbs.registerHelper('gt', function (a, b) {
@@ -77,6 +80,12 @@ app.use(authMiddleware.getUser);
 const pagesRoutes = require('./routes/pages');
 const authRoutes = require('./routes/auth');
 const cartRoutes = require('./routes/cart');
+const reviewApiRoutes = require('./routes/reviewRoutes'); 
+// Daftarkan Rute
+
+app.use('/api/products', productApiRoutes); // Jika productApiRoutes untuk /:id/reviews juga, maka reviewApiRoutes tidak perlu prefix /api/products lagi
+app.use('/api', reviewApiRoutes);          // <-- DAFTARKAN INI. Endpoint menjadi /api/products/:productId/reviews
+
 
 app.use('/api/cart', cartRoutes);
 app.use('/', pagesRoutes);

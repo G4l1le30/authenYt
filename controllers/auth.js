@@ -85,13 +85,14 @@ exports.login = async (req, res) => {
       expiresIn: process.env.JWT_EXPIRES_IN
     });
 
-    const cookieOptions = {
-      expires: new Date(Date.now() + process.env.JWT_COOKIE_EXPIRES * 24 * 60 * 60 * 1000),
-      httpOnly: true
-    };
+const cookieOptions = {
+    expires: new Date(Date.now() + process.env.JWT_COOKIE_EXPIRES * 24 * 60 * 60 * 1000),
+    httpOnly: true,
+    path: '/' 
+};
 
-    res.cookie('jwt', token, cookieOptions);
-    res.redirect('/dashboard');
+res.cookie('jwt', token, cookieOptions);
+res.redirect('/dashboard');
   } catch (error) {
     console.error('Login error:', error);
     return res.render('login', {
@@ -102,8 +103,9 @@ exports.login = async (req, res) => {
 
 exports.logout = (req, res) => {
   res.cookie('jwt', 'logout', {
-    expires: new Date(Date.now() + 2 * 1000),
-    httpOnly: true
+    expires: new Date(Date.now() + 2 * 1000), // Atau new Date(0) untuk langsung expired
+    httpOnly: true,
+    path: '/' // <-- PASTIKAN ADA PATH INI JUGA
   });
   res.redirect('/');
 };

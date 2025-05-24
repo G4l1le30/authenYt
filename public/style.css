@@ -235,6 +235,42 @@ a:hover {
     .brand-item-img img { max-height: 25px; }
     .brands-bar-section .justify-content-around { justify-content: center !important; }
 }
+/* ============== TOP SELLERS SECTION ============== */
+.seller-card {
+    /* .custom-card sudah memberi dasar */
+    /* text-center dari Bootstrap akan menengahkan konten */
+}
+
+.seller-card-link {
+    text-decoration: none;
+    color: inherit; /* Mewarisi warna teks dari parent */
+    display: flex; /* Agar link mengisi card */
+    flex-direction: column;
+    height: 100%;
+}
+
+.seller-avatar {
+    width: 100px;   /* Ukuran avatar, sesuaikan */
+    height: 100px;
+    object-fit: cover;
+    border: 3px solid #eee; /* Border tipis untuk avatar */
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.seller-card-body {
+    padding: 1rem;
+}
+
+.seller-name {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #222222;
+}
+
+.seller-info {
+    font-size: 0.85rem;
+}
 
 /* ============== PRODUCT CARDS (New Arrivals, Top Selling/Sellers) ============== */
 .product-card-new {

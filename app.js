@@ -83,6 +83,16 @@ hbs.registerHelper('formatDate', function(dateString) {
     return dateString; // Kembalikan string asli jika ada error
   }
 });
+hbs.registerHelper('truncate', function (str, len) {
+  if (str && str.length > len && str.length > 0) {
+    let new_str = str.substr(0, len);
+    new_str = str.substr(0, new_str.lastIndexOf(" "));
+    new_str = (new_str.length > 0) ? new_str : str.substr(0, len);
+    return new hbs.SafeString(new_str +'...'); 
+  }
+  return str;
+});
+
 
 // TAMBAHKAN HELPER INI:
 hbs.registerHelper('gt', function (a, b) {
@@ -95,6 +105,15 @@ hbs.registerHelper('gt', function (a, b) {
   return false; // Default jika bukan angka atau salah satunya bukan angka
 });
 
+hbs.registerHelper('toFixed', function (number, digits) {
+  if (typeof number === 'number' || (typeof number === 'string' && number.trim() !== '')) {
+    return parseFloat(number).toFixed(digits);
+  }
+  return 'N/A'; // Atau nilai default lain
+});
+hbs.registerHelper('multiply', function(a, b) {
+    return parseFloat(a) * parseFloat(b);
+});
 // Test koneksi database (async/await)
 async function testConnection() {
   try {
@@ -116,6 +135,7 @@ const authRoutes = require('./routes/auth');
 const cartRoutes = require('./routes/cart');
 const reviewApiRoutes = require('./routes/reviewRoutes'); 
 // Daftarkan Rute
+app.use('/api', authRoutes); 
 
 app.use('/api/products', productApiRoutes); // Jika productApiRoutes untuk /:id/reviews juga, maka reviewApiRoutes tidak perlu prefix /api/products lagi
 app.use('/api', reviewApiRoutes);          // <-- DAFTARKAN INI. Endpoint menjadi /api/products/:productId/reviews

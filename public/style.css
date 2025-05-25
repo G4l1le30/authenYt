@@ -537,16 +537,72 @@ footer {
 
 /* Styling untuk Carousel Gambar Produk */
 #productImagesCarousel {
-    border: 1px solid #e8e8e8;
-    border-radius: 12px; /* Sedikit lengkungan */
-    overflow: hidden; /* Pastikan gambar tidak keluar dari border-radius */
-    background-color: #f8f9fa; /* Latar belakang netral jika gambar tidak penuh */
+    position: relative; /* Sudah benar */
+    /* border, border-radius, overflow, background-color sudah Anda atur sebelumnya, biarkan saja */
+}
+
+#productImagesCarousel .carousel-inner {
+    /* Pastikan ini juga memiliki border-radius jika carousel utama memilikinya dan overflow: hidden di carousel utama
+       agar gambar di dalamnya juga terlihat melengkung di sudut jika itu yang diinginkan. */
+    border-radius: 12px; /* Sesuaikan dengan border-radius #productImagesCarousel jika perlu */
+    overflow: hidden;    /* Agar gambar di dalam inner juga mengikuti lengkungan */
+
 }
 
 #productImagesCarousel .carousel-item img {
-    max-height: 500px; /* Bisa sedikit lebih tinggi */
-    object-fit: contain; /* Tetap contain agar tidak terpotong */
-    margin: auto; /* Tengahkan gambar jika aspect ratio beda */
+    /* Style gambar Anda sudah baik: max-height, object-fit, margin, width */
+}
+
+/* Tombol Kontrol Carousel Mengambang yang Diperbaiki */
+#productImagesCarousel .carousel-control-prev,
+#productImagesCarousel .carousel-control-next {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 5; /* Di atas gambar */
+
+    /* Reset style default Bootstrap yang mungkin mengganggu */
+    opacity: 0.7; /* Opasitas awal tombol */
+    background-image: none !important; /* Hapus gradient/gambar latar default Bootstrap */
+    background-color: rgba(0, 0, 0, 0.3) !important; /* Latar semi-transparan, gunakan !important jika perlu override kuat */
+    
+    width: 40px;  /* Lebar tombol (sesuaikan) */
+    height: 40px; /* Tinggi tombol (sesuaikan agar bulat) */
+    border-radius: 50%; /* Membuatnya bulat sempurna */
+    
+    /* Hilangkan border default jika ada */
+    border: none; 
+
+    display: flex; /* Untuk menengahkan ikon di dalam tombol */
+    align-items: center;
+    justify-content: center;
+    
+    transition: opacity 0.2s ease-in-out, background-color 0.2s ease-in-out;
+}
+
+#productImagesCarousel .carousel-control-prev {
+    left: 15px; /* Jarak dari kiri */
+}
+
+#productImagesCarousel .carousel-control-next {
+    right: 15px; /* Jarak dari kanan */
+}
+
+#productImagesCarousel .carousel-control-prev:hover,
+#productImagesCarousel .carousel-control-next:hover {
+    opacity: 1; /* Lebih jelas saat hover */
+    background-color: rgba(0, 0, 0, 0.6) !important; /* Latar lebih gelap saat hover */
+}
+
+/* Ikon di dalam tombol kontrol */
+#productImagesCarousel .carousel-control-prev-icon,
+#productImagesCarousel .carousel-control-next-icon {
+    /* Bootstrap menggunakan background-image untuk ikon ini. Kita bisa atur ukurannya. */
+    width: 20px;  /* Ukuran ikon (sesuaikan) */
+    height: 20px; /* Ukuran ikon (sesuaikan) */
+    background-size: 100% 100%; /* Pastikan ikon mengisi area yang diberikan */
+    /* Filter invert jika ikon defaultnya gelap dan Anda ingin putih di atas latar gelap */
+    /* filter: invert(1) grayscale(100) brightness(200%); */ /* Ini membuat ikon menjadi putih */
 }
 
 /* Styling untuk Info Produk di Kanan */
@@ -734,4 +790,104 @@ footer {
     color: #555;
     line-height: 1.6;
     white-space: pre-wrap; /* Agar baris baru di ulasan tetap tampil */
+}
+/* /style.css - Lanjutan untuk Single Product Page Redesign */
+
+.product-breadcrumb .breadcrumb-item a {
+    color: #6c757d;
+    text-decoration: none;
+}
+.product-breadcrumb .breadcrumb-item a:hover {
+    color: #000000;
+}
+.product-breadcrumb .breadcrumb-item.active {
+    color: #343a40;
+    font-weight: 500;
+}
+
+.product-gallery .main-product-image img {
+    border: 1px solid #dee2e6;
+    /* aspect-ratio: 1 / 1; /* Bisa diatur jika ingin kotak */
+}
+
+.product-thumbnails {
+    overflow-x: auto; /* Jika banyak thumbnail */
+    flex-wrap: nowrap; /* Agar tidak wrap ke baris baru */
+}
+
+.product-thumbnails .thumbnail-item {
+    flex: 0 0 auto; /* Agar ukuran thumbnail tidak stretch */
+    width: 80px; /* Lebar thumbnail */
+    height: 80px; /* Tinggi thumbnail */
+    cursor: pointer;
+    border: 2px solid transparent;
+    transition: border-color 0.2s ease;
+}
+
+.product-thumbnails .thumbnail-item img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.product-thumbnails .thumbnail-item img.active-thumbnail,
+.product-thumbnails .thumbnail-item:hover img {
+    border-color: #000000; /* Border untuk thumbnail aktif/hover */
+}
+
+.product-details-actions .product-title {
+    font-size: 2rem; /* Sesuaikan dengan desain */
+    font-weight: 700;
+}
+
+.product-details-actions .product-rating-display a {
+    font-size: 0.85rem;
+}
+
+.product-details-actions .product-pricing .current-price {
+    color: #000000; /* Atau warna tema utama Anda */
+}
+.product-details-actions .product-pricing .text-danger { /* Jika menggunakan harga diskon */
+    color: #dc3545 !important;
+}
+
+.product-short-description {
+    font-size: 0.95rem;
+}
+
+.product-options .form-label {
+    margin-bottom: 0.3rem;
+}
+
+.color-swatches .color-swatch {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    border: 2px solid #fff;
+    box-shadow: 0 0 0 1px #ccc;
+    margin-right: 8px;
+    cursor: pointer;
+    transition: box-shadow 0.2s ease;
+}
+.color-swatches .color-swatch.active,
+.color-swatches .color-swatch:hover {
+    box-shadow: 0 0 0 2px #000000; /* Highlight untuk aktif/hover */
+}
+
+.size-selector .size-option {
+    margin-right: 0.5rem;
+    min-width: 40px; /* Agar tombol ukuran konsisten */
+}
+.size-selector .size-option.active {
+    background-color: #000000;
+    color: #FFFFFF;
+    border-color: #000000;
+}
+
+/* Tombol Wishlist di Single Product (tambahan style jika perlu) */
+.product-actions .btn-wishlist-single {
+    /* Style yang sudah Anda buat sebelumnya, bisa disesuaikan lagi */
+}
+.product-actions .btn-wishlist-single i {
+    margin-right: 0.4em;
 }

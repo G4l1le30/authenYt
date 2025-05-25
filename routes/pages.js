@@ -31,7 +31,7 @@ router.get('/', async (req, res) => {
     try {
         // 1. Fetch New Arrivals Products (dengan rating)
         const [newArrivalProducts] = await pool.query(
-            'SELECT id, name, price, image_url, rating FROM products ORDER BY created_at DESC LIMIT 8'
+            'SELECT id, name, price, image_url, rating FROM products ORDER BY created_at DESC LIMIT 6'
         );
 
         // 2. Fetch Top Sellers (berdasarkan rata-rata rating produk mereka)
@@ -98,16 +98,33 @@ router.get('/seller/:userId', async (req, res) => {
         }
         const seller = sellerRows[0];
 
-        const [productsByThisSeller] = await pool.query(
-            'SELECT id, name, price, image_url, description, stock, rating FROM products WHERE user_id = ? ORDER BY created_at DESC', 
-            [userId] 
-        );
-            
-        res.render('sellerProfile', {
-            profile_user: seller,
-            seller_products: productsByThisSeller, // PERBAIKI DI SINI
-            user: req.user
-        });
+        // Ambil rata-rata rating produk seller dan jumlah produk
+const [sellerStats] = await pool.query(`
+    SELECT 
+        AVG(p.rating) as average_seller_rating,
+        COUNT(p.id) as product_count
+    FROM products p
+    WHERE p.user_id = ? AND p.rating IS NOT NULL
+`, [userId]);
+
+if (sellerStats.length > 0) {
+    seller.average_seller_rating = sellerStats[0].average_seller_rating;
+    seller.product_count = sellerStats[0].product_count || 0;
+} else {
+    seller.average_seller_rating = null;
+    seller.product_count = 0;
+}
+
+const [productsByThisSeller] = await pool.query(
+    'SELECT id, name, price, image_url, description, stock, rating FROM products WHERE user_id = ? ORDER BY created_at DESC', 
+    [userId] 
+);
+    
+res.render('sellerProfile', {
+    profile_user: seller, // Sekarang seller memiliki average_seller_rating dan product_count
+    seller_products: productsByThisSeller,
+    // user: req.user // Tidak perlu jika res.locals.user sudah ada
+});
 
     } catch (error) {
         console.error('Error fetching seller profile:', error); // Cetak error yang sebenarnya
@@ -146,7 +163,8 @@ router.get('/login', (req, res) => res.render('login',  { user: req.user }));
 router.get('/dashboard', authMiddleware.ensureAuth, authController.getDashboard);
 
 // Toggle wishlist
-router.post('/api/wishlist/toggle', authMiddleware.ensureAuth, productController.toggleWishlist);
+//
+// ('/api/wishlist/toggle', authMiddleware.ensureAuth, productController.toggleWishlist); //?ini bisa dihapus kan ya?
 
 /**
  * ====================
@@ -197,6 +215,10 @@ router.get('/sell', authMiddleware.protect, async (req, res) => {
   }
 });
 
-
+router.post('/sell', 
+    authMiddleware.protect,
+    productController.upload.array('images', 5),
+    productController.uploadProduct
+);
 
 module.exports = router;

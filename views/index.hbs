@@ -75,17 +75,31 @@
 </section>
 
         <!-- Top Seller -->
-        <section class="top-sellers-section py-5 bg-light">
+        
+<section class="top-sellers-section py-5 bg-light"> {{! Pastikan section ini ada }}
     <div class="container">
         <h2 class="section-title">TOP SELLERS</h2>
-        
-        <div class="row g-4">
-            {{#each top_sellers}} <div class="col-lg-3 col-md-4 col-sm-6 mb-4">
-                <div class="seller-card custom-card h-100 text-center"> <a href="/seller/{{this.id}}" class="seller-card-link">
+        <div class="row g-4"> {{! Pastikan row ini ada }}
+            {{#each top_sellers}} {{! Pastikan loop ini ada }}
+            <div class="col-lg-3 col-md-4 col-sm-6 mb-4">
+                <div class="seller-card custom-card h-100 text-center">
+                    <a href="/seller/{{this.id}}" class="seller-card-link">
                         <img src="{{this.profile_image_url}}" class="seller-avatar rounded-circle my-3" alt="{{this.name}}">
                         <div class="card-body seller-card-body">
                             <h5 class="seller-name mb-2">{{this.name}}</h5>
+                            {{#if this.average_seller_rating}}
+                            <div class="seller-rating mb-2"> 
+                                <span class="product-rating-display"> 
+                                    {{{generateStars (toFixed this.average_seller_rating 1)}}} 
+                                </span>
                             </div>
+                            {{else}}
+                            <p class="seller-info small text-muted">(No product ratings yet)</p>
+                            {{/if}}
+                            {{#if this.product_count}}
+                                <p class="seller-info small text-muted">{{this.product_count}} Product(s)</p>
+                            {{/if}}
+                        </div>
                     </a>
                 </div>
             </div>
@@ -94,9 +108,10 @@
                 <p class="text-center">No top sellers featured at the moment.</p>
             </div>
             {{/each}}
-        </div>
-    </div>
-</section>
+        </div> {{! Penutup div.row untuk Top Sellers }}
+    </div> {{! Penutup div.container untuk Top Sellers }}
+</section> {{! Penutup section untuk Top Sellers }}
+
 
         <!-- Browse by Dress Style -->
         <section class="dress-style-section py-5">

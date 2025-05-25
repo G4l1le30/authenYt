@@ -1,116 +1,437 @@
-<!-- Dashboard - Fashion HUB -->
+{{! views/dashboard.hbs }}
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Dashboard - Fashion HUB</title>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/css/bootstrap.min.css" rel="stylesheet" />
-  <link href="/style.css" rel="stylesheet" />
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>My Dashboard - Fashion HUB</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="/style.css">
 </head>
 <body>
-  <!-- Navbar -->
-  {{> navbar_main}}
+    {{> navbar_main }}
 
-  <!-- Dashboard Content -->
-  <div class="container mt-5">
-    <!-- Profile -->
-    <div class="card mb-4">
-      <div class="card-header"><h3>User Dashboard</h3></div>
-      <div class="card-body">
-        <p>Welcome, {{user.name}}!</p>
-        <p>Email: {{user.email}}</p>
-      </div>
-    </div>
-    <!-- Your Products -->
-<div class="card mb-4" id="your-products">
-  <div class="card-header"><h4>Your Products</h4></div>
-  <div class="card-body">
-    {{#if yourProducts.length}}
-    <div class="row">
-      {{#each yourProducts}}
-      <div class="col-md-3 mb-4">
-        <div class="card h-100 shadow-sm">
-          <img src="{{this.image_url}}" class="card-img-top" alt="{{this.name}}">
-          <div class="card-body">
-            <h5 class="card-title">{{this.name}}</h5>
-            <p class="text-primary fw-bold">Rp {{this.price}}</p>
-            <p>Stock: {{this.stock}}</p>
-            <p>{{this.description}}</p>
-            <!-- Opsional: tombol edit / delete -->
-          </div>
-        </div>
-      </div>
-      {{/each}}
-    </div>
-    {{else}}
-    <p>You have no products listed for sale.</p>
-    {{/if}}
-  </div>
-</div>
-
-
-    <!-- Wishlist -->
-    <div class="card mb-4" id="wishlist">
-      <div class="card-header"><h4>Your Wishlist</h4></div>
-      <div class="card-body">
-        {{#if wishlist.length}}
-        <div class="row">
-          {{#each wishlist}}
-          <div class="col-md-3 mb-4">
-            <div class="card h-100 shadow-sm">
-              <img src="{{this.image_url}}" class="card-img-top" alt="{{this.name}}">
-              <div class="card-body">
-                <h5 class="card-title">{{this.name}}</h5>
-                <p class="text-primary fw-bold">Rp {{this.price}}</p>
-                <button class="btn btn-outline-danger btn-sm" onclick="removeFromWishlist('{{this.id}}')">Hapus</button>
-              </div>
+    <main class="container mt-5 pt-5">
+        <div class="dashboard-header mb-4 p-4 rounded-3 shadow-sm bg-light">
+            <div class="d-flex align-items-center">
+                {{#if user.profile_image_url}}
+                <img src="{{user.profile_image_url}}" 
+                     alt="{{user.name}}'s Avatar" 
+                     class="user-dashboard-avatar rounded-circle me-3" 
+                     width="80" height="80"
+                     onerror="this.onerror=null;this.src='/img/avatars/default.png';">
+                {{else}}
+                <img src="/img/avatars/default.png" 
+                     alt="Default Avatar" 
+                     class="user-dashboard-avatar rounded-circle me-3" 
+                     width="80" height="80">
+                {{/if}}
+                <div>
+                    <h2 class="mb-1">Welcome to your Dashboard, {{user.name}}!</h2>
+                    {{#if user.average_seller_rating}}
+                    <div class="seller-rating-display mb-2" title="Your average seller rating based on your product reviews">
+                        <span class="product-rating-display">
+                            {{{generateStars (toFixed user.average_seller_rating 1)}}}
+                        </span>
+                    </div>
+                    {{/if}}
+                    <p class="text-muted mb-0">Here you can manage your account, view your orders, and more.</p>
+                </div>
             </div>
-          </div>
-          {{/each}}
         </div>
-        {{else}}
-        <p>Wishlist kamu kosong.</p>
-        {{/if}}
-      </div>
+
+        <hr>
+
+        {{!-- Navigasi Tab Dashboard --}}
+        <ul class="nav nav-tabs mb-3" id="dashboardTab" role="tablist">
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="my-profile-tab" data-bs-toggle="tab" data-bs-target="#my-profile-pane" type="button" role="tab" aria-controls="my-profile-pane" aria-selected="false">My Profile</button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="my-products-tab" data-bs-toggle="tab" data-bs-target="#my-products-pane" type="button" role="tab" aria-controls="my-products-pane" aria-selected="false">My Products</button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="wishlist-tab-dash" data-bs-toggle="tab" data-bs-target="#wishlist-pane-dash" type="button" role="tab" aria-controls="wishlist-pane-dash" aria-selected="false">My Wishlist</button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="cart-tab-dash" data-bs-toggle="tab" data-bs-target="#cart-pane-dash" type="button" role="tab" aria-controls="cart-pane-dash" aria-selected="false">My Cart</button>
+            </li>
+            {{!-- Tambahkan tab lain sesuai kebutuhan, mis: Orders, Settings --}}
+        </ul>
+
+        {{!-- Konten Tab --}}
+        <div class="tab-content" id="dashboardTabContent">
+            {{!-- Tab My Profile --}}
+            <div class="tab-pane fade" id="my-profile-pane" role="tabpanel" aria-labelledby="my-profile-tab" tabindex="0">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h4>My Profile Details</h4>
+                    <button class="btn btn-sm btn-outline-primary" id="btnEditProfile" data-bs-toggle="modal" data-bs-target="#editProfileModal">
+                        <i class="bi bi-pencil-square"></i> Edit Profile
+                    </button>
+                </div>
+                <p><strong>Name:</strong> <span id="displayName">{{user.name}}</span></p>
+                <p><strong>Email:</strong> <span id="displayEmail">{{user.email}}</span></p>
+                <p><strong>Bio:</strong> <span id="displayBio">{{#if user.bio}}{{user.bio}}{{else}}<em>No bio provided.</em>{{/if}}</span></p>
+            </div>
+
+            {{!-- Tab My Products --}}
+            <div class="tab-pane fade" id="my-products-pane" role="tabpanel" aria-labelledby="my-products-tab" tabindex="0">
+                <h4>My Listed Products</h4>
+                {{#if yourProducts.length}}
+                    <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-3">
+                        {{#each yourProducts}}
+                        <div class="col">
+                            <div class="card shadow-sm h-100">
+                                <a href="/product/{{this.id}}">
+                                    <img src="{{this.image_url}}" class="card-img-top" alt="{{this.name}}" style="height: 200px; object-fit: cover;">
+                                </a>
+                                <div class="card-body d-flex flex-column">
+                                    <h5 class="card-title product-name mb-1">{{this.name}}</h5>
+                                    <p class="card-text text-primary fw-bold mb-1">Rp {{this.price}}</p>
+                                    <div class="product-rating mb-2">
+                                        {{{generateStars this.rating}}}
+                                    </div>
+                                    <p class="card-text small text-muted mb-2">Stock: {{this.stock}}</p>
+                                    <div class="mt-auto">
+                                        <div class="btn-group d-flex">
+                                            <a href="/product/{{this.id}}" class="btn btn-sm btn-outline-secondary w-50">View</a>
+                                            {{!-- <a href="/product/edit/{{this.id}}" class="btn btn-sm btn-outline-primary w-50">Edit</a> --}}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {{/each}}
+                    </div>
+                {{else}}
+                    <p>You haven't listed any products yet. <a href="/sell">Sell your first item!</a></p>
+                {{/if}}
+            </div>
+
+            {{!-- Tab My Wishlist --}}
+            <div class="tab-pane fade" id="wishlist-pane-dash" role="tabpanel" aria-labelledby="wishlist-tab-dash" tabindex="0">
+                <h4>My Wishlist</h4>
+                {{#if wishlist.length}}
+                    <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-3">
+                        {{#each wishlist}}
+                        <div class="col">
+                             <div class="card shadow-sm h-100">
+                                <a href="/product/{{this.id}}">
+                                    <img src="{{this.image_url}}" class="card-img-top" alt="{{this.name}}" style="height: 200px; object-fit: cover;">
+                                </a>
+                                <div class="card-body d-flex flex-column">
+                                    <h5 class="card-title product-name mb-1">{{this.name}}</h5>
+                                    <p class="card-text text-primary fw-bold mb-1">Rp {{this.price}}</p>
+                                    <div class="product-rating mb-2">
+                                        {{{generateStars this.rating}}}
+                                    </div>
+                                    <small class="text-muted d-block mb-2">Added on: {{formatDate this.wishlist_added_at}}</small>
+                                    <div class="mt-auto">
+                                        <button class="btn btn-sm btn-outline-danger w-100" onclick="removeFromWishlistDashboard('{{this.id}}')">
+                                            <i class="bi bi-trash3"></i> Remove
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {{/each}}
+                    </div>
+                {{else}}
+                    <p>Your wishlist is empty. <a href="/allProduk">Start shopping!</a></p>
+                {{/if}}
+            </div>
+
+            {{!-- Tab My Cart --}}
+            <div class="tab-pane fade" id="cart-pane-dash" role="tabpanel" aria-labelledby="cart-tab-dash" tabindex="0">
+                <h4>My Shopping Cart</h4>
+                {{#if cartItemsDetailed.length}}
+                    {{!-- ... Konten Keranjang Belanja Anda ... --}}
+                {{else}}
+                    <p>Your cart is empty. <a href="/allProduk">Continue shopping!</a></p>
+                {{/if}}
+            </div>
+        </div> {{!-- Penutup untuk div.tab-content --}}
+    </main>
+
+    {{!-- Modal Edit Profile --}}
+    <div class="modal fade" id="editProfileModal" tabindex="-1" aria-labelledby="editProfileModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editProfileModalLabel">Edit Profile</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="formEditProfile">
+                        <div class="mb-3">
+                            <label for="editName" class="form-label">Name</label>
+                            <input type="text" class="form-control" id="editName" name="name" value="{{user.name}}" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="editEmail" class="form-label">Email</label>
+                            <input type="email" class="form-control" id="editEmail" name="email" value="{{user.email}}" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="editBio" class="form-label">Bio</label>
+                            <textarea class="form-control" id="editBio" name="bio" rows="3">{{user.bio}}</textarea>
+                        </div>
+                        <div class="mb-3">
+                            <label for="editAvatar" class="form-label">Change Avatar (Optional)</label>
+                            <input type="file" class="form-control" id="editAvatar" name="avatar" accept="image/png, image/jpeg, image/gif">
+                            <div class="form-text">Max file size: 1MB. Allowed types: PNG, JPG, GIF.</div>
+                            {{#if user.profile_image_url}}
+                                <div class="mt-2">
+                                    <small>Current Avatar:</small><br>
+                                    <img src="{{user.profile_image_url}}" alt="Current Avatar" style="width: 60px; height: 60px; object-fit: cover; border-radius: 50%;">
+                                </div>
+                            {{/if}}
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100">Save Changes</button>
+                    </form>
+                </div>
+            </div>
+        </div>
     </div>
 
-    <!-- Orders & Cart Placeholder -->
-    <div class="card mb-4" id="orders">
-      <div class="card-header"><h4>Your Orders</h4></div>
-      <div class="card-body"><p>You have no orders yet.</p></div>
+    {{!-- Modal Konfirmasi Hapus Wishlist --}}
+    <div class="modal fade" id="confirmRemoveWishlistModal" tabindex="-1" aria-labelledby="confirmRemoveModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="confirmRemoveModalLabel">Confirm Removal</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    Are you sure you want to remove this item from your wishlist?
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-danger" id="btnConfirmRemoveWishlist">Yes, Remove</button>
+                </div>
+            </div>
+        </div>
     </div>
-    <div class="card mb-4" id="cart">
-      <div class="card-header"><h4>Your Cart</h4></div>
-      <div class="card-body"><p>Your cart is empty.</p></div>
+    
+    {{!-- Elemen Toast --}}
+    <div class="toast-container position-fixed bottom-0 end-0 p-3" style="z-index: 1100">
+        <div id="dashboardToast" class="toast align-items-center text-bg-dark border-0" role="alert" aria-live="assertive" aria-atomic="true">
+            <div class="d-flex">
+                <div class="toast-body" id="dashboardToastBody"></div>
+                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+            </div>
+        </div>
     </div>
-  </div>
-  <!--footer-->
-  {{> footer_main}}
 
-  <script>
-    function removeFromWishlist(wishlistId) {
-    fetch(`/auth/wishlist/${wishlistId}`, {
-        method: 'DELETE',
-        headers: {
-            'Content-Type': 'application/json'
+    {{> footer_main }}
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Fungsi untuk menampilkan toast notifikasi di dashboard
+        function showDashboardToast(message, type = 'dark') {
+            const toastEl = document.getElementById('dashboardToast');
+            const toastBody = document.getElementById('dashboardToastBody');
+            if (!toastEl || !toastBody) {
+                console.error('Dashboard Toast elements not found!');
+                return;
+            }
+            
+            toastEl.classList.remove('text-bg-dark', 'text-bg-success', 'text-bg-danger', 'text-bg-warning', 'text-bg-info');
+            let toastTypeClass = 'text-bg-dark';
+            if (type === 'success') toastTypeClass = 'text-bg-success';
+            else if (type === 'danger') toastTypeClass = 'text-bg-danger';
+            else if (type === 'warning') toastTypeClass = 'text-bg-warning';
+            else if (type === 'info') toastTypeClass = 'text-bg-info';
+            toastEl.classList.add(toastTypeClass);
+
+            toastBody.textContent = message;
+            try {
+                const toast = bootstrap.Toast.getOrCreateInstance(toastEl);
+                toast.show();
+            } catch (e) { console.error('Error showing dashboard toast:', e); }
         }
-    })
-    .then(res => res.json())
-    .then(data => {
-        if (data.success) {
-            alert('Berhasil menghapus dari wishlist');
-            window.location.reload();
-        } else {
-            alert(data.message || 'Gagal menghapus dari wishlist');
-        }
-    })
-    .catch(err => {
-        alert('Terjadi kesalahan');
-        console.error(err);
-    });
-}
 
-  </script>
+        // --- Logika untuk Tombol Hapus Wishlist dengan Modal Konfirmasi ---
+        let productIdToRemoveFromWishlist = null; 
+        const confirmRemoveWishlistModalElement = document.getElementById('confirmRemoveWishlistModal');
+        const confirmRemoveWishlistModal = confirmRemoveWishlistModalElement ? new bootstrap.Modal(confirmRemoveWishlistModalElement) : null;
+        const btnConfirmRemoveWishlistAction = document.getElementById('btnConfirmRemoveWishlist');
+
+        function removeFromWishlistDashboard(productId) {
+            console.log('[DASHBOARD WISHLIST] Requesting to remove product ID:', productId);
+            productIdToRemoveFromWishlist = productId; 
+            if (confirmRemoveWishlistModal) {
+                confirmRemoveWishlistModal.show(); 
+            } else {
+                console.error('Confirm remove wishlist modal not found. Falling back to confirm().');
+                if (confirm('Are you sure you want to remove this item from your wishlist? (Modal Error)')) {
+                    proceedToRemoveWishlist(productIdToRemoveFromWishlist); 
+                }
+            }
+        }
+
+        if (btnConfirmRemoveWishlistAction) {
+            btnConfirmRemoveWishlistAction.addEventListener('click', async () => {
+                if (productIdToRemoveFromWishlist) {
+                    await proceedToRemoveWishlist(productIdToRemoveFromWishlist);
+                }
+                if (confirmRemoveWishlistModal) {
+                    confirmRemoveWishlistModal.hide(); 
+                }
+            });
+        }
+
+        async function proceedToRemoveWishlist(productId) {
+            console.log('[DASHBOARD WISHLIST] Proceeding to remove product ID:', productId);
+            let response; 
+            try {
+                response = await fetch(`/auth/wishlist/${productId}`, { 
+                    method: 'DELETE',
+                    headers: { 'Content-Type': 'application/json' },
+                    credentials: 'include'
+                });
+                const data = await response.json();
+                if (response.ok && data.success) {
+                    showDashboardToast('✅ Removed from wishlist! Page will reload.', 'success');
+                    setTimeout(() => window.location.reload(), 1500); 
+                } else {
+                    showDashboardToast(data.message || 'Failed to remove from wishlist.', 'danger');
+                }
+            } catch (error) {
+                console.error('Error removing from wishlist:', error);
+                if (response && response.status === 401){
+                     showDashboardToast('Sesi Anda berakhir. Silakan login lagi.', 'warning');
+                     setTimeout(() => { window.location.href = '/login'; }, 2000);
+                } else {
+                    showDashboardToast('Error removing from wishlist. Check console.', 'danger');
+                }
+            }
+            productIdToRemoveFromWishlist = null; 
+        }
+
+        // JavaScript untuk Tab Aktif berdasarkan Hash URL dan Update Hash saat Tab Diklik
+        document.addEventListener('DOMContentLoaded', function () {
+            const dashboardTab = document.getElementById('dashboardTab');
+            if(dashboardTab){
+                var hash = window.location.hash;
+                var tabToActivate = null;
+
+                if (hash) {
+                    tabToActivate = dashboardTab.querySelector('button[data-bs-target="' + hash + '"]');
+                    if (!tabToActivate && hash.endsWith('-pane')) {
+                        tabToActivate = dashboardTab.querySelector('button[data-bs-target="' + hash.substring(0, hash.length - 5) + '"]');
+                    }
+                    if (!tabToActivate && !hash.endsWith('-pane')) {
+                        tabToActivate = dashboardTab.querySelector('button[data-bs-target="' + hash + '-pane"]');
+                    }
+                }
+                
+                if (!tabToActivate) {
+                    // Jika activeTab dikirim dari server, gunakan itu
+                    const serverActiveTabTarget = "{{#if activeTab}}{{activeTab}}{{else}}my-profile-pane{{/if}}"; 
+                    tabToActivate = dashboardTab.querySelector('button[data-bs-target="#' + serverActiveTabTarget + '"]');
+                    if (!tabToActivate) { // Fallback ke tab pertama jika serverActiveTabTarget juga tidak cocok
+                         tabToActivate = dashboardTab.querySelector('button#my-profile-tab');
+                    }
+                }
+
+                if (tabToActivate) {
+                    // Hapus kelas 'active' dari semua tombol nav-link sebelum mengaktifkan yang baru
+                    dashboardTab.querySelectorAll('button.nav-link').forEach(btn => btn.classList.remove('active'));
+                    // Hapus kelas 'show active' dari semua tab-pane sebelum mengaktifkan yang baru
+                    document.querySelectorAll('#dashboardTabContent .tab-pane').forEach(pane => {
+                        pane.classList.remove('show', 'active');
+                    });
+                    
+                    // Aktifkan tab yang benar
+                    tabToActivate.classList.add('active');
+                    const targetPane = document.querySelector(tabToActivate.dataset.bsTarget);
+                    if(targetPane) targetPane.classList.add('show', 'active');
+
+                    // Inisialisasi instance Tab Bootstrap untuk fungsionalitas klik (jika belum otomatis)
+                    // Namun, logika di bawah untuk 'shown.bs.tab' lebih baik untuk update hash
+                    // var tab = new bootstrap.Tab(tabToActivate);
+                    // tab.show(); // Ini mungkin menyebabkan double event atau tidak perlu jika kelas sudah diset
+                }
+
+                const tabTriggers = dashboardTab.querySelectorAll('button[data-bs-toggle="tab"]');
+                tabTriggers.forEach(trigger => {
+                    trigger.addEventListener('shown.bs.tab', event => {
+                        let targetPaneId = event.target.dataset.bsTarget; 
+                        if(targetPaneId && targetPaneId.startsWith('#')) {
+                            history.replaceState(null, null, targetPaneId); 
+                        }
+                    });
+                });
+            }
+        });
+
+        // --- Logika untuk Edit Profile ---
+        const editProfileModalElement = document.getElementById('editProfileModal');
+        const editProfileModal = editProfileModalElement ? new bootstrap.Modal(editProfileModalElement) : null;
+        const formEditProfile = document.getElementById('formEditProfile');
+        const displayNameElement = document.getElementById('displayName');
+        const displayEmailElement = document.getElementById('displayEmail');
+        const displayBioElement = document.getElementById('displayBio');
+
+        if (editProfileModalElement) {
+            editProfileModalElement.addEventListener('show.bs.modal', function () {
+                // Isi form dengan data user saat ini (jika belum diisi oleh Handlebars, atau untuk refresh)
+                document.getElementById('editName').value = "{{user.name}}";
+                document.getElementById('editEmail').value = "{{user.email}}";
+                document.getElementById('editBio').value = "{{user.bio}}";
+            });
+        }
+
+        if (formEditProfile) {
+            formEditProfile.addEventListener('submit', async function(event) {
+                event.preventDefault();
+                const formData = new FormData();
+                formData.append('name', document.getElementById('editName').value);
+                formData.append('email', document.getElementById('editEmail').value);
+                formData.append('bio', document.getElementById('editBio').value);
+                const avatarFile = document.getElementById('editAvatar').files[0];
+                if (avatarFile) {
+                    formData.append('avatar', avatarFile);
+                }
+
+                if (!formData.get('name') || !formData.get('email')) {
+                    showDashboardToast('Name and Email are required.', 'warning');
+                    return;
+                }
+                console.log('[PROFILE EDIT] Submitting profile update with FormData...');
+                try {
+                    const response = await fetch('/api/profile/update', {
+                        method: 'POST',
+                        body: formData,
+                        credentials: 'include'
+                    });
+                    const data = await response.json();
+                    console.log('[PROFILE EDIT] Response Data:', data);
+                    if (response.ok && data.success) {
+                        showDashboardToast('✅ Profile updated successfully!', 'success');
+                        if (editProfileModal) {
+                            editProfileModal.hide();
+                        }
+                        if (displayNameElement) displayNameElement.textContent = data.user.name;
+                        if (displayEmailElement) displayEmailElement.textContent = data.user.email;
+                        if (displayBioElement) displayBioElement.textContent = data.user.bio || 'No bio provided.';
+                        const userDashboardAvatar = document.querySelector('.user-dashboard-avatar');
+                        if (userDashboardAvatar && data.user.profile_image_url) {
+                            userDashboardAvatar.src = data.user.profile_image_url;
+                        }
+                        // Untuk update navbar, cara termudah adalah reload jika nama berubah
+                        if (data.user.name !== "{{user.name}}" || (data.user.profile_image_url && data.user.profile_image_url !== "{{user.profile_image_url}}")) {
+                           // window.location.reload(); // Atau cara yang lebih canggih untuk update navbar
+                        }
+                    } else {
+                        showDashboardToast(data.message || 'Failed to update profile.', 'danger');
+                    }
+                } catch (error) {
+                    console.error('[PROFILE EDIT] Submit Error:', error);
+                    showDashboardToast('An error occurred while updating profile.', 'danger');
+                }
+            });
+        }
+    </script>
 </body>
 </html>

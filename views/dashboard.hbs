@@ -142,16 +142,43 @@
                 {{/if}}
             </div>
 
-            {{!-- Tab My Cart --}}
-            <div class="tab-pane fade" id="cart-pane-dash" role="tabpanel" aria-labelledby="cart-tab-dash" tabindex="0">
-                <h4>My Shopping Cart</h4>
-                {{#if cartItemsDetailed.length}}
-                    {{!-- ... Konten Keranjang Belanja Anda ... --}}
-                {{else}}
-                    <p>Your cart is empty. <a href="/allProduk">Continue shopping!</a></p>
-                {{/if}}
+            {{!-- views/dashboard.hbs - Tab My Cart --}}
+<div class="tab-pane fade {{#if (eq activeTab 'cart-pane-dash')}}show active{{/if}}" id="cart-pane-dash" role="tabpanel" aria-labelledby="cart-tab-dash" tabindex="0">
+    <h4>My Shopping Cart</h4>
+    {{#if cartItemsDetailed.length}}
+        <div id="cartItemsContainerDashboard">
+            {{#each cartItemsDetailed}}
+            <div class="card mb-3 cart-item-card-dashboard" data-cart-item-id="{{this.cart_item_id}}">
+                <div class="row g-0">
+                    <div class="col-md-2 col-sm-3">
+                        <img src="{{this.image_url}}" class="img-fluid rounded-start" alt="{{this.name}}" style="max-height: 120px; object-fit: contain; padding: 5px;">
+                    </div>
+                    <div class="col-md-10 col-sm-9">
+                        <div class="card-body py-2 px-3">
+                            <div class="d-flex justify-content-between">
+                                <h5 class="card-title mb-1">{{this.name}}</h5>
+                                <button type="button" class="btn-close btn-sm btn-remove-from-cart-dash" aria-label="Remove" data-cart-item-id="{{this.cart_item_id}}" title="Remove item"></button>
+                            </div>
+                            <p class="card-text mb-1">Price: Rp {{this.price}}</p>
+                            <div class="d-flex align-items-center mb-1">
+                                <label for="quantity-{{this.product_id}}-dash" class="form-label me-2 small mb-0">Qty:</label>
+                                <input type="number" id="quantity-{{this.product_id}}-dash" class="form-control form-control-sm quantity-input-dash" value="{{this.quantity}}" min="1" style="width: 70px;" data-cart-item-id="{{this.cart_item_id}}" data-product-id="{{this.product_id}}">
+                            </div>
+                            <p class="card-text mt-1 fw-semibold">Subtotal: Rp <span class="item-subtotal-dash" id="subtotal-{{this.cart_item_id}}">{{multiply this.price this.quantity}}</span></p>
+                        </div>
+                    </div>
+                </div>
             </div>
-        </div> {{!-- Penutup untuk div.tab-content --}}
+            {{/each}}
+        </div>
+        <div class="text-end mt-3">
+            <h5>Total: Rp <span id="cartTotalDashboard">{{toFixed cartTotal 0}}</span></h5>
+            <a href="/checkout" class="btn btn-primary">Proceed to Checkout</a>
+        </div>
+    {{else}}
+        <p>Your cart is empty. <a href="/allProduk">Continue shopping!</a></p>
+    {{/if}}
+</div>
     </main>
 
     {{!-- Modal Edit Profile --}}

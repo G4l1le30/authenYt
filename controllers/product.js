@@ -190,7 +190,7 @@ exports.showProductDetailPage = async (req, res) => {
         `, [productId]);
         // ============================================
         
-        res.render('singleProduct', {
+        res.render('singleproduct', {
             product: product,
             isWishlisted: isWishlisted,
             reviews: reviews, // <-- KIRIM DATA ULASAN KE TEMPLATE

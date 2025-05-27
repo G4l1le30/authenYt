@@ -5,20 +5,25 @@
     -->
     <nav class="navbar navbar-expand-lg navbar-light bg-white fixed-top custom-navbar"> <!-Ubah class->
         <div class="container"> <!- Gunakan container biasa untuk padding ->
-            <a class="navbar-brand fw-bold" href="/">SHOP.CO</a>
+            <a class="navbar-brand fw-bold d-flex align-items-center" href="/">
+  <img
+    src="/img/logo/LOGO FINAL.png"
+    alt="company logo"
+    class="img-fluid ms-2"
+    style="max-height: 40px;"
+  />
+</a>
+
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavDesktop" aria-controls="navbarNavDesktop" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse" id="navbarNavDesktop">
                 <ul class="navbar-nav mx-auto"> <!- mx-auto untuk tengahkan ->
                     <li class="nav-item">
-                        <a class="nav-link active" href="/">Home</a> <!- Contoh link ->
+                        <a class="nav-link " href="/">Home</a> <!- Contoh link ->
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="#">On Sale</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link active" href="/allProduk">Shop</a> <!- Misalnya ini aktif ->
+                        <a class="nav-link " href="/allProduk">Shop</a> <!- Misalnya ini aktif ->
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="#">Brands</a>
@@ -26,7 +31,7 @@
                 </ul>
                 <div class="d-flex align-items-center navbar-icons">
                     <a href="#" class="nav-icon-item me-3"><i class="bi bi-search"></i></a>
-                    <a href="/dashboard#cart" class="nav-icon-item me-3">
+                    <a href="/dashboard#cart-pane-dash" class="nav-icon-item me-3">
                         <i class="bi bi-cart3"></i>
                         </a>
                     {{#if user}}

@@ -39,46 +39,58 @@ exports.getAllProducts = async (req, res) => {
   }
 };
 
+// controllers/product.js
 exports.uploadProduct = async (req, res) => {
-  try {
-    const userId = req.user.id; // Dari middleware auth
-    const { name, price, description, stock, category_id } = req.body;
-    const files = req.files;
+    try {
+        const userId = req.user.id;
+        const { name, price, description, stock, category_id } = req.body;
+        const files = req.files;
 
-    if (!name || !price || !category_id || !stock) {
-      return res.status(400).json({ error: 'Name, price, category and stock are required' });
+        if (!name || !price || !category_id || !stock) {
+            // Jika ada error, render kembali halaman 'sell' dengan pesan error
+            const [categories] = await pool.query('SELECT * FROM categories');
+            return res.render('sell', { 
+                categories, 
+                user: req.user,
+                message: { type: 'danger', text: 'Name, price, category and stock are required.' } 
+            });
+        }
+        if (!files || files.length === 0) {
+             const [categories] = await pool.query('SELECT * FROM categories');
+             return res.render('sell', { 
+                categories, 
+                user: req.user,
+                message: { type: 'danger', text: 'At least one product image is required.' } 
+            });
+        }
+
+        const mainImageUrl = '/img/uploaded/' + files[0].filename;
+        const [result] = await db.query(
+            `INSERT INTO products (name, price, description, stock, category_id, image_url, user_id) VALUES (?, ?, ?, ?, ?, ?, ?)`,
+            [name, price, description, stock, category_id, mainImageUrl, userId]
+        );
+        const productId = result.insertId;
+
+        const imagePromises = files.map(file => {
+            const url = '/img/uploaded/' + file.filename;
+            return db.query(`INSERT INTO product_images (product_id, image_url) VALUES (?, ?)`, [productId, url]);
+        });
+        await Promise.all(imagePromises);
+
+        // Redirect ke halaman sell lagi dengan pesan sukses, atau ke halaman produk
+        // Kita coba redirect ke halaman produk yang baru dibuat
+        res.redirect(`/product/${productId}?status=uploaded`); 
+
+    } catch (error) {
+        console.error('Error uploading product:', error);
+        const [categories] = await pool.query('SELECT * FROM categories');
+        res.render('sell', { 
+            categories, 
+            user: req.user,
+            message: { type: 'danger', text: 'Failed to upload product. Please try again.' } 
+        });
     }
-
-    if (!files || files.length === 0) {
-      return res.status(400).json({ error: 'At least one product image is required' });
-    }
-
-    // Simpan produk, set image_url ke gambar pertama
-    const mainImageUrl = '/img/uploaded/' + files[0].filename;
-
-    // Tambahkan user_id di query INSERT
-    const [result] = await db.query(
-      `INSERT INTO products (name, price, description, stock, category_id, image_url, user_id) VALUES (?, ?, ?, ?, ?, ?, ?)`,
-      [name, price, description, stock, category_id, mainImageUrl, userId]
-    );
-
-    const productId = result.insertId;
-
-    // Simpan gambar produk lain ke product_images
-    const imagePromises = files.map(file => {
-      const url = '/img/uploaded/' + file.filename;
-      return db.query(`INSERT INTO product_images (product_id, image_url) VALUES (?, ?)`, [productId, url]);
-    });
-
-    await Promise.all(imagePromises);
-
-    res.status(201).json({ message: 'Product uploaded successfully', productId });
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: 'Failed to upload product' });
-  }
 };
-
 
 // Ambil detail produk lengkap dengan semua gambar (API JSON) - PERBAIKI INI
 exports.getProductDetail = async (req, res) => { // Jadikan async

@@ -114,6 +114,23 @@ hbs.registerHelper('toFixed', function (number, digits) {
 hbs.registerHelper('multiply', function(a, b) {
     return parseFloat(a) * parseFloat(b);
 });
+hbs.registerHelper('add', function(a, b) {
+  return Number(a) + Number(b);
+});
+
+hbs.registerHelper('formatRupiah', function (number) {
+  if (number === null || number === undefined || isNaN(parseFloat(number))) {
+    return 'Rp 0'; // Atau tampilkan string kosong atau pesan lain
+  }
+  // Pastikan number adalah angka untuk toLocaleString
+  const num = parseFloat(number);
+  return new Intl.NumberFormat('id-ID', { 
+    style: 'currency', 
+    currency: 'IDR', 
+    minimumFractionDigits: 0, // Tidak menampilkan desimal jika 00
+    maximumFractionDigits: 2  // Maksimal 2 desimal jika ada
+  }).format(num);
+});
 // Test koneksi database (async/await)
 async function testConnection() {
   try {

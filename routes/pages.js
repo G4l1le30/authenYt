@@ -134,19 +134,89 @@ res.render('sellerProfile', {
     }
 });
 // Halaman semua produk
-router.get('/allProduk', async (req, res) => {
-  try {
-    const [products] = await pool.query('SELECT id, name, price, image_url, description, stock, rating FROM products');
 
-    res.render('allProduk', { 
-        products, 
-        user: req.user 
-        // Tidak perlu wishlistProductIds lagi jika sudah dihapus dari template
-    });
-  } catch (err) {
-    console.error(err);
-    res.render('allProduk', { products: [], user: req.user }); // Kirim user juga saat error
-  }
+router.get('/allProduk', async (req, res) => {
+    try {
+        const styleSlug = req.query.style;
+        const categoryId = req.query.category_id; 
+
+        let productQuery = `
+            SELECT p.id, p.name, p.price, p.image_url, p.description, p.stock, p.rating, 
+                   c.name as category_name, s.name as style_name 
+            FROM products p 
+            LEFT JOIN categories c ON p.category_id = c.id 
+            LEFT JOIN styles s ON p.style_id = s.id`; // Pastikan p.style_id ada di tabel products
+        
+        let queryParams = [];
+        let pageTitle = "All Products";
+        let filterDescription = "Explore our complete product collection";
+        let conditions = [];
+        let currentCategoryName = null;
+        let currentStyleName = null;
+
+        const [allCategories] = await pool.query('SELECT id, name FROM categories ORDER BY name'); // Sudah diperbaiki
+        const [allStyles] = await pool.query('SELECT id, name, slug FROM styles ORDER BY name');
+
+        if (styleSlug) {
+            const [styleRows] = await pool.query('SELECT id, name FROM styles WHERE slug = ?', [styleSlug]);
+            if (styleRows.length > 0) {
+                conditions.push('p.style_id = ?'); // Ini akan berfungsi jika p.style_id ada
+                queryParams.push(styleRows[0].id);
+                currentStyleName = styleRows[0].name;
+                pageTitle = `${currentStyleName} Style`;
+                filterDescription = `Showing all products for ${currentStyleName} style.`;
+            } else {
+                console.log(`Style slug "${styleSlug}" not found.`);
+            }
+        } else if (categoryId) {
+            conditions.push('p.category_id = ?');
+            queryParams.push(categoryId);
+            const [categoryRows] = await pool.query('SELECT name FROM categories WHERE id = ?', [categoryId]);
+            if (categoryRows.length > 0) {
+                currentCategoryName = categoryRows[0].name;
+                pageTitle = `Category: ${currentCategoryName}`;
+                filterDescription = `Showing all products in the ${currentCategoryName} category.`;
+            }
+        }
+
+        if (conditions.length > 0) {
+            productQuery += ' WHERE ' + conditions.join(' AND ');
+        }
+        productQuery += ' ORDER BY p.created_at DESC';
+
+        const [products] = await pool.query(productQuery, queryParams);
+
+        res.render('allProduk', { 
+            products, 
+            pageTitle: pageTitle,
+            filterDescription: filterDescription,
+            allCategories: allCategories,
+            allStyles: allStyles,
+            currentStyleSlug: styleSlug,
+            currentCategoryId: categoryId,
+            currentCategoryName: currentCategoryName,
+            currentStyleName: currentStyleName,
+            user: req.user 
+        });
+    } catch (err) {
+        console.error('Error fetching /allProduk:', err);
+        let fallbackCategories = [];
+        let fallbackStyles = [];
+        try {
+            [fallbackCategories] = await pool.query('SELECT id, name FROM categories ORDER BY name'); // Sudah diperbaiki
+            [fallbackStyles] = await pool.query('SELECT id, name, slug FROM styles ORDER BY name');
+        } catch (dbError) {
+            console.error('Error fetching categories/styles for error page:', dbError);
+        }
+        res.status(500).render('allProduk', { 
+            products: [], 
+            pageTitle: "Error Loading Products",
+            filterDescription: "An error occurred while loading products.",
+            allCategories: fallbackCategories,
+            allStyles: fallbackStyles,
+            user: req.user 
+        });
+    }
 });
 
 // Auth pages

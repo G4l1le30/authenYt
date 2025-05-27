@@ -536,8 +536,124 @@ footer {
 */
 
 /* ============== SINGLE PRODUCT PAGE ============== */
-.single-product-main { /* Ganti <main class="container my-5 pt-3"> menjadi <main class="container single-product-main my-5 pt-3"> */
-    /* Bisa tambahkan style khusus untuk wrapper utama jika perlu */
+/* style.css */
+
+/* Styling untuk Single Product Page */
+.single-product-page .product-gallery .main-product-image {
+    max-height: 550px; /* Batasi tinggi gambar utama */
+    overflow: hidden;
+    border-radius: 0.375rem; /* Bootstrap's rounded-3 */
+}
+.single-product-page .main-product-image img {
+    width: 100%;
+    height: auto; /* Biarkan tinggi menyesuaikan agar tidak distorsi */
+    max-height: 550px;
+    object-fit: contain; /* 'contain' agar seluruh gambar terlihat, 'cover' untuk mengisi */
+}
+
+.single-product-page .product-thumbnails .thumbnail-item {
+    width: 70px;
+    height: 70px;
+    overflow: hidden;
+    border: 2px solid transparent;
+    border-radius: 0.25rem; /* Bootstrap's rounded-2 */
+}
+.single-product-page .product-thumbnails .thumbnail-item img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    cursor: pointer;
+    transition: border-color 0.2s ease-in-out;
+}
+.single-product-page .product-thumbnails .thumbnail-item img.active-thumbnail {
+     border-color: #007bff; /* Warna border untuk thumbnail aktif */
+}
+
+.single-product-page .product-options .form-label {
+    margin-bottom: 0.3rem;
+}
+.single-product-page .product-options .color-swatches,
+.single-product-page .product-options .size-selector {
+    margin-top: 0.2rem;
+}
+
+.single-product-page .color-swatches .color-swatch-btn {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    /* Border diatur dari style string di controller */
+    margin-right: 6px;
+    margin-bottom: 6px;
+    cursor: pointer;
+    padding: 0;
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.1s ease-in-out, box-shadow 0.1s ease-in-out;
+    outline: none;
+}
+.single-product-page .color-swatches .color-swatch-btn:hover {
+    transform: scale(1.15);
+}
+.single-product-page .color-swatches .color-swatch-btn.active {
+    box-shadow: 0 0 0 2px white, 0 0 0 3.5px #007bff;
+}
+.single-product-page .color-swatches .color-swatch-btn .swatch-active-icon {
+    font-size: 0.9rem;
+    line-height: 1;
+    /* Warna ikon centang akan diatur oleh JS */
+}
+
+.single-product-page .size-selector .size-option-label {
+    min-width: 45px;
+    padding: 0.375rem 0.6rem;
+    font-size: 0.9rem;
+}
+
+.single-product-page #selectedColorNameDisplay,
+.single-product-page #selectedSizeNameDisplay {
+    font-weight: normal;
+    font-size: 0.95em;
+    color: #555;
+}
+
+.single-product-page .product-rating-display.review-stars .bi-star-fill,
+.single-product-page .product-rating-display.review-stars .bi-star-half,
+.single-product-page .product-rating-display.review-stars .bi-star {
+    font-size: 0.85rem;
+}
+
+.single-product-page .star-rating-input i {
+    cursor: pointer;
+    color: #ccc;
+    font-size: 1.5rem;
+    margin-right: 2px;
+    transition: color 0.2s ease;
+}
+.single-product-page .star-rating-input i.hovered,
+.single-product-page .star-rating-input i.selected {
+    color: #ffc107;
+}
+
+.single-product-page .product-breadcrumb .breadcrumb-item a {
+    text-decoration: none;
+}
+.single-product-page .product-breadcrumb .breadcrumb-item.active {
+    color: #6c757d; /* Warna default Bootstrap untuk teks aktif */
+}
+.single-product-page .product-title {
+    font-weight: 600; /* Sedikit lebih tebal */
+}
+.single-product-page .product-pricing .current-price {
+    color: #212529; /* Warna harga */
+}
+.single-product-page .quantity-control-group .input-group {
+    max-width: 150px;
+}
+/* Pastikan tombol wishlist dan add to cart memiliki tampilan yang sesuai */
+.single-product-page .btn-wishlist-single.active i.bi-heart-fill {
+    color: red; /* Pastikan warna merah untuk wishlist aktif */
 }
 
 /* Styling untuk Carousel Gambar Produk */
@@ -611,6 +727,7 @@ footer {
 }
 
 /* Styling untuk Info Produk di Kanan */
+
 .product-details-column h1 { /* Nama Produk */
     font-size: 2.2rem; /* Lebih besar */
     font-weight: 700;
@@ -897,95 +1014,122 @@ footer {
     margin-right: 0.4em;
 }
 /* ============== CATEGORY/ALL PRODUCTS PAGE ============== */
-.category-header {
-    /* Style untuk header halaman kategori/allproduk jika perlu */
-}
 
-.product-breadcrumb .breadcrumb-item a {
-    color: #6c757d;
-    text-decoration: none;
+/* Styling untuk Filter di allProduk.hbs */
+.filters-sidebar .filter-link.active {
+    font-weight: bold;
+    color: #007bff;
+    text-decoration: underline;
 }
-.product-breadcrumb .breadcrumb-item a:hover {
-    color: #000000;
+.filters-sidebar .filter-list {
+    padding-left: 0;
+    max-height: 200px;
+    overflow-y: auto;
 }
-.product-breadcrumb .breadcrumb-item.active {
-    color: #343a40;
-    font-weight: 500;
-}
-
-.filters-sidebar {
-    /* Style untuk kontainer filter */
-}
-
-.filters-sidebar .filter-group {
-    border-bottom: 1px solid #efefef;
-    padding-bottom: 1rem;
-}
-.filters-sidebar .filter-group:last-child {
-    border-bottom: none;
-    padding-bottom: 0;
-}
-
-.filters-sidebar .filter-title {
-    font-size: 1rem;
-    font-weight: 600;
-    color: #333;
-}
-
-.filters-sidebar .filter-list li {
-    margin-bottom: 0.4rem;
-}
-
-.filters-sidebar .filter-list .filter-link {
-    font-size: 0.9rem;
-    color: #555;
-    text-decoration: none;
+.filters-sidebar .filter-list li a {
     display: block;
-    padding: 0.2rem 0;
-    transition: color 0.2s ease;
+    padding: 0.25rem 0;
+    text-decoration: none;
+    color: #212529;
 }
-
-.filters-sidebar .filter-list .filter-link:hover,
-.filters-sidebar .filter-list .filter-link.active {
-    color: #000000;
-    font-weight: 600;
+.filters-sidebar .filter-list li a:hover {
+    color: #0056b3;
 }
-
-.size-selector-filter .size-filter-option {
-    /* Mirip dengan .size-option di singleProduct */
-    border-color: #ccc;
-    color: #555;
+.filters-sidebar .btn-check:checked + .btn-outline-secondary.btn-filter-size,
+.filters-sidebar .btn-filter-size.active {
+    background-color: #343a40;
+    color: white;
+    border-color: #343a40;
 }
-.size-selector-filter .size-filter-option.active,
-.size-selector-filter .size-filter-option:hover {
-    background-color: #000;
-    color: #fff;
-    border-color: #000;
-}
-
-.color-swatches-filter .color-swatch-filter {
+.filters-sidebar .color-swatches-filter .color-swatch-btn {
     width: 24px;
     height: 24px;
     border-radius: 50%;
-    border: 2px solid transparent;
-    margin-right: 5px;
-    margin-bottom: 5px;
+    margin: 2px;
     cursor: pointer;
-    box-shadow: 0 0 0 1px rgba(0,0,0,0.1) inset; /* inset shadow untuk efek lebih baik */
+    border: 1px solid #dee2e6;
+    outline: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: box-shadow 0.1s ease-in-out;
 }
-.color-swatches-filter .color-swatch-filter.active,
-.color-swatches-filter .color-swatch-filter:hover {
-    border-color: #000000;
+.filters-sidebar .color-swatches-filter .color-swatch-btn:hover {
+    border-color: #adb5bd;
+}
+.filters-sidebar .color-swatches-filter .color-swatch-btn.active {
+    box-shadow: 0 0 0 2px white, 0 0 0 3.5px #007bff;
+    border-color: #007bff !important;
+}
+.filters-sidebar .color-swatches-filter .color-swatch-btn .swatch-check-icon {
+    font-size: 0.8em;
+    line-height: 1;
+}
+.filters-sidebar .filter-title {
+    font-size: 1rem;
+    font-weight: 500;
 }
 
-
-.product-list-controls {
-    /* Style untuk baris showing results dan sort by */
+/* Styling Product Card */
+.product-card-new {
+    border: 1px solid #e9ecef;
+    transition: box-shadow .3s ease-in-out;
+    display: flex;
+    flex-direction: column;
+}
+.product-card-new:hover {
+    box-shadow: 0 .5rem 1rem rgba(0,0,0,.15)!important;
+}
+.product-card-new .product-image-link {
+    display: block;
+    overflow: hidden;
+    aspect-ratio: 1 / 1;
+}
+.product-card-new .product-card-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform .3s ease-in-out;
+}
+.product-card-new:hover .product-card-img {
+    transform: scale(1.05);
+}
+.product-card-new .product-card-body {
+    padding: 1rem;
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+.product-card-new .product-name {
+    font-size: 0.95rem;
+    font-weight: 500;
+    color: #343a40;
+    margin-bottom: 0.5rem;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    min-height: 2.4em;
+}
+.product-card-new .product-rating {
+    font-size: 0.8rem;
+    color: #ffc107;
+    margin-bottom: 0.5rem;
+}
+.product-card-new .product-price {
+    font-size: 1.1rem;
+    color: #212529;
 }
 .product-list-controls .form-select-sm {
     font-size: 0.875rem;
 }
 
+/* Tambahan untuk memastikan tampilan ikon centang pada swatch warna filter terlihat baik */
+.filters-sidebar .color-swatches-filter .color-swatch-btn.active .swatch-check-icon {
+    /* Warna diatur oleh JS */
+}
 /* Pastikan style .product-card-new dari index.hbs juga berlaku di sini */
 /* Anda mungkin perlu menambahkan style .favorite-icon-list jika mengaktifkan tombol wishlist di kartu */
 .favorite-icon-list {

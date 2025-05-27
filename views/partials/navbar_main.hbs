@@ -1,54 +1,67 @@
-<!--
-<div style="background-color: yellow; color: black; padding: 5px; text-align: left; font-size: 12px;">
-    User di Navbar: {{#if user}}Ada User (ID: {{user.id}}, Nama: {{user.name}}){{else}}User TIDAK ADA atau null{{/if}}<br>
-    </div>
-    -->
-    <nav class="navbar navbar-expand-lg navbar-light bg-white fixed-top custom-navbar"> <!-Ubah class->
-        <div class="container"> <!- Gunakan container biasa untuk padding ->
-            <a class="navbar-brand fw-bold d-flex align-items-center" href="/">
-  <img
-    src="/img/logo/LOGO FINAL.png"
-    alt="company logo"
-    class="img-fluid ms-2"
-    style="max-height: 40px;"
-  />
-</a>
+{{! views/partials/navbar_main.hbs }}
+<nav class="navbar navbar-expand-lg navbar-light bg-white fixed-top custom-navbar">
+    <div class="container">
+        <a class="navbar-brand fw-bold d-flex align-items-center" href="/">
+            <img
+                src="/img/logo/LOGO FINAL.png"
+                alt="company logo"
+                class="img-fluid ms-2" {{!-- Dulu ada me-2, mungkin maksudnya me-2 (margin end) atau ms-2 (margin start) --}}
+                style="max-height: 40px;"
+            />
+        </a>
 
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavDesktop" aria-controls="navbarNavDesktop" aria-expanded="false" aria-label="Toggle navigation">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarNavDesktop">
-                <ul class="navbar-nav mx-auto"> <!- mx-auto untuk tengahkan ->
-                    <li class="nav-item">
-                        <a class="nav-link " href="/">Home</a> <!- Contoh link ->
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link " href="/allProduk">Shop</a> <!- Misalnya ini aktif ->
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="#">Brands</a>
-                    </li>
-                </ul>
-                <div class="d-flex align-items-center navbar-icons">
-                    <a href="#" class="nav-icon-item me-3"><i class="bi bi-search"></i></a>
-                    <a href="/dashboard#cart-pane-dash" class="nav-icon-item me-3">
-                        <i class="bi bi-cart3"></i>
-                        </a>
-                    {{#if user}}
-                    <div class="dropdown">
-                        <a href="#" class="nav-icon-item" id="accountDropdown" data-bs-toggle="dropdown" aria-expanded="false">
-                            <i class="bi bi-person-circle"></i>
-                        </a>
-                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="accountDropdown">
-                            <li><a class="dropdown-item" href="/dashboard">Profile</a></li>
-                            <li><a class="dropdown-item" href="/sell">Sell</a></li>
-                            <li><a class="dropdown-item" href="/auth/logout">Logout</a></li>
-                        </ul>
-                    </div>
-                    {{else}}
-                    <a href="/login" class="nav-icon-item"><i class="bi bi-person-circle"></i></a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavDesktop" aria-controls="navbarNavDesktop" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNavDesktop">
+            <ul class="navbar-nav mx-auto">
+                <li class="nav-item">
+                    <a class="nav-link" href="/">Home</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/allProduk">Shop</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#">Brands</a> {{!-- Sesuaikan href jika perlu --}}
+                </li>
+            </ul>
+            <div class="d-flex align-items-center navbar-icons">
+                <a href="#" class="nav-icon-item me-3" title="Search"><i class="bi bi-search"></i></a> {{!-- Tambahkan title untuk aksesibilitas --}}
+                <a href="/dashboard#cart-pane-dash" class="nav-icon-item me-3 position-relative" title="View Cart">
+                    <i class="bi bi-cart3"></i>
+                    {{#if user.cartItemCount}} {{!-- Asumsi Anda punya user.cartItemCount dari middleware --}}
+                        <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" id="cartItemCountNavbar">
+                            {{user.cartItemCount}}
+                            <span class="visually-hidden">items in cart</span>
+                        </span>
                     {{/if}}
+                </a>
+
+                {{#if user}}
+                <div class="dropdown">
+                    <a href="#" class="nav-icon-item" id="accountDropdown" data-bs-toggle="dropdown" aria-expanded="false" title="My Account">
+                        <i class="bi bi-person-circle"></i>
+                    </a>
+                    <ul class="dropdown-menu dropdown-menu-end shadow-sm" aria-labelledby="accountDropdown">
+                        <li><h6 class="dropdown-header fs-sm text-muted">Halo, {{user.name}}!</h6></li>
+                        <li>
+                            <span class="dropdown-item-text">
+                                <i class="bi bi-wallet2 me-2 text-success"></i>Saldo:
+                                <strong class="text-success">{{{formatRupiah user.balance}}}</strong>
+                            </span>
+                        </li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item" href="/dashboard"><i class="bi bi-person-fill me-2"></i>Profil Saya</a></li>
+                        <li><a class="dropdown-item" href="/sell"><i class="bi bi-tags-fill me-2"></i>Jual Produk</a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item" href="/auth/logout"><i class="bi bi-box-arrow-right me-2"></i>Logout</a></li>
+                    </ul>
                 </div>
+                {{!-- <li class="nav-item"> <span class="nav-link text-success fw-semibold">Saldo: {{{formatRupiah user.balance}}}</span> </li> --}} {{!-- Ini kita hapus/komentari --}}
+                {{else}}
+                <a href="/login" class="nav-icon-item" title="Login/Register"><i class="bi bi-person-circle"></i></a>
+                {{/if}}
             </div>
         </div>
-    </nav>
+    </div>
+</nav>

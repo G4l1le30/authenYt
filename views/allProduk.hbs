@@ -2,7 +2,8 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  {{> header}}
+    {{> header}}
+    <link rel="stylesheet" href="/style.css"> {{!-- Pastikan path ke style.css benar --}}
 </head>
 <body>
     {{> navbar_main}}
@@ -13,15 +14,18 @@
                 <ol class="breadcrumb">
                     <li class="breadcrumb-item"><a href="/">Home</a></li>
                     <li class="breadcrumb-item"><a href="/allProduk">Shop</a></li>
-                    {{#if currentCategoryName}} {{! Anda perlu mengirim ini dari controller jika filter by category }}
+                    {{#if currentCategoryName}}
                         <li class="breadcrumb-item active" aria-current="page">{{currentCategoryName}}</li>
-                    {{else if currentStyleName}} {{! Anda perlu mengirim ini dari controller jika filter by style }}
+                    {{else if currentStyleName}}
                         <li class="breadcrumb-item active" aria-current="page">{{currentStyleName}}</li>
                     {{/if}}
                 </ol>
             </nav>
             <h1 class="fw-bold">{{pageTitle}}</h1>
             <p class="lead text-muted">{{filterDescription}}</p>
+            {{#if message}}
+                <div class="alert alert-{{message.type}} mt-3">{{message.text}}</div>
+            {{/if}}
         </div>
     </header>
 
@@ -29,77 +33,106 @@
         <div class="row">
             {{!-- Sidebar Filter (Kolom Kiri) --}}
             <aside class="col-lg-3">
-                <div class="filters-sidebar p-3 rounded-3 shadow-sm border mb-4 mb-lg-0">
-                    <h5 class="fw-semibold mb-3">Filters</h5>
-                    
-                    {{!-- Filter Kategori --}}
-                    <div class="filter-group mb-4">
-                        <h6 class="filter-title mb-2">Categories</h6>
-                        <ul class="list-unstyled filter-list">
-                            <li><a href="/allProduk" class="filter-link {{#unless currentCategoryId}}active{{/unless}}">All Categories</a></li>
-                            {{#each allCategories}}
-                            <li>
-                                <a href="/allProduk?category_id={{this.id}}" 
-                                   class="filter-link {{#if (eq ../currentCategoryId (toString this.id))}}active{{/if}}">
-                                   {{this.name}}
-                                </a>
-                            </li>
-                            {{/each}}
-                        </ul>
-                    </div>
+                <form id="filterForm" action="/allProduk" method="GET">
+                    <div class="filters-sidebar p-3 rounded-3 shadow-sm border mb-4 mb-lg-0">
+                        <h5 class="fw-semibold mb-3">Filters</h5>
 
-                    {{!-- Filter Style --}}
-                    <div class="filter-group mb-4">
-                        <h6 class="filter-title mb-2">Dress Style</h6>
-                        <ul class="list-unstyled filter-list">
-                             <li><a href="/allProduk" class="filter-link {{#unless currentStyleSlug}}active{{/unless}}">All Styles</a></li>
-                            {{#each allStyles}}
-                            <li>
-                                <a href="/allProduk?style={{this.slug}}" 
-                                   class="filter-link {{#if (eq ../currentStyleSlug this.slug)}}active{{/if}}">
-                                   {{this.name}}
-                                </a>
-                            </li>
-                            {{/each}}
-                        </ul>
-                    </div>
-
-                    {{!-- Filter Ukuran (Placeholder) --}}
-                    <div class="filter-group mb-4">
-                        <h6 class="filter-title mb-2">Size</h6>
-                        <div class="size-selector-filter btn-group flex-wrap gap-1">
-                            <button type="button" class="btn btn-sm btn-outline-secondary size-filter-option">XS</button>
-                            <button type="button" class="btn btn-sm btn-outline-secondary size-filter-option active">S</button>
-                            <button type="button" class="btn btn-sm btn-outline-secondary size-filter-option">M</button>
-                            <button type="button" class="btn btn-sm btn-outline-secondary size-filter-option">L</button>
-                            <button type="button" class="btn btn-sm btn-outline-secondary size-filter-option">XL</button>
+                        {{!-- Filter Kategori --}}
+                        {{#if allCategories.length}}
+                        <div class="filter-group mb-4">
+                            <h6 class="filter-title mb-2">Categories</h6>
+                            <ul class="list-unstyled filter-list">
+                                <li><a href="/allProduk{{#if currentStyleSlug}}?style={{currentStyleSlug}}{{/if}}" class="filter-link category-filter-link {{#unless currentCategoryId}}active{{/unless}}" data-category-id="">All Categories</a></li>
+                                {{#each allCategories}}
+                                <li>
+                                    <a href="/allProduk?category_id={{this.id}}{{#if ../currentStyleSlug}}&style={{../currentStyleSlug}}{{/if}}"
+                                       class="filter-link category-filter-link {{#if (eq ../currentCategoryId (toString this.id))}}active{{/if}}"
+                                       data-category-id="{{this.id}}">
+                                        {{this.name}}
+                                    </a>
+                                </li>
+                                {{/each}}
+                            </ul>
                         </div>
-                    </div>
+                        {{/if}}
+                        <input type="hidden" name="category_id" id="hidden_category_id" value="{{currentCategoryId}}">
 
-                    {{!-- Filter Warna (Placeholder) --}}
-                    <div class="filter-group mb-4">
-                        <h6 class="filter-title mb-2">Color</h6>
-                        <div class="color-swatches-filter d-flex flex-wrap gap-1">
-                            <button type="button" class="color-swatch-filter" style="background-color: black;" title="Black"></button>
-                            <button type="button" class="color-swatch-filter active" style="background-color: white; border: 1px solid #ccc;" title="White"></button>
-                            <button type="button" class="color-swatch-filter" style="background-color: red;" title="Red"></button>
-                            <button type="button" class="color-swatch-filter" style="background-color: blue;" title="Blue"></button>
-                            <button type="button" class="color-swatch-filter" style="background-color: green;" title="Green"></button>
+                        {{!-- Filter Style --}}
+                        {{#if allStyles.length}}
+                        <div class="filter-group mb-4">
+                            <h6 class="filter-title mb-2">Dress Style</h6>
+                            <ul class="list-unstyled filter-list">
+                                 <li><a href="/allProduk{{#if currentCategoryId}}?category_id={{currentCategoryId}}{{/if}}" class="filter-link style-filter-link {{#unless currentStyleSlug}}active{{/unless}}" data-style-slug="">All Styles</a></li>
+                                {{#each allStyles}}
+                                <li>
+                                    <a href="/allProduk?style={{this.slug}}{{#if ../currentCategoryId}}&category_id={{../currentCategoryId}}{{/if}}"
+                                       class="filter-link style-filter-link {{#if (eq ../currentStyleSlug this.slug)}}active{{/if}}"
+                                       data-style-slug="{{this.slug}}">
+                                        {{this.name}}
+                                    </a>
+                                </li>
+                                {{/each}}
+                            </ul>
                         </div>
-                    </div>
+                        {{/if}}
+                        <input type="hidden" name="style" id="hidden_style_slug" value="{{currentStyleSlug}}">
 
-                    {{!-- Filter Harga (Placeholder - memerlukan slider atau input range) --}}
-                    <div class="filter-group mb-4">
-                        <h6 class="filter-title mb-2">Price Range</h6>
-                        <input type="range" class="form-range" id="priceRangeFilter">
-                        <div class="d-flex justify-content-between">
-                            <small>Rp 0</small>
-                            <small>Rp 1.000.000+</small>
+                        {{!-- Filter Ukuran Dinamis --}}
+                        {{#if filterSizeOptions.length}}
+                        <div class="filter-group mb-4">
+                            <h6 class="filter-title mb-2">Size</h6>
+                            <div class="size-selector-filter btn-group-toggle d-flex flex-wrap gap-1" data-bs-toggle="buttons">
+                                {{#each filterSizeOptions}}
+                                <label class="btn btn-sm btn-outline-secondary btn-filter-size {{#if this.isActive}}active{{/if}}" for="size-filter-{{this.name_dashed}}">
+                                    <input type="checkbox" class="btn-check filter-checkbox"
+                                           name="sizes"
+                                           value="{{this.name}}"
+                                           id="size-filter-{{this.name_dashed}}"
+                                           autocomplete="off"
+                                           {{#if this.isActive}}checked{{/if}}>
+                                    {{this.name}}
+                                </label>
+                                {{/each}}
+                            </div>
                         </div>
+                        {{/if}}
+
+                        {{!-- Filter Warna Dinamis --}}
+                        {{#if filterColorOptions.length}}
+                        <div class="filter-group mb-4">
+                            <h6 class="filter-title mb-2">Color</h6>
+                            <div class="color-swatches-filter d-flex flex-wrap gap-1">
+                                {{#each filterColorOptions}}
+                                <button type="button"
+                                        class="color-swatch-btn filter-color-swatch {{#if this.isActive}}active{{/if}}"
+                                        style="background-color: {{this.hex}}; {{#if this.border}}border: 1px solid #ccc;{{/if}}"
+                                        title="{{this.name}}"
+                                        data-color-name="{{this.name}}">
+                                    {{#if this.isActive}}<i class="bi bi-check swatch-check-icon"></i>{{/if}}
+                                </button>
+                                {{/each}}
+                            </div>
+                            <input type="hidden" name="colors" id="selected_colors_filter_input" value="{{#if currentSelectedColors}}{{join currentSelectedColors ','}}{{/if}}">
+                        </div>
+                        {{/if}}
+
+                        {{!-- Filter Harga --}}
+                        <div class="filter-group mb-4">
+                            <h6 class="filter-title mb-2">Price Range</h6>
+                            <div class="mb-2">
+                                <label for="min_price_filter" class="form-label visually-hidden">Min Price</label>
+                                <input type="number" class="form-control form-control-sm" id="min_price_filter" name="min_price" placeholder="Min (Rp)" value="{{currentMinPrice}}" min="0" step="1000">
+                            </div>
+                            <div>
+                                <label for="max_price_filter" class="form-label visually-hidden">Max Price</label>
+                                <input type="number" class="form-control form-control-sm" id="max_price_filter" name="max_price" placeholder="Max (Rp)" value="{{currentMaxPrice}}" min="0" step="1000">
+                            </div>
+                        </div>
+
+                        <button class="btn btn-dark w-100" type="submit">Apply Filters</button>
+                         <a href="/allProduk" class="btn btn-outline-secondary w-100 mt-2">Clear All Filters</a>
                     </div>
-                    
-                    <button class="btn btn-dark w-100" type="button">Apply Filters</button>
-                </div>
+                </form>
             </aside>
 
             {{!-- Daftar Produk (Kolom Kanan) --}}
@@ -107,17 +140,11 @@
                 <div class="d-flex justify-content-between align-items-center mb-3 product-list-controls">
                     <span class="text-muted">Showing {{products.length}} results</span>
                     <div class="d-flex gap-2">
-                        <select class="form-select form-select-sm" style="width: auto;">
-                            <option selected>Sort by: Latest</option>
-                            <option value="price_asc">Price: Low to High</option>
-                            <option value="price_desc">Price: High to Low</option>
-                            <option value="rating">Rating</option>
+                        <select class="form-select form-select-sm" style="width: auto;" name="sort" id="sort_by_select" form="filterForm">
+                            {{#each sortOptions}}
+                            <option value="{{this.value}}" {{#if this.isSelected}}selected{{/if}}>{{this.text}}</option>
+                            {{/each}}
                         </select>
-                        {{!-- <select class="form-select form-select-sm" style="width: auto;">
-                            <option selected>Show: 12</option>
-                            <option value="24">Show: 24</option>
-                            <option value="36">Show: 36</option>
-                        </select> --}}
                     </div>
                 </div>
 
@@ -136,36 +163,10 @@
                                     </div>
                                     <p class="product-price fw-bold mb-0">{{{formatRupiah this.price}}}</p>
                                 </div>
-                                {{!-- Tombol Wishlist di Kartu Produk (jika diinginkan di sini) --}}
-                                {{!-- 
-                                {{#if ../user}}
-                                    {{#if (neq this.user_id ../user.id)}}
-                                    <button class="btn btn-sm btn-outline-danger favorite-icon-list" 
-                                            data-product-id="{{this.id}}" 
-                                            onclick="toggleWishlistCard(this, '{{this.id}}')">
-                                        {{#if (includes ../wishlistProductIds (toString this.id))}}
-                                            <i class="bi bi-heart-fill"></i>
-                                        {{else}}
-                                            <i class="bi bi-heart"></i>
-                                        {{/if}}
-                                    </button>
-                                    {{/if}}
-                                {{/if}}
-                                --}}
                             </div>
                         </div>
                         {{/each}}
                     </div>
-                    {{!-- Paginasi (Placeholder) --}}
-                    {{!-- <nav aria-label="Page navigation" class="mt-4 d-flex justify-content-center">
-                        <ul class="pagination">
-                            <li class="page-item disabled"><a class="page-link" href="#">Previous</a></li>
-                            <li class="page-item active"><a class="page-link" href="#">1</a></li>
-                            <li class="page-item"><a class="page-link" href="#">2</a></li>
-                            <li class="page-item"><a class="page-link" href="#">3</a></li>
-                            <li class="page-item"><a class="page-link" href="#">Next</a></li>
-                        </ul>
-                    </nav> --}}
                 {{else}}
                     <div class="text-center py-5">
                         <i class="bi bi-search" style="font-size: 3rem; color: #6c757d;"></i>
@@ -180,33 +181,104 @@
 
     {{> footer_main }}
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    {{!-- <script src="/script.js"></script> --}} {{!-- Pindahkan fungsi umum ke sini jika ada --}}
     <script>
-        // JavaScript untuk filter (placeholder)
-        document.querySelectorAll('.size-filter-option').forEach(btn => {
-            btn.addEventListener('click', function() {
-                // Logika untuk toggle kelas active dan mengambil nilai filter
-                this.classList.toggle('active');
-                console.log('Size filter clicked:', this.textContent);
-            });
-        });
-        document.querySelectorAll('.color-swatch-filter').forEach(swatch => {
-            swatch.addEventListener('click', function() {
-                this.classList.toggle('active');
-                console.log('Color filter clicked:', this.title);
-            });
-        });
+        document.addEventListener('DOMContentLoaded', function() {
+            const filterForm = document.getElementById('filterForm');
+            const selectedColorsInput = document.getElementById('selected_colors_filter_input');
+            const colorSwatches = document.querySelectorAll('.filter-color-swatch');
+            const sortBySelect = document.getElementById('sort_by_select');
+            const hiddenCategoryIdInput = document.getElementById('hidden_category_id');
+            const hiddenStyleSlugInput = document.getElementById('hidden_style_slug');
 
-        // Jika Anda menggunakan tombol "Apply Filters" untuk mengirim semua filter sekaligus:
-         document.querySelector('.filters-sidebar .btn-dark').addEventListener('click', function() {
-            const selectedCategories = ...;
-            const selectedStyles = ...;
-            // Kumpulkan semua filter dan redirect atau fetch ulang
-            window.location.href = `/allProduk?category=${...}&style=${...}&size=${...}`;
-         });
+            // Memastikan Kategori dan Style tetap ada saat filter lain di-submit
+            // Link kategori dan style akan melakukan navigasi langsung.
+            // Jika ingin mereka menjadi bagian dari "Apply Filters", perlu modifikasi lebih lanjut
+            // untuk hanya update hidden input dan tidak navigasi.
+            // Saat ini, jika user klik kategori/style, filter lain akan ter-reset.
 
-        // (Opsional) JavaScript untuk tombol wishlist di kartu produk jika Anda menambahkannya kembali
-        // async function toggleWishlistCard(buttonElement, productId) { ... }
+            // Logika untuk swatch warna filter
+            let currentActiveColorNames = selectedColorsInput.value ? selectedColorsInput.value.split(',').filter(c => c) : [];
+
+            colorSwatches.forEach(swatch => {
+                swatch.addEventListener('click', function() {
+                    this.classList.toggle('active');
+                    const colorName = this.dataset.colorName;
+                    const icon = this.querySelector('.swatch-check-icon');
+
+                    if (this.classList.contains('active')) {
+                        if (!currentActiveColorNames.includes(colorName)) {
+                            currentActiveColorNames.push(colorName);
+                        }
+                        if (!icon) {
+                            const checkIcon = document.createElement('i');
+                            checkIcon.className = 'bi bi-check swatch-check-icon';
+                            const swatchBgColor = window.getComputedStyle(this).backgroundColor;
+                            const rgb = swatchBgColor.match(/\d+/g);
+                            if (rgb) {
+                                const brightness = Math.round(((parseInt(rgb[0]) * 299) + (parseInt(rgb[1]) * 587) + (parseInt(rgb[2]) * 114)) / 1000);
+                                checkIcon.style.color = (brightness > 125) ? 'black' : 'white';
+                            } else { checkIcon.style.color = 'white'; }
+                            this.appendChild(checkIcon);
+                        }
+                    } else {
+                        currentActiveColorNames = currentActiveColorNames.filter(c => c !== colorName);
+                        if (icon) icon.remove();
+                    }
+                    selectedColorsInput.value = currentActiveColorNames.join(',');
+                });
+            });
+
+            // Inisialisasi ikon centang untuk warna yang sudah aktif dari server (saat halaman dimuat)
+            colorSwatches.forEach(swatch => {
+                if (swatch.classList.contains('active') && !swatch.querySelector('.swatch-check-icon')) {
+                    const checkIcon = document.createElement('i');
+                    checkIcon.className = 'bi bi-check swatch-check-icon';
+                    const swatchBgColor = window.getComputedStyle(swatch).backgroundColor;
+                    const rgb = swatchBgColor.match(/\d+/g);
+                    if (rgb) {
+                        const brightness = Math.round(((parseInt(rgb[0]) * 299) + (parseInt(rgb[1]) * 587) + (parseInt(rgb[2]) * 114)) / 1000);
+                        checkIcon.style.color = (brightness > 125) ? 'black' : 'white';
+                    } else { checkIcon.style.color = 'white'; }
+                    swatch.appendChild(checkIcon);
+                }
+            });
+
+            // Jika sort by diubah, langsung submit form
+            if (sortBySelect) {
+                sortBySelect.addEventListener('change', function() {
+                    if (filterForm) {
+                        // Sebelum submit, pastikan hidden category dan style terisi dari URL jika ada
+                        // (meskipun seharusnya sudah diisi oleh Handlebars dari controller)
+                        const urlParams = new URLSearchParams(window.location.search);
+                        if (hiddenCategoryIdInput && urlParams.has('category_id')) {
+                            hiddenCategoryIdInput.value = urlParams.get('category_id');
+                        }
+                        if (hiddenStyleSlugInput && urlParams.has('style')) {
+                            hiddenStyleSlugInput.value = urlParams.get('style');
+                        }
+                        filterForm.submit();
+                    }
+                });
+            }
+
+            // Membersihkan input field yang kosong sebelum submit agar URL lebih bersih
+            if (filterForm) {
+                filterForm.addEventListener('submit', function(event) {
+                    const inputs = filterForm.querySelectorAll('input[name], select[name]');
+                    inputs.forEach(input => {
+                        if (input.name === 'sizes' && !input.checked) {
+                            // Jangan disable checkbox, biarkan browser tidak mengirimnya jika tidak checked
+                        } else if (!input.value) {
+                            // Untuk input lain, jika kosong, kita bisa men-disable-nya agar tidak masuk query string
+                            // Tapi untuk GET form, browser biasanya akan mengirim parameter kosong jika input punya 'name'
+                            // Jadi, lebih baik pastikan backend menangani parameter kosong/undefined dengan benar.
+                            // Atau, bangun query string secara manual dengan JS jika ingin kontrol penuh.
+                            // Saat ini, biarkan browser menangani pengiriman field form.
+                        }
+                    });
+                });
+            }
+        });
     </script>
 </body>
 </html>

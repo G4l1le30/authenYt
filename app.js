@@ -9,6 +9,7 @@ const hbs = require('hbs');
 const pool = require('./db');  // pool MySQL2 promise
 const authMiddleware = require('./middleware/auth');
 const productApiRoutes = require('./routes/product');
+const checkoutRoutes = require('./routes/checkout');
 
 // Middleware dan parsers
 app.use(cookieParser());
@@ -51,7 +52,7 @@ hbs.registerHelper('generateStars', function(rating) {
     if (i <= ratingValue) {
       starsHtml += '<i class="bi bi-star-fill"></i>'; // Bintang penuh
     } else if (i - ratingValue > 0 && i - ratingValue < 1) { 
-      // Untuk setengah bintang, jika Anda mau: starsHtml += '<i class="bi bi-star-half"></i>'; 
+      // Untuk setengah bintang, bisa pakai : starsHtml += '<i class="bi bi-star-half"></i>'; 
       starsHtml += '<i class="bi bi-star"></i>'; // Saat ini bintang kosong
     } else {
       starsHtml += '<i class="bi bi-star"></i>'; // Bintang kosong
@@ -69,6 +70,12 @@ hbs.registerHelper('eq', function (a, b) {
 });
 hbs.registerHelper('neq', function (a, b) {
   return a !== b;
+});
+hbs.registerHelper('join', function(arr, separator) {
+  if (Array.isArray(arr)) {
+    return arr.join(separator);
+  }
+  return '';
 });
 
 hbs.registerHelper('formatDate', function(dateString) {
@@ -93,16 +100,38 @@ hbs.registerHelper('truncate', function (str, len) {
   return str;
 });
 
+hbs.registerHelper('gte', function (a, b, options) {
+  const valA = parseFloat(a);
+  const valB = parseFloat(b);
+  const result = valA >= valB;
 
-// TAMBAHKAN HELPER INI:
-hbs.registerHelper('gt', function (a, b) {
-  // Pastikan kita membandingkan angka jika memungkinkan
+  // Cek apakah helper dipanggil sebagai block helper atau subexpression
+  if (options && typeof options.fn === 'function' && typeof options.inverse === 'function') {
+    // Dipanggil sebagai block helper: {{#gte a b}} ... {{else}} ... {{/gte}}
+    return result ? options.fn(this) : options.inverse(this);
+  } else {
+    // Dipanggil sebagai subexpression: (gte a b)
+    return result; // Kembalikan boolean langsung
+  }
+});
+
+hbs.registerHelper('subtract', function (a, b) {
+  // Pastikan operasi dilakukan sebagai angka
+  const valA = parseFloat(a);
+  const valB = parseFloat(b);
+  if (!isNaN(valA) && !isNaN(valB)) {
+    return valA - valB;
+  }
+  return 0; // Kembalikan 0 atau nilai default jika input tidak valid
+});
+
+hbs.registerHelper('gt', function (a, b) { // Helper 'gt'  sudah benar untuk subexpression
   const numA = parseFloat(a);
   const numB = parseFloat(b);
   if (!isNaN(numA) && !isNaN(numB)) {
     return numA > numB;
   }
-  return false; // Default jika bukan angka atau salah satunya bukan angka
+  return false;
 });
 
 hbs.registerHelper('toFixed', function (number, digits) {
@@ -131,6 +160,41 @@ hbs.registerHelper('formatRupiah', function (number) {
     maximumFractionDigits: 2  // Maksimal 2 desimal jika ada
   }).format(num);
 });
+hbs.registerHelper('hasUserReviewed', function (reviews, userId) { // Hapus 'options' dari parameter
+    if (!reviews || !Array.isArray(reviews) || userId === undefined || userId === null) {
+        return false; // Data tidak valid atau pengguna tidak login, anggap belum mereview
+    }
+    for (let i = 0; i < reviews.length; i++) {
+        if (reviews[i] && String(reviews[i].reviewer_id) === String(userId)) {
+            return true; // Pengguna sudah mereview
+        }
+    }
+    return false; // Pengguna belum mereview
+});
+
+//kalo produk kosong
+hbs.registerHelper('hasProblematicItems', function (cartItems, options) {
+    if (!cartItems || !Array.isArray(cartItems) || cartItems.length === 0) {
+        // Jika tidak ada item, atau bukan array, anggap tidak ada masalah
+        // Jika dipanggil sebagai block helper, render 'else' block
+        return options && options.inverse ? options.inverse(this) : false;
+    }
+
+    for (let i = 0; i < cartItems.length; i++) {
+        // Cek berdasarkan properti 'hasIssue' atau 'errorMessage'
+        // Sesuaikan dengan properti yang Anda set di backend (fetchUserCartDetails)
+        if (cartItems[i] && (cartItems[i].hasIssue === true || (cartItems[i].errorMessage && cartItems[i].errorMessage.length > 0))) {
+            // Ditemukan item bermasalah
+            // Jika dipanggil sebagai block helper, render 'if' block
+            return options && options.fn ? options.fn(this) : true;
+        }
+    }
+
+    // Tidak ada item bermasalah
+    // Jika dipanggil sebagai block helper, render 'else' block
+    return options && options.inverse ? options.inverse(this) : false;
+});
+// ===
 // Test koneksi database (async/await)
 async function testConnection() {
   try {
@@ -141,6 +205,7 @@ async function testConnection() {
     console.error('Database connection failed:', err);
   }
 }
+
 testConnection();
 
 // Inject user ke semua views (buat akses user di hbs via {{user}})
@@ -162,6 +227,17 @@ app.use('/api/cart', cartRoutes);
 app.use('/', pagesRoutes);
 app.use('/auth', authRoutes);
 
+
+//checkout
+app.use('/api/checkout', checkoutRoutes);
+//order 
+hbs.registerHelper('nl2br', function(text) {
+    if (typeof text === 'string') {
+        const escapedText = hbs.Utils.escapeExpression(text); // Escape HTML dulu
+        return new hbs.SafeString(escapedText.replace(/(\r\n|\n|\r)/gm, '<br>'));
+    }
+    return '';
+});
 // Start server
 const port = process.env.PORT || 5000;
 app.listen(port, () => {

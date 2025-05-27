@@ -1,0 +1,233 @@
+{{! views/checkout.hbs }}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    {{> header title=pageTitle}} {{!-- Menggunakan pageTitle dari backend --}}
+    <link rel="stylesheet" href="/style.css">
+    <style>
+        .checkout-summary-card {
+            background-color: #f8f9fa; /* Light gray background */
+            border-radius: .375rem; /* Bootstrap's default border radius */
+        }
+        .checkout-item-img {
+            width: 60px;
+            height: 60px;
+            object-fit: cover;
+            border-radius: .25rem;
+        }
+    </style>
+</head>
+<body>
+    {{> navbar_main}}
+
+    <main class="container my-4 mt-md-5 pt-3">
+        <h1 class="mb-4">{{pageTitle}}</h1>
+
+        {{#if error_msg}}
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                {{{error_msg}}}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        {{/if}}
+        {{#if success_msg}}
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                {{{success_msg}}}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        {{/if}}
+        {{#if info_msg}}
+            <div class="alert alert-info alert-dismissible fade show" role="alert">
+                {{{info_msg}}}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        {{/if}}
+
+        <div class="row g-4">
+            {{!-- Kolom Kiri: Detail Pesanan & Pengiriman (jika ada) --}}
+            <div class="col-lg-8">
+                <div class="card shadow-sm">
+                    <div class="card-header bg-light">
+                        <h5 class="mb-0">Ringkasan Pesanan</h5>
+                    </div>
+                    <div class="card-body">
+                        {{#if cartItems.length}}
+                            <ul class="list-group list-group-flush">
+                                {{#each cartItems}}
+                                <li class="list-group-item d-flex justify-content-between align-items-center py-3">
+                                    <div class="d-flex align-items-center">
+                                        <img src="{{this.product_image_url}}" alt="{{this.product_name}}" class="checkout-item-img me-3">
+                                        <div>
+                                            <h6 class="my-0">{{this.product_name}}</h6>
+                                            <small class="text-muted">
+                                                Qty: {{this.quantity}}
+                                                {{#if this.color}} | Warna: {{this.color}}{{/if}}
+                                                {{#if this.size}} | Ukuran: {{this.size}}{{/if}}
+                                            </small>
+                                            {{#if this.hasStockIssue}}
+                                                <br><small class="text-danger fw-bold">{{this.errorMessage}}</small>
+                                            {{/if}}
+                                        </div>
+                                    </div>
+                                    <span class="text-muted">{{{formatRupiah this.subtotal}}}</span>
+                                </li>
+                                {{/each}}
+                            </ul>
+                        {{else}}
+                            <p>Keranjang Anda kosong.</p>
+                        {{/if}}
+                    </div>
+                </div>
+
+                {{!-- Anda bisa menambahkan bagian untuk alamat pengiriman di sini jika diperlukan --}}
+                {{!-- 
+                <div class="card shadow-sm mt-4">
+                    <div class="card-header bg-light">
+                        <h5 class="mb-0">Alamat Pengiriman</h5>
+                    </div>
+                    <div class="card-body">
+                        <p>Nama Penerima: {{user.name}}</p>
+                        <p>Alamat: (Ambil dari data user atau form input)</p>
+                        <button class="btn btn-sm btn-outline-secondary">Ubah Alamat</button>
+                    </div>
+                </div> 
+                --}}
+            </div>
+
+            {{!-- Kolom Kanan: Ringkasan Pembayaran & Tombol Aksi --}}
+            <div class="col-lg-4">
+                <div class="card shadow-sm">
+                     <div class="card-header bg-light">
+                        <h5 class="mb-0">Detail Pembayaran</h5>
+                    </div>
+                    <div class="card-body">
+                        <ul class="list-group list-group-flush">
+                            <li class="list-group-item d-flex justify-content-between">
+                                <span>Total Belanja:</span>
+                                <strong>{{{formatRupiah grandTotal}}}</strong>
+                            </li>
+                            {{!-- <li class="list-group-item d-flex justify-content-between">
+                                <span>Biaya Pengiriman:</span>
+                                <strong>Gratis</strong> {{! Atau hitung biaya pengiriman }}
+                            </li> --}}
+                            <li class="list-group-item d-flex justify-content-between bg-light py-3">
+                                <span class="fw-bold">Grand Total:</span>
+                                <strong class="fs-5">{{{formatRupiah grandTotal}}}</strong>
+                            </li>
+                        </ul>
+                        <hr>
+                        <div class="mt-3">
+                            <p class="mb-1">Saldo Anda Saat Ini:</p>
+                            <h4 class="text-success fw-bold">{{{formatRupiah user.balance}}}</h4>
+                        </div>
+
+                        {{#if cartItems.length}}
+                            {{#if (gte user.balance grandTotal)}} {{!-- Helper gte (greater than or equal) diperlukan --}}
+                                <button class="btn btn-primary w-100 mt-3 py-2" id="confirmPaymentButton">
+                                    <i class="bi bi-shield-check-fill me-2"></i>Konfirmasi & Bayar
+                                </button>
+                                <small class="d-block text-center text-muted mt-2">Dengan mengklik, Anda setuju dengan Syarat & Ketentuan.</small>
+                            {{else}}
+                                <div class="alert alert-warning mt-3" role="alert">
+                                    Saldo Anda tidak mencukupi. Sisa saldo yang dibutuhkan: <strong>{{{formatRupiah (subtract grandTotal user.balance)}}}</strong>. {{!-- Helper subtract diperlukan --}}
+                                    <br><a href="/topup-saldo">Isi Saldo Sekarang</a> {{!-- Link ke halaman topup (jika ada) --}}
+                                </div>
+                            {{/if}}
+                        {{/if}}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+        <div class="toast-container position-fixed bottom-0 end-0 p-3" style="z-index: 1100;">
+        <div id="checkoutProcessToast" class="toast align-items-center border-0" role="alert" aria-live="assertive" aria-atomic="true" data-bs-delay="5000">
+            <div class="d-flex">
+                <div class="toast-body" id="checkoutProcessToastBody">
+                    {{!-- Pesan toast akan muncul di sini --}}
+                </div>
+                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+            </div>
+        </div>
+    </div>
+
+    {{> footer_main}}
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const confirmPaymentButton = document.getElementById('confirmPaymentButton');
+            // Inisialisasi elemen Toast
+            const toastElement = document.getElementById('checkoutProcessToast');
+            const toastBodyElement = document.getElementById('checkoutProcessToastBody');
+            const bsToast = toastElement ? new bootstrap.Toast(toastElement) : null;
+
+            function showCheckoutNotification(message, type = 'info') { // Default type 'info'
+                if (!bsToast || !toastElement || !toastBodyElement) {
+                    console.error('Toast elements for checkout not found or not initialized!');
+                    alert(message); // Fallback ke alert jika toast tidak ada
+                    return;
+                }
+
+                // Hapus kelas warna sebelumnya
+                toastElement.classList.remove('text-bg-success', 'text-bg-danger', 'text-bg-warning', 'text-bg-info', 'text-bg-dark');
+                
+                let toastBgClass = 'text-bg-dark'; // Default jika tipe tidak dikenali
+                if (type === 'success') toastBgClass = 'text-bg-success';
+                else if (type === 'danger') toastBgClass = 'text-bg-danger';
+                else if (type === 'warning') toastBgClass = 'text-bg-warning';
+                else if (type === 'info') toastBgClass = 'text-bg-info';
+                
+                toastElement.classList.add(toastBgClass);
+                toastBodyElement.textContent = message;
+                bsToast.show();
+            }
+            
+            if (confirmPaymentButton) {
+                confirmPaymentButton.addEventListener('click', async function () {
+                    this.disabled = true;
+                    this.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Memproses...';
+
+                    // Tidak perlu mengirim item secara eksplisit jika controller mengambilnya dari DB
+                    // const productId = document.getElementById('checkout_product_id') ? document.getElementById('checkout_product_id').value : null;
+                    // const quantity = document.getElementById('checkout_quantity') ? parseInt(document.getElementById('checkout_quantity').value) : 0;
+                    // const color = document.getElementById('checkout_color') ? document.getElementById('checkout_color').value : null;
+                    // const size = document.getElementById('checkout_size') ? document.getElementById('checkout_size').value : null;
+                    // const priceAtPurchase = document.getElementById('checkout_price_at_purchase') ? parseFloat(document.getElementById('checkout_price_at_purchase').value) : 0;
+
+                    try {
+                        const response = await fetch('/api/checkout/process', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                            },
+                            body: JSON.stringify({}) // Kirim body kosong, controller akan fetch cart dari DB berdasarkan user
+                        });
+
+                        const data = await response.json();
+
+                        if (response.ok && data.success) {
+                            showCheckoutNotification('Checkout berhasil!');
+                            // Tunda redirect agar pengguna bisa melihat toast
+                            setTimeout(() => {
+                                if (data.redirectUrl) {
+                                    window.location.href = data.redirectUrl;
+                                } else {
+                                    // Fallback jika redirectUrl tidak ada (seharusnya ada dari controller)
+                                    window.location.href = '/order/success/' + data.orderId; 
+                                }
+                            }, 2500); // Delay 2.5 detik
+                        } else {
+                            showCheckoutNotification('Checkout Gagal: ' + (data.message || 'Terjadi kesalahan.'), 'danger');
+                            this.disabled = false;
+                            this.innerHTML = '<i class="bi bi-shield-check-fill me-2"></i>Konfirmasi & Bayar';
+                        }
+                    } catch (error) {
+                        console.error('Error during checkout process:', error);
+                        showCheckoutNotification('Terjadi kesalahan koneksi. Silakan coba lagi.', 'danger');
+                        this.disabled = false;
+                        this.innerHTML = '<i class="bi bi-shield-check-fill me-2"></i>Konfirmasi & Bayar';
+                    }
+                });
+            }
+        });
+    </script>
+</body>
+</html>

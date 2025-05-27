@@ -76,7 +76,6 @@ router.get('/api/product/:id', productController.getProductDetail);
 // Product detail render (HTML)
 router.get('/product/:id', productController.showProductDetailPage);
 
-<<<<<<< HEAD
 // Sell page (upload product form)
 router.get('/sell', authMiddleware.protect, (req, res) => {
   res.render('sell', { user: req.user });
@@ -85,7 +84,4 @@ router.get('/sell', authMiddleware.protect, (req, res) => {
 // Handle product upload (form submission)
 router.post('/sell', authMiddleware.protect, productController.uploadProduct);
 
-=======
-
->>>>>>> 3629e9e47ad51d94603c983fb545bc36485ac248
 module.exports = router;

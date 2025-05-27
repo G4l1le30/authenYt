@@ -39,7 +39,7 @@ exports.getUser = async (req, res, next) => {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
     //console.log('[AUTH MIDDLEWARE - getUser] Token decoded. User ID:', decoded.id);
 
-    const [rows] = await pool.query('SELECT id, name, email, profile_image_url FROM users WHERE id = ?', [decoded.id]); // Ambil kolom yang relevan
+    const [rows] = await pool.query('SELECT id, name, email, profile_image_url, balance FROM users WHERE id = ?', [decoded.id]); // Ambil kolom yang relevan
     if (rows.length === 0) {
       //console.log('[AUTH MIDDLEWARE - getUser] User not found in DB for ID:', decoded.id, '- Setting res.locals.user to null.');
       res.locals.user = null;

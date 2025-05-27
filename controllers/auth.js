@@ -1,6 +1,7 @@
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
 const pool = require('../db');  // mysql2/promise pool
+const { fetchUserCartDetails } = require('./cart');
 require('dotenv').config();
 
 exports.register = async (req, res) => {
@@ -191,108 +192,110 @@ exports.removeFromWishlist = async (req, res) => {
 
 // controllers/auth.js
 
+
 exports.getDashboard = async (req, res) => {
-    const userId = req.user.id;
-    const loggedInUser = { ...req.user }; 
-
+    if (!req.user) {
+        return res.redirect('/login');
+    }
     try {
-        // Ambil rata-rata rating produk milik user ini
-        const [userProductStats] = await pool.query(`
-            SELECT AVG(rating) as average_rating 
-            FROM products 
-            WHERE user_id = ? AND rating IS NOT NULL
-        `, [userId]);
+        const userId = req.user.id;
 
-        if (userProductStats.length > 0 && userProductStats[0].average_rating !== null) {
-            loggedInUser.average_seller_rating = parseFloat(userProductStats[0].average_rating);
-        } else {
-            loggedInUser.average_seller_rating = null;
-        }
-
-        // Ambil Produk Milik User
+        // Ambil produk yang dijual oleh user
         const [yourProducts] = await pool.query(
-            'SELECT id, name, price, image_url, stock, description, rating FROM products WHERE user_id = ? ORDER BY created_at DESC', 
+            'SELECT id, name, price, image_url, stock, rating FROM products WHERE user_id = ? AND is_visible = TRUE ORDER BY created_at DESC',
             [userId]
         );
 
-        // Ambil Wishlist Items User
-        const [wishlist] = await pool.query(`
-            SELECT 
-                p.id, p.name, p.price, p.image_url, p.rating, 
-                w.created_at as wishlist_added_at  
-            FROM wishlist w
-            JOIN products p ON w.product_id = p.id
-            WHERE w.user_id = ?
-            ORDER BY w.created_at DESC
-        `, [userId]);
-        
-        // ==============================================================
-        // === AMBIL DATA KERANJANG UNTUK TAB "MY CART" DI DASHBOARD ===
-        // ==============================================================
-        let cartItemsDetailed = [];
-        let cartTotal = 0;
-        
-        const [cartItemsRaw] = await pool.query(`
-            SELECT 
-                c.id AS cart_item_id,         -- ID item di tabel carts
-                c.quantity, 
-                p.id AS product_id, 
-                p.name,                       -- Sudah di-alias sebagai product_name di query getCart sebelumnya, tapi p.name juga bisa
-                p.price,                      -- Sama seperti di atas, p.price juga bisa
-                p.image_url,
-                p.stock AS product_stock
-            FROM carts c
-            JOIN products p ON c.product_id = p.id
-            WHERE c.user_id = ?
-            ORDER BY c.created_at DESC
-        `, [userId]);
+        // Ambil wishlist user
+        const [wishlist] = await pool.query(
+            `SELECT p.id, p.name, p.price, p.image_url, p.rating, w.created_at as wishlist_added_at 
+             FROM wishlist w 
+             JOIN products p ON w.product_id = p.id 
+             WHERE w.user_id = ? AND p.is_visible = TRUE ORDER BY w.created_at DESC`,
+            [userId]
+        );
 
-        if (cartItemsRaw.length > 0) {
-            cartItemsDetailed = cartItemsRaw.map(item => {
-                const itemPrice = parseFloat(item.price); // Pastikan harga adalah angka
-                const itemQuantity = parseInt(item.quantity); // Pastikan kuantitas adalah angka
-                const subtotal = (isNaN(itemPrice) || isNaN(itemQuantity)) ? 0 : itemPrice * itemQuantity;
-                cartTotal += subtotal;
-                return { 
-                    ...item, 
-                    name: item.name, // Pastikan properti sesuai dengan yang dipakai di template cart
-                    price: itemPrice,
-                    image_url: item.image_url,
-                    quantity: itemQuantity,
-                    subtotal 
-                };
-            });
+        // Ambil data keranjang pengguna
+        const { itemsWithSubtotal: cartItemsDetailed, cartTotal } = await fetchUserCartDetails(userId);
+        
+        // Ambil rata-rata rating seller
+        const [sellerStats] = await pool.query(
+            'SELECT AVG(rating) as average_seller_rating FROM products WHERE user_id = ? AND rating IS NOT NULL',
+            [userId]
+        );
+        const userForView = { ...req.user };
+        if (sellerStats.length > 0 && sellerStats[0].average_seller_rating) {
+            userForView.average_seller_rating = sellerStats[0].average_seller_rating;
         }
-        // ==============================================================
 
-        console.log('[DASHBOARD CONTROLLER] User for dashboard:', loggedInUser.name);
-        console.log('[DASHBOARD CONTROLLER] Wishlist items count:', wishlist.length);
-        console.log('[DASHBOARD CONTROLLER] Your products count:', yourProducts.length);
-        console.log('[DASHBOARD CONTROLLER] Cart items count for dashboard tab:', cartItemsDetailed.length); // Log baru
+        // --- BARU: Ambil Riwayat Pesanan Pengguna ---
+        const [ordersFromDB] = await pool.query(
+            `SELECT 
+                id, 
+                total_amount, 
+                status, 
+                DATE_FORMAT(order_date, '%d %M %Y, %H:%i WIB') as formatted_order_date 
+                -- Anda bisa menambahkan kolom lain yang relevan dari tabel 'orders'
+             FROM orders 
+             WHERE user_id = ? 
+             ORDER BY order_date DESC`, // Pesanan terbaru di atas
+            [userId]
+        );
+
+        // Memproses status pesanan untuk tampilan yang lebih baik
+        const processedOrders = ordersFromDB.map(order => {
+            let status_display = order.status.charAt(0).toUpperCase() + order.status.slice(1);
+            let status_class = 'secondary'; // default Bootstrap class
+            switch (order.status.toLowerCase()) {
+                case 'completed':
+                    status_class = 'success';
+                    status_display = 'Selesai';
+                    break;
+                case 'pending':
+                    status_class = 'warning';
+                    status_display = 'Menunggu Pembayaran'; // Atau 'Diproses' jika user_balance langsung mengurangi
+                    break;
+                case 'shipped':
+                    status_class = 'info';
+                    status_display = 'Dikirim';
+                    break;
+                case 'cancelled':
+                    status_class = 'danger';
+                    status_display = 'Dibatalkan';
+                    break;
+                case 'failed':
+                    status_class = 'danger';
+                    status_display = 'Gagal';
+                    break;
+                // Tambahkan case lain jika ada status berbeda
+            }
+            return { ...order, status_display, status_class };
+        });
+        // --- AKHIR BAGIAN BARU ---
+
+        // Tentukan tab aktif (pastikan 'my-orders-pane' ada di validTabs)
+        let activeTab = req.query.tab || (req.headers.referer && req.headers.referer.includes('#') ? req.headers.referer.split('#')[1] : 'my-profile-pane');
+        const validTabs = ['my-profile-pane', 'my-products-pane', 'my-orders-pane', 'wishlist-pane-dash', 'cart-pane-dash']; // TAMBAHKAN 'my-orders-pane'
+        if (!validTabs.includes(activeTab) && !validTabs.includes(activeTab.replace('-dash', ''))) { // Penyesuaian untuk -dash
+             activeTab = 'my-profile-pane';
+        }
+
 
         res.render('dashboard', {
-            user: loggedInUser,
-            wishlist: wishlist,
-            yourProducts: yourProducts,
-            cartItemsDetailed: cartItemsDetailed, // <-- KIRIM DATA KERANJANG
-            cartTotal: cartTotal,                 // <-- KIRIM TOTAL KERANJANG
-            activeTab: req.query.tab || 'my-profile-pane'
+            user: userForView,
+            yourProducts,
+            wishlist,
+            cartItemsDetailed,
+            cartTotal,
+            orders: processedOrders, // Kirim data pesanan yang sudah diproses ke template
+            pageTitle: 'My Dashboard',
+            activeTab: activeTab // Ini akan digunakan oleh template untuk mengaktifkan tab yang benar
         });
-
     } catch (error) {
-        console.error('Dashboard load error:', error);
-        res.status(500).render('dashboard', {
-            user: loggedInUser,
-            wishlist: [],
-            yourProducts: [],
-            cartItemsDetailed: [], // Kirim array kosong saat error
-            cartTotal: 0,          // Kirim total 0 saat error
-            error: 'Failed to load dashboard data',
-            activeTab: 'my-profile-pane'
-        });
+        console.error("Error fetching dashboard data:", error);
+        res.status(500).render('500', { user: req.user, message: 'Failed to load dashboard data.' });
     }
 };
-
 exports.updateProfile = async (req, res) => {
     if (!req.user) {
         return res.status(401).json({ success: false, message: 'Unauthorized. Please login.' });

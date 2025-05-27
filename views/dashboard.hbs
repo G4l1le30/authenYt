@@ -2,7 +2,8 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    {{> header}}
+    {{> header title=pageTitle}} {{!-- Pastikan pageTitle dikirim dari controller dashboard Anda --}}
+    {{!-- <link rel="stylesheet" href="/style.css"> --}} {{!-- Jika belum ada di header.hbs atau ingin style khusus dashboard --}}
 </head>
 <body>
     {{> navbar_main }}
@@ -12,15 +13,15 @@
             <div class="d-flex align-items-center">
                 {{#if user.profile_image_url}}
                 <img src="{{user.profile_image_url}}"
-                            alt="{{user.name}}'s Avatar"
-                            class="user-dashboard-avatar rounded-circle me-3"
-                            width="80" height="80"
-                            onerror="this.onerror=null;this.src='/img/avatars/default.png';">
+                     alt="{{user.name}}'s Avatar"
+                     class="user-dashboard-avatar rounded-circle me-3"
+                     width="80" height="80"
+                     onerror="this.onerror=null;this.src='/img/avatars/default.png';">
                 {{else}}
                 <img src="/img/avatars/default.png"
-                            alt="Default Avatar"
-                            class="user-dashboard-avatar rounded-circle me-3"
-                            width="80" height="80">
+                     alt="Default Avatar"
+                     class="user-dashboard-avatar rounded-circle me-3"
+                     width="80" height="80">
                 {{/if}}
                 <div>
                     <h2 class="mb-1">Welcome to your Dashboard, {{user.name}}!</h2>
@@ -41,24 +42,28 @@
         {{!-- Navigasi Tab Dashboard --}}
         <ul class="nav nav-tabs mb-3" id="dashboardTab" role="tablist">
             <li class="nav-item" role="presentation">
-                <button class="nav-link" id="my-profile-tab" data-bs-toggle="tab" data-bs-target="#my-profile-pane" type="button" role="tab" aria-controls="my-profile-pane" aria-selected="false">My Profile</button>
+                <button class="nav-link {{#if (eq activeTab 'my-profile-pane')}}active{{/if}}" id="my-profile-tab" data-bs-toggle="tab" data-bs-target="#my-profile-pane" type="button" role="tab" aria-controls="my-profile-pane" aria-selected="{{#if (eq activeTab 'my-profile-pane')}}true{{else}}false{{/if}}">My Profile</button>
             </li>
             <li class="nav-item" role="presentation">
-                <button class="nav-link" id="my-products-tab" data-bs-toggle="tab" data-bs-target="#my-products-pane" type="button" role="tab" aria-controls="my-products-pane" aria-selected="false">My Products</button>
+                <button class="nav-link {{#if (eq activeTab 'my-products-pane')}}active{{/if}}" id="my-products-tab" data-bs-toggle="tab" data-bs-target="#my-products-pane" type="button" role="tab" aria-controls="my-products-pane" aria-selected="{{#if (eq activeTab 'my-products-pane')}}true{{else}}false{{/if}}">My Products</button>
+            </li>
+            {{!-- ==================== TAB BARU UNTUK MY ORDERS ==================== --}}
+            <li class="nav-item" role="presentation">
+                <button class="nav-link {{#if (eq activeTab 'my-orders-pane')}}active{{/if}}" id="my-orders-tab" data-bs-toggle="tab" data-bs-target="#my-orders-pane" type="button" role="tab" aria-controls="my-orders-pane" aria-selected="{{#if (eq activeTab 'my-orders-pane')}}true{{else}}false{{/if}}">My Orders</button>
+            </li>
+            {{!-- =================================================================== --}}
+            <li class="nav-item" role="presentation">
+                <button class="nav-link {{#if (eq activeTab 'wishlist-pane-dash')}}active{{/if}}" id="wishlist-tab-dash" data-bs-toggle="tab" data-bs-target="#wishlist-pane-dash" type="button" role="tab" aria-controls="wishlist-pane-dash" aria-selected="{{#if (eq activeTab 'wishlist-pane-dash')}}true{{else}}false{{/if}}">My Wishlist</button>
             </li>
             <li class="nav-item" role="presentation">
-                <button class="nav-link" id="wishlist-tab-dash" data-bs-toggle="tab" data-bs-target="#wishlist-pane-dash" type="button" role="tab" aria-controls="wishlist-pane-dash" aria-selected="false">My Wishlist</button>
+                <button class="nav-link {{#if (eq activeTab 'cart-pane-dash')}}active{{/if}}" id="cart-tab-dash" data-bs-toggle="tab" data-bs-target="#cart-pane-dash" type="button" role="tab" aria-controls="cart-pane-dash" aria-selected="{{#if (eq activeTab 'cart-pane-dash')}}true{{else}}false{{/if}}">My Cart</button>
             </li>
-            <li class="nav-item" role="presentation">
-                <button class="nav-link" id="cart-tab-dash" data-bs-toggle="tab" data-bs-target="#cart-pane-dash" type="button" role="tab" aria-controls="cart-pane-dash" aria-selected="false">My Cart</button>
-            </li>
-            {{!-- Tambahkan tab lain sesuai kebutuhan, mis: Orders, Settings --}}
         </ul>
 
         {{!-- Konten Tab --}}
         <div class="tab-content" id="dashboardTabContent">
             {{!-- Tab My Profile --}}
-            <div class="tab-pane fade" id="my-profile-pane" role="tabpanel" aria-labelledby="my-profile-tab" tabindex="0">
+            <div class="tab-pane fade {{#if (eq activeTab 'my-profile-pane')}}show active{{/if}}" id="my-profile-pane" role="tabpanel" aria-labelledby="my-profile-tab" tabindex="0">
                 <div class="d-flex justify-content-between align-items-center mb-3">
                     <h4>My Profile Details</h4>
                     <button class="btn btn-sm btn-outline-primary" id="btnEditProfile" data-bs-toggle="modal" data-bs-target="#editProfileModal">
@@ -71,7 +76,7 @@
             </div>
 
             {{!-- Tab My Products --}}
-            <div class="tab-pane fade" id="my-products-pane" role="tabpanel" aria-labelledby="my-products-tab" tabindex="0">
+            <div class="tab-pane fade {{#if (eq activeTab 'my-products-pane')}}show active{{/if}}" id="my-products-pane" role="tabpanel" aria-labelledby="my-products-tab" tabindex="0">
                 <h4>My Listed Products</h4>
                 {{#if yourProducts.length}}
                     <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-3">
@@ -83,8 +88,7 @@
                                 </a>
                                 <div class="card-body d-flex flex-column">
                                     <h5 class="card-title product-name mb-1">{{this.name}}</h5>
-                                    {{!-- Menggunakan helper formatRupiah di sini --}}
-                                    <p class="card-text text-primary fw-bold mb-1">{{formatRupiah this.price}}</p>
+                                    <p class="card-text text-primary fw-bold mb-1">{{{formatRupiah this.price}}}</p>
                                     <div class="product-rating mb-2">
                                         {{{generateStars this.rating}}}
                                     </div>
@@ -105,21 +109,63 @@
                 {{/if}}
             </div>
 
+            {{!-- ==================== PANEL KONTEN BARU UNTUK MY ORDERS ==================== --}}
+            <div class="tab-pane fade {{#if (eq activeTab 'my-orders-pane')}}show active{{/if}}" id="my-orders-pane" role="tabpanel" aria-labelledby="my-orders-tab" tabindex="0">
+                <h4>Riwayat Pesanan Saya</h4>
+                {{#if orders.length}}
+                    <div class="list-group mt-3">
+                        {{#each orders}}
+                        <div class="list-group-item list-group-item-action flex-column align-items-start mb-3 p-3 border rounded shadow-sm">
+                            <div class="d-flex w-100 justify-content-between mb-2">
+                                <h5 class="mb-1 fw-bold">Pesanan #{{this.id}}</h5>
+                                <small class="text-muted">{{this.formatted_order_date}}</small>
+                            </div>
+                            <div class="mb-2">
+                                <span class="fw-semibold">Total Pembayaran:</span>
+                                <strong class="text-success">{{{formatRupiah this.total_amount}}}</strong>
+                            </div>
+                            <div class="mb-2">
+                                <span class="fw-semibold">Status:</span>
+                                <span class="badge bg-{{this.status_class}} fs-6">{{this.status_display}}</span>
+                            </div>
+                            <div class="mt-2">
+                                <a href="/order/detail/{{this.id}}" class="btn btn-sm btn-outline-primary">
+                                    <i class="bi bi-eye-fill me-1"></i>Lihat Detail Pesanan
+                                </a>
+                                {{!-- Contoh tombol aksi lain berdasarkan status --}}
+                                {{#if (eq this.status 'pending')}} {{!-- Gunakan status mentah (misal, dari DB) untuk perbandingan --}}
+                                    {{!-- <button class="btn btn-sm btn-outline-danger ms-2">Batalkan Pesanan</button> --}}
+                                {{else if (eq this.status 'completed')}}
+                                    {{!-- <button class="btn btn-sm btn-outline-secondary ms-2">Beli Lagi</button> --}}
+                                {{/if}}
+                            </div>
+                        </div>
+                        {{/each}}
+                    </div>
+                {{else}}
+                    <div class="text-center py-5">
+                        <i class="bi bi-journal-text" style="font-size: 4rem; color: #6c757d;"></i>
+                        <p class="lead mt-3">Anda belum memiliki riwayat pesanan.</p>
+                        <a href="/allProduk" class="btn btn-lg btn-primary mt-2">Mulai Belanja Sekarang</a>
+                    </div>
+                {{/if}}
+            </div>
+            {{!-- ========================================================================== --}}
+
             {{!-- Tab My Wishlist --}}
-            <div class="tab-pane fade" id="wishlist-pane-dash" role="tabpanel" aria-labelledby="wishlist-tab-dash" tabindex="0">
+            <div class="tab-pane fade {{#if (eq activeTab 'wishlist-pane-dash')}}show active{{/if}}" id="wishlist-pane-dash" role="tabpanel" aria-labelledby="wishlist-tab-dash" tabindex="0">
                 <h4>My Wishlist</h4>
                 {{#if wishlist.length}}
                     <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-3">
                         {{#each wishlist}}
                         <div class="col">
-                               <div class="card shadow-sm h-100">
+                                <div class="card shadow-sm h-100">
                                  <a href="/product/{{this.id}}">
                                      <img src="{{this.image_url}}" class="card-img-top" alt="{{this.name}}" style="height: 200px; object-fit: cover;">
                                  </a>
                                  <div class="card-body d-flex flex-column">
                                      <h5 class="card-title product-name mb-1">{{this.name}}</h5>
-                                     {{!-- Menggunakan helper formatRupiah di sini --}}
-                                     <p class="card-text text-primary fw-bold mb-1">{{formatRupiah this.price}}</p>
+                                     <p class="card-text text-primary fw-bold mb-1">{{{formatRupiah this.price}}}</p>
                                      <div class="product-rating mb-2">
                                          {{{generateStars this.rating}}}
                                      </div>
@@ -139,7 +185,7 @@
                 {{/if}}
             </div>
 
-            {{!-- views/dashboard.hbs - Tab My Cart --}}
+            {{!-- Tab My Cart --}}
             <div class="tab-pane fade {{#if (eq activeTab 'cart-pane-dash')}}show active{{/if}}" id="cart-pane-dash" role="tabpanel" aria-labelledby="cart-tab-dash" tabindex="0">
                 <h4>My Shopping Cart</h4>
                 {{#if cartItemsDetailed.length}}
@@ -156,14 +202,17 @@
                                             <h5 class="card-title mb-1">{{this.name}}</h5>
                                             <button type="button" class="btn-close btn-sm btn-remove-from-cart-dash" aria-label="Remove" data-cart-item-id="{{this.cart_item_id}}" title="Remove item"></button>
                                         </div>
-                                        {{!-- Menggunakan helper formatRupiah di sini --}}
                                         <p class="card-text mb-1">Price: {{formatRupiah this.price}}</p>
+                                        {{#if this.color}}<small class="d-block text-muted">Warna: {{this.color}}</small>{{/if}}
+                                        {{#if this.size}}<small class="d-block text-muted">Ukuran: {{this.size}}</small>{{/if}}
                                         <div class="d-flex align-items-center mb-1">
-                                            <label for="quantity-{{this.product_id}}-dash" class="form-label me-2 small mb-0">Qty:</label>
-                                            <input type="number" id="quantity-{{this.product_id}}-dash" class="form-control form-control-sm quantity-input-dash" value="{{this.quantity}}" min="1" style="width: 70px;" data-cart-item-id="{{this.cart_item_id}}" data-product-id="{{this.product_id}}">
+                                            <label for="quantity-{{this.cart_item_id}}-dash" class="form-label me-2 small mb-0">Qty:</label>
+                                            <input type="number" id="quantity-{{this.cart_item_id}}-dash" class="form-control form-control-sm quantity-input-dash" value="{{this.quantity}}" min="1" max="{{this.stock}}" style="width: 70px;" data-cart-item-id="{{this.cart_item_id}}" data-product-id="{{this.product_id}}">
                                         </div>
-                                        {{!-- Menggunakan helper formatRupiah dan multiply di sini --}}
                                         <p class="card-text mt-1 fw-semibold">Subtotal: <span class="item-subtotal-dash" id="subtotal-{{this.cart_item_id}}">{{formatRupiah (multiply this.price this.quantity)}}</span></p>
+                                         {{#if this.errorMessage}}
+                                            <small class="d-block text-danger fw-bold">{{this.errorMessage}}</small>
+                                        {{/if}}
                                     </div>
                                 </div>
                             </div>
@@ -171,115 +220,115 @@
                         {{/each}}
                     </div>
                     <div class="text-end mt-3">
-                        {{!-- Menggunakan helper formatRupiah di sini --}}
                         <h5>Total: <span id="cartTotalDashboard">{{formatRupiah cartTotal}}</span></h5>
-                        <a href="/checkout" class="btn btn-primary">Proceed to Checkout</a>
+                        <a href="/checkout" class="btn btn-primary {{#unless cartItemsDetailed.length}}disabled{{/unless}} {{#if (hasProblematicItems cartItemsDetailed)}}disabled{{/if}}">Proceed to Checkout</a>
+                         {{#if (hasProblematicItems cartItemsDetailed)}}
+                            <p class="text-danger small mt-1">Please resolve issues in your cart before proceeding.</p>
+                        {{/if}}
                     </div>
                 {{else}}
                     <p>Your cart is empty. <a href="/allProduk">Continue shopping!</a></p>
                 {{/if}}
             </div>
-        </main>
+        </div>
+    </main>
 
-        {{!-- Modal Edit Profile --}}
-        <div class="modal fade" id="editProfileModal" tabindex="-1" aria-labelledby="editProfileModalLabel" aria-hidden="true">
-            <div class="modal-dialog modal-dialog-centered">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="editProfileModalLabel">Edit Profile</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                    </div>
-                    <div class="modal-body">
-                        <form id="formEditProfile">
-                            <div class="mb-3">
-                                <label for="editName" class="form-label">Name</label>
-                                <input type="text" class="form-control" id="editName" name="name" value="{{user.name}}" required>
-                            </div>
-                            <div class="mb-3">
-                                <label for="editEmail" class="form-label">Email</label>
-                                <input type="email" class="form-control" id="editEmail" name="email" value="{{user.email}}" required>
-                            </div>
-                            <div class="mb-3">
-                                <label for="editBio" class="form-label">Bio</label>
-                                <textarea class="form-control" id="editBio" name="bio" rows="3">{{user.bio}}</textarea>
-                            </div>
-                            <div class="mb-3">
-                                <label for="editAvatar" class="form-label">Change Avatar (Optional)</label>
-                                <input type="file" class="form-control" id="editAvatar" name="avatar" accept="image/png, image/jpeg, image/gif">
-                                <div class="form-text">Max file size: 1MB. Allowed types: PNG, JPG, GIF.</div>
-                                {{#if user.profile_image_url}}
-                                    <div class="mt-2">
-                                        <small>Current Avatar:</small><br>
-                                        <img src="{{user.profile_image_url}}" alt="Current Avatar" style="width: 60px; height: 60px; object-fit: cover; border-radius: 50%;">
-                                    </div>
-                                {{/if}}
-                            </div>
-                            <button type="submit" class="btn btn-primary w-100">Save Changes</button>
-                        </form>
-                    </div>
+    {{!-- Modal Edit Profile --}}
+    <div class="modal fade" id="editProfileModal" tabindex="-1" aria-labelledby="editProfileModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editProfileModalLabel">Edit Profile</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="formEditProfile" enctype="multipart/form-data"> {{!-- Tambahkan enctype --}}
+                        <div class="mb-3">
+                            <label for="editName" class="form-label">Name</label>
+                            <input type="text" class="form-control" id="editName" name="name" value="{{user.name}}" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="editEmail" class="form-label">Email</label>
+                            <input type="email" class="form-control" id="editEmail" name="email" value="{{user.email}}" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="editBio" class="form-label">Bio</label>
+                            <textarea class="form-control" id="editBio" name="bio" rows="3">{{user.bio}}</textarea>
+                        </div>
+                        <div class="mb-3">
+                            <label for="editAvatar" class="form-label">Change Avatar (Optional)</label>
+                            <input type="file" class="form-control" id="editAvatar" name="avatar" accept="image/png, image/jpeg, image/gif">
+                            <div class="form-text">Max file size: 1MB. Allowed types: PNG, JPG, GIF.</div>
+                            {{#if user.profile_image_url}}
+                                <div class="mt-2">
+                                    <small>Current Avatar:</small><br>
+                                    <img src="{{user.profile_image_url}}" alt="Current Avatar" id="currentEditAvatarPreview" style="width: 60px; height: 60px; object-fit: cover; border-radius: 50%;">
+                                </div>
+                            {{/if}}
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100">Save Changes</button>
+                    </form>
                 </div>
             </div>
         </div>
+    </div>
 
-        {{!-- Modal Konfirmasi Hapus Wishlist --}}
-        <div class="modal fade" id="confirmRemoveWishlistModal" tabindex="-1" aria-labelledby="confirmRemoveModalLabel" aria-hidden="true">
-            <div class="modal-dialog modal-dialog-centered">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="confirmRemoveModalLabel">Confirm Removal</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                    </div>
-                    <div class="modal-body">
-                        Are you sure you want to remove this item from your wishlist?
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                        <button type="button" class="btn btn-danger" id="btnConfirmRemoveWishlist">Yes, Remove</button>
-                    </div>
+    {{!-- Modal Konfirmasi Hapus Wishlist --}}
+    <div class="modal fade" id="confirmRemoveWishlistModal" tabindex="-1" aria-labelledby="confirmRemoveModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="confirmRemoveModalLabel">Confirm Removal</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body" id="confirmRemoveWishlistModalBody">
+                    Are you sure you want to remove this item from your wishlist?
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-danger" id="btnConfirmRemoveWishlist">Yes, Remove</button>
                 </div>
             </div>
         </div>
+    </div>
 
-        {{!-- Elemen Toast --}}
-        <div class="toast-container position-fixed bottom-0 end-0 p-3" style="z-index: 1100">
-            <div id="dashboardToast" class="toast align-items-center text-bg-dark border-0" role="alert" aria-live="assertive" aria-atomic="true">
-                <div class="d-flex">
-                    <div class="toast-body" id="dashboardToastBody"></div>
-                    <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+    {{!-- Elemen Toast --}}
+    <div class="toast-container position-fixed bottom-0 end-0 p-3" style="z-index: 1100">
+        <div id="dashboardToast" class="toast align-items-center text-bg-dark border-0" role="alert" aria-live="assertive" aria-atomic="true" data-bs-delay="3000">
+            <div class="d-flex">
+                <div class="toast-body" id="dashboardToastBody"></div>
+                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+            </div>
+        </div>
+    </div>
+
+    {{!-- Modal Konfirmasi Hapus Item Keranjang --}}
+    <div class="modal fade" id="confirmRemoveCartItemModal" tabindex="-1" aria-labelledby="confirmRemoveCartItemModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="confirmRemoveCartItemModalLabel">Remove Item from Cart</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body" id="confirmRemoveCartItemModalBody">
+                    Are you sure you want to remove this item from your shopping cart?
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-danger" id="btnConfirmRemoveCartItemAction">Yes, Remove</button>
                 </div>
             </div>
         </div>
-        <div class="modal fade" id="confirmRemoveCartItemModal" tabindex="-1" aria-labelledby="confirmRemoveCartItemModalLabel" aria-hidden="true">
-            <div class="modal-dialog modal-dialog-centered">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="confirmRemoveCartItemModalLabel">Remove Item from Cart</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                    </div>
-                    <div class="modal-body">
-                        Are you sure you want to remove this item from your shopping cart?
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                        <button type="button" class="btn btn-danger" id="btnConfirmRemoveCartItemAction">Yes, Remove</button>
-                    </div>
-                </div>
-            </div>
-        </div>
+    </div>
 
     {{> footer_main }}
-    {{! Letakkan ini sebelum tag </body> di views/dashboard.hbs }}
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/js/bootstrap.bundle.min.js"></script>
     <script>
         // Fungsi untuk menampilkan toast notifikasi di dashboard
         function showDashboardToast(message, type = 'dark') {
             const toastEl = document.getElementById('dashboardToast');
             const toastBody = document.getElementById('dashboardToastBody');
-            if (!toastEl || !toastBody) {
-                console.error('Dashboard Toast elements not found!');
-                return;
-            }
-
+            if (!toastEl || !toastBody) { console.error('Dashboard Toast elements not found!'); return; }
             toastEl.classList.remove('text-bg-dark', 'text-bg-success', 'text-bg-danger', 'text-bg-warning', 'text-bg-info');
             let toastTypeClass = 'text-bg-dark';
             if (type === 'success') toastTypeClass = 'text-bg-success';
@@ -287,30 +336,28 @@
             else if (type === 'warning') toastTypeClass = 'text-bg-warning';
             else if (type === 'info') toastTypeClass = 'text-bg-info';
             toastEl.classList.add(toastTypeClass);
-
             toastBody.textContent = message;
-            try {
-                const toast = bootstrap.Toast.getOrCreateInstance(toastEl);
-                toast.show();
-            } catch (e) { console.error('Error showing dashboard toast:', e); }
+            try { const toast = bootstrap.Toast.getOrCreateInstance(toastEl); toast.show(); }
+            catch (e) { console.error('Error showing dashboard toast:', e); }
         }
 
-        // --- Logika untuk Tombol Hapus Wishlist dengan Modal Konfirmasi ---
+        // --- Logika untuk Tombol Hapus Wishlist ---
         let productIdToRemoveFromWishlist = null;
         const confirmRemoveWishlistModalElement = document.getElementById('confirmRemoveWishlistModal');
         const confirmRemoveWishlistModal = confirmRemoveWishlistModalElement ? new bootstrap.Modal(confirmRemoveWishlistModalElement) : null;
         const btnConfirmRemoveWishlistAction = document.getElementById('btnConfirmRemoveWishlist');
+        const confirmRemoveWishlistModalBody = document.getElementById('confirmRemoveWishlistModalBody');
 
-        function removeFromWishlistDashboard(productId) {
-            console.log('[DASHBOARD WISHLIST] Requesting to remove product ID:', productId);
+
+        function removeFromWishlistDashboard(productId, productName) { // Tambahkan productName
             productIdToRemoveFromWishlist = productId;
+            if (confirmRemoveWishlistModalBody) { // Update isi modal
+                 confirmRemoveWishlistModalBody.textContent = `Are you sure you want to remove "${productName || 'this item'}" from your wishlist?`;
+            }
             if (confirmRemoveWishlistModal) {
                 confirmRemoveWishlistModal.show();
-            } else {
-                console.error('Confirm remove wishlist modal not found. Falling back to confirm().');
-                if (confirm('Are you sure you want to remove this item from your wishlist? (Modal Error)')) {
-                    proceedToRemoveWishlist(productIdToRemoveFromWishlist);
-                }
+            } else if (confirm(`Are you sure you want to remove "${productName || 'this item'}" from your wishlist? (Modal Error)`)) {
+                proceedToRemoveWishlist(productIdToRemoveFromWishlist);
             }
         }
 
@@ -319,36 +366,23 @@
                 if (productIdToRemoveFromWishlist) {
                     await proceedToRemoveWishlist(productIdToRemoveFromWishlist);
                 }
-                if (confirmRemoveWishlistModal) {
-                    confirmRemoveWishlistModal.hide();
-                }
+                if (confirmRemoveWishlistModal) confirmRemoveWishlistModal.hide();
             });
         }
-
         async function proceedToRemoveWishlist(productId) {
-            console.log('[DASHBOARD WISHLIST] Proceeding to remove product ID:', productId);
-            let response;
-            try {
-                response = await fetch(`/auth/wishlist/${productId}`, {
-                    method: 'DELETE',
-                    headers: { 'Content-Type': 'application/json' },
-                    credentials: 'include'
-                });
+            // ... (logika fetch DELETE /auth/wishlist/{productId} Anda) ...
+             try {
+                const response = await fetch(`/auth/wishlist/${productId}`, { method: 'DELETE', headers: { 'Content-Type': 'application/json' }, credentials: 'include' });
                 const data = await response.json();
                 if (response.ok && data.success) {
-                    showDashboardToast('✅ Removed from wishlist! Page will reload.', 'success');
+                    showDashboardToast(data.message || 'Item removed from wishlist! Reloading...', 'success');
                     setTimeout(() => window.location.reload(), 1500);
                 } else {
-                    showDashboardToast(data.message || 'Failed to remove from wishlist.', 'danger');
+                    showDashboardToast(data.message || 'Failed to remove item from wishlist.', 'danger');
                 }
             } catch (error) {
-                console.error('Error removing from wishlist:', error);
-                if (response && response.status === 401){
-                    showDashboardToast('Sesi Anda berakhir. Silakan login lagi.', 'warning');
-                    setTimeout(() => { window.location.href = '/login'; }, 2000);
-                } else {
-                    showDashboardToast('Error removing from wishlist. Check console.', 'danger');
-                }
+                console.error('Error removing wishlist item:', error);
+                showDashboardToast('Error removing item. Please try again.', 'danger');
             }
             productIdToRemoveFromWishlist = null;
         }
@@ -356,22 +390,26 @@
         // --- Logika untuk Tombol Hapus dan Update Kuantitas di Cart pada Dashboard ---
         const cartItemsContainerDashboard = document.getElementById('cartItemsContainerDashboard');
         let cartItemIdToRemoveFromCart = null;
-        const confirmRemoveCartItemModalElement = document.getElementById('confirmRemoveCartItemModal'); // Pastikan ID modal ini ada di HTML
+        let cartItemNameToRemove = ''; // Untuk pesan konfirmasi
+        const confirmRemoveCartItemModalElement = document.getElementById('confirmRemoveCartItemModal');
         const confirmRemoveCartItemModal = confirmRemoveCartItemModalElement ? new bootstrap.Modal(confirmRemoveCartItemModalElement) : null;
-        const btnConfirmRemoveCartItemAction = document.getElementById('btnConfirmRemoveCartItemAction'); // Pastikan ID tombol ini ada di HTML modal cart
+        const btnConfirmRemoveCartItemAction = document.getElementById('btnConfirmRemoveCartItemAction');
+        const confirmRemoveCartItemModalBody = document.getElementById('confirmRemoveCartItemModalBody');
+
 
         if (cartItemsContainerDashboard) {
             cartItemsContainerDashboard.addEventListener('click', async (event) => {
                 const removeButton = event.target.closest('.btn-remove-from-cart-dash');
                 if (removeButton) {
                     cartItemIdToRemoveFromCart = removeButton.dataset.cartItemId;
+                    const cardBody = removeButton.closest('.card-body');
+                    cartItemNameToRemove = cardBody ? (cardBody.querySelector('.card-title') ? cardBody.querySelector('.card-title').textContent : 'this item') : 'this item';
+
                     if (cartItemIdToRemoveFromCart && confirmRemoveCartItemModal) {
-                        confirmRemoveCartItemModal.show(); // Tampilkan modal konfirmasi untuk cart
-                    } else if (cartItemIdToRemoveFromCart) {
-                        console.error('Confirm remove cart item modal not found. Falling back to confirm().');
-                        if (confirm('Are you sure you want to remove this item from your cart? (Modal Error)')) {
-                            await proceedToRemoveCartItemDashboard(cartItemIdToRemoveFromCart);
-                        }
+                        if(confirmRemoveCartItemModalBody) confirmRemoveCartItemModalBody.textContent = `Are you sure you want to remove "${cartItemNameToRemove}" from your cart?`;
+                        confirmRemoveCartItemModal.show();
+                    } else if (cartItemIdToRemoveFromCart && confirm(`Are you sure you want to remove "${cartItemNameToRemove}" from your cart? (Modal Error)`)) {
+                        await proceedToRemoveCartItemDashboard(cartItemIdToRemoveFromCart);
                     }
                 }
             });
@@ -380,13 +418,24 @@
                 if (event.target.classList.contains('quantity-input-dash')) {
                     const inputElement = event.target;
                     const cartItemId = inputElement.dataset.cartItemId;
-                    const productId = inputElement.dataset.productId;
-                    const newQuantity = parseInt(inputElement.value);
+                    const productId = inputElement.dataset.productId; // productId dibutuhkan untuk cek stok
+                    let newQuantity = parseInt(inputElement.value);
+                    const maxStock = parseInt(inputElement.getAttribute('max')) || Infinity; // Ambil max stock
 
-                    if (cartItemId && !isNaN(newQuantity) && newQuantity > 0) {
+                    if (isNaN(newQuantity) || newQuantity < 1) {
+                        showDashboardToast('Invalid quantity. Minimum is 1.', 'warning');
+                        inputElement.value = 1; // Reset ke 1 jika tidak valid
+                        newQuantity = 1; // Update variabel newQuantity juga
+                        // Mungkin perlu panggil update API lagi di sini atau biarkan user submit ulang jika perlu
+                    }
+                     if (newQuantity > maxStock) {
+                        showDashboardToast(`Quantity exceeds available stock (${maxStock}). Adjusted to max stock.`, 'warning');
+                        inputElement.value = maxStock;
+                        newQuantity = maxStock;
+                    }
+
+                    if (cartItemId) { // Hanya update jika cartItemId ada
                         await updateCartItemQuantityDashboard(cartItemId, newQuantity, productId);
-                    } else if (isNaN(newQuantity) || newQuantity <= 0) {
-                        showDashboardToast('Invalid quantity. Please enter a number greater than 0.', 'warning');
                     }
                 }
             });
@@ -397,100 +446,110 @@
                 if (cartItemIdToRemoveFromCart) {
                     await proceedToRemoveCartItemDashboard(cartItemIdToRemoveFromCart);
                 }
-                if (confirmRemoveCartItemModal) {
-                    confirmRemoveCartItemModal.hide();
-                }
+                if (confirmRemoveCartItemModal) confirmRemoveCartItemModal.hide();
             });
         }
-
         async function proceedToRemoveCartItemDashboard(cartItemId) {
-            console.log('[DASHBOARD CART] Proceeding to remove cart item ID:', cartItemId);
-            let response;
+            // ... (logika fetch DELETE /api/cart/{cartItemId} Anda) ...
             try {
-                response = await fetch(`/api/cart/${cartItemId}`, {
-                    method: 'DELETE',
-                    headers: { 'Content-Type': 'application/json' },
-                    credentials: 'include'
-                });
+                const response = await fetch(`/api/cart/${cartItemId}`, { method: 'DELETE', headers: { 'Content-Type': 'application/json' }, credentials: 'include' });
                 const data = await response.json();
                 if (response.ok && data.success) {
-                    showDashboardToast(data.message || 'Item removed from cart! Page will reload.', 'success');
-                    setTimeout(() => window.location.reload(), 1500);
+                    showDashboardToast(data.message || 'Item removed! Reloading cart...', 'success');
+                     setTimeout(() => { window.location.hash = 'cart-pane-dash'; window.location.reload(); }, 1500);
                 } else {
-                    showDashboardToast(data.message || 'Failed to remove item from cart.', 'danger');
+                    showDashboardToast(data.message || 'Failed to remove item.', 'danger');
                 }
             } catch (error) {
-                console.error('Error removing cart item from dashboard:', error);
-                showDashboardToast('Error removing item from cart.', 'danger');
+                console.error('Error removing cart item:', error);
+                showDashboardToast('Error removing item. Please try again.', 'danger');
             }
             cartItemIdToRemoveFromCart = null;
         }
-
         async function updateCartItemQuantityDashboard(cartItemId, quantity, productId) {
-            console.log(`[DASHBOARD CART] Updating cart item ID: ${cartItemId} to quantity: ${quantity}`);
-            let response;
+             // ... (logika fetch PUT /api/cart/{cartItemId} Anda dengan body { quantity, product_id }) ...
             try {
-                response = await fetch(`/api/cart/${cartItemId}`, {
+                const response = await fetch(`/api/cart/${cartItemId}`, {
                     method: 'PUT',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ quantity: quantity, product_id: productId }),
+                    body: JSON.stringify({ quantity: quantity, product_id: productId }), // Kirim product_id untuk cek stok
                     credentials: 'include'
                 });
                 const data = await response.json();
                 if (response.ok && data.success) {
-                    showDashboardToast(data.message || 'Cart item quantity updated! Page will reload.', 'success');
-                    setTimeout(() => window.location.reload(), 1500);
+                    showDashboardToast(data.message || 'Quantity updated! Reloading cart...', 'success');
+                    setTimeout(() => { window.location.hash = 'cart-pane-dash'; window.location.reload(); }, 1500);
                 } else {
                     showDashboardToast(data.message || 'Failed to update quantity.', 'danger');
-                    // Jika gagal karena stok, reload akan mengembalikan ke nilai sebelum perubahan
-                    // window.location.reload();
+                     // Jika gagal, mungkin reload untuk sync dengan server state
+                    setTimeout(() => { window.location.hash = 'cart-pane-dash'; window.location.reload(); }, 2000);
                 }
             } catch (error) {
-                console.error('Error updating cart quantity from dashboard:', error);
-                showDashboardToast('Error updating quantity.', 'danger');
+                console.error('Error updating cart quantity:', error);
+                showDashboardToast('Error updating quantity. Please try again.', 'danger');
             }
         }
 
-        // JavaScript untuk Tab Aktif berdasarkan Hash URL dan Update Hash saat Tab Diklik
-        document.addEventListener('DOMContentLoaded', function () {
-            const dashboardTab = document.getElementById('dashboardTab');
-            if(dashboardTab){
-                var hash = window.location.hash;
-                var tabToActivate = null;
 
-                if (hash) {
-                    tabToActivate = dashboardTab.querySelector('button[data-bs-target="' + hash + '"]');
-                    if (!tabToActivate && hash.endsWith('-pane')) {
-                        tabToActivate = dashboardTab.querySelector('button[data-bs-target="' + hash.substring(0, hash.length - 5) + '"]');
+        // JavaScript untuk Tab Aktif (sesuaikan jika perlu)
+        document.addEventListener('DOMContentLoaded', function () { // Ini duplikat, gabungkan dengan yang di atas
+            const dashboardTabContainer = document.getElementById('dashboardTab'); // Ganti nama variabel agar unik
+            if(dashboardTabContainer){
+                var currentHash = window.location.hash;
+                var tabToActivateButton = null;
+
+                if (currentHash) {
+                    tabToActivateButton = dashboardTabContainer.querySelector('button[data-bs-target="' + currentHash + '"]');
+                    // Coba variasi jika -pane ada di hash dari URL tapi tidak di data-bs-target tombol
+                    if (!tabToActivateButton && currentHash.endsWith('-dash') && currentHash.includes('-pane')) {
+                         const simplifiedHash = currentHash.replace('-pane-dash', '-pane'); // atau variasi lain
+                         tabToActivateButton = dashboardTabContainer.querySelector('button[data-bs-target="' + simplifiedHash + '"]');
                     }
-                    if (!tabToActivate && !hash.endsWith('-pane')) {
-                        tabToActivate = dashboardTab.querySelector('button[data-bs-target="' + hash + '-pane"]');
+                     if (!tabToActivateButton && currentHash.startsWith('#') && !currentHash.includes('-pane-dash') && currentHash.includes('-pane')){
+                         const complexHash = currentHash + "-dash"; // e.g #wishlist-pane -> #wishlist-pane-dash
+                         tabToActivateButton = dashboardTabContainer.querySelector('button[data-bs-target="' + complexHash.replace('-pane-dash', '-dash') + '"]');
+                          if(!tabToActivateButton) { // Mencoba mencocokkan target pane dengan hash langsung
+                            tabToActivateButton = dashboardTabContainer.querySelector('button[data-bs-target="' + currentHash + '"]');
+                          }
+                     }
+
+                }
+
+                if (!tabToActivateButton) {
+                    const serverActiveTabId = "{{#if activeTab}}{{activeTab}}{{else}}my-profile-pane{{/if}}";
+                    tabToActivateButton = dashboardTabContainer.querySelector('button[data-bs-target="#' + serverActiveTabId + '"]');
+                    if (!tabToActivateButton) { // Fallback ke tab pertama jika serverActiveTabId tidak cocok
+                        tabToActivateButton = dashboardTabContainer.querySelector('.nav-link');
                     }
                 }
 
-                if (!tabToActivate) {
-                    const serverActiveTabTarget = "{{#if activeTab}}{{activeTab}}{{else}}my-profile-pane{{/if}}";
-                    tabToActivate = dashboardTab.querySelector('button[data-bs-target="#' + serverActiveTabTarget + '"]');
-                    if (!tabToActivate) {
-                        tabToActivate = dashboardTab.querySelector('button#my-profile-tab');
-                    }
-                }
-
-                if (tabToActivate) {
-                    dashboardTab.querySelectorAll('button.nav-link').forEach(btn => btn.classList.remove('active'));
-                    document.querySelectorAll('#dashboardTabContent .tab-pane').forEach(pane => {
-                        pane.classList.remove('show', 'active');
+                if (tabToActivateButton) {
+                    // Non-Bootstrap way to activate (jika Bootstrap JS belum init atau ada konflik)
+                    dashboardTabContainer.querySelectorAll('.nav-link').forEach(btn => {
+                        btn.classList.remove('active');
+                        btn.setAttribute('aria-selected', 'false');
+                        const pane = document.querySelector(btn.dataset.bsTarget);
+                        if (pane) pane.classList.remove('show', 'active');
                     });
-                    tabToActivate.classList.add('active');
-                    const targetPane = document.querySelector(tabToActivate.dataset.bsTarget);
-                    if(targetPane) targetPane.classList.add('show', 'active');
+                    tabToActivateButton.classList.add('active');
+                    tabToActivateButton.setAttribute('aria-selected', 'true');
+                    const targetPaneToShow = document.querySelector(tabToActivateButton.dataset.bsTarget);
+                    if(targetPaneToShow) targetPaneToShow.classList.add('show', 'active');
+
+                    // Jika Bootstrap sudah aktif, ini bisa juga:
+                    // const tab = new bootstrap.Tab(tabToActivateButton);
+                    // tab.show();
                 }
 
-                const tabTriggers = dashboardTab.querySelectorAll('button[data-bs-toggle="tab"]');
+                const tabTriggers = dashboardTabContainer.querySelectorAll('button[data-bs-toggle="tab"]');
                 tabTriggers.forEach(trigger => {
                     trigger.addEventListener('shown.bs.tab', event => {
-                        let targetPaneId = event.target.dataset.bsTarget;
-                        if(targetPaneId && targetPaneId.startsWith('#')) {
+                        let targetPaneId = event.target.dataset.bsTarget; // Ini adalah ID pane, misal "#my-profile-pane"
+                         if(targetPaneId && targetPaneId.startsWith('#')) {
+                            // Untuk URL hash, kita ingin bagian setelah '#', dan mungkin ingin konsisten
+                            // dengan ID tab-pane (-pane) atau ID tombol (-tab)
+                            // atau ID yang dikirim dari server (misal, 'my-profile-pane' atau 'cart-pane-dash')
+                            // Jika target adalah #cart-pane-dash, kita set hash ke #cart-pane-dash
                             history.replaceState(null, null, targetPaneId);
                         }
                     });
@@ -505,67 +564,62 @@
         const displayNameElement = document.getElementById('displayName');
         const displayEmailElement = document.getElementById('displayEmail');
         const displayBioElement = document.getElementById('displayBio');
+        const currentEditAvatarPreview = document.getElementById('currentEditAvatarPreview');
+
 
         if (editProfileModalElement) {
             editProfileModalElement.addEventListener('show.bs.modal', function () {
-                document.getElementById('editName').value = "{{user.name}}";
-                document.getElementById('editEmail').value = "{{user.email}}";
-                document.getElementById('editBio').value = "{{user.bio}}";
-                document.getElementById('editAvatar').value = ''; // Kosongkan input file setiap modal dibuka
+                document.getElementById('editName').value = "{{#if user.name}}{{user.name}}{{/if}}";
+                document.getElementById('editEmail').value = "{{#if user.email}}{{user.email}}{{/if}}";
+                document.getElementById('editBio').value = "{{#if user.bio}}{{user.bio}}{{/if}}";
+                document.getElementById('editAvatar').value = '';
+                // Update preview avatar di modal jika sudah ada
+                const currentAvatarInModal = document.getElementById('currentEditAvatarPreview');
+                if(currentAvatarInModal && "{{user.profile_image_url}}") {
+                    currentAvatarInModal.src = "{{user.profile_image_url}}";
+                    currentAvatarInModal.style.display = 'block';
+                } else if (currentAvatarInModal) {
+                    currentAvatarInModal.style.display = 'none';
+                }
             });
         }
 
         if (formEditProfile) {
             formEditProfile.addEventListener('submit', async function(event) {
                 event.preventDefault();
-                const formData = new FormData();
-                formData.append('name', document.getElementById('editName').value);
-                formData.append('email', document.getElementById('editEmail').value);
-                formData.append('bio', document.getElementById('editBio').value);
-                const avatarFile = document.getElementById('editAvatar').files[0];
-                if (avatarFile) {
-                    formData.append('avatar', avatarFile);
-                }
+                const submitButton = formEditProfile.querySelector('button[type="submit"]');
+                const originalButtonText = submitButton.innerHTML;
+                submitButton.disabled = true;
+                submitButton.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Saving...';
 
-                if (!formData.get('name') || !formData.get('email')) {
-                    showDashboardToast('Name and Email are required.', 'warning');
-                    return;
-                }
-                console.log('[PROFILE EDIT] Submitting profile update with FormData...');
+                const formData = new FormData(this); // 'this' merujuk ke form
+
                 try {
-                    const response = await fetch('/api/profile/update', { // Pastikan endpoint ini benar
+                    const response = await fetch('/api/profile/update', {
                         method: 'POST',
-                        body: formData,
+                        body: formData, // FormData akan otomatis set Content-Type ke multipart/form-data
                         credentials: 'include'
                     });
                     const data = await response.json();
-                    console.log('[PROFILE EDIT] Response Data:', data);
                     if (response.ok && data.success) {
-                        showDashboardToast('✅ Profile updated successfully! Reloading...', 'success');
-                        if (editProfileModal) {
-                            editProfileModal.hide();
-                        }
-                        // Update tampilan dinamis (atau reload)
-                        if (displayNameElement) displayNameElement.textContent = data.user.name;
-                        if (displayEmailElement) displayEmailElement.textContent = data.user.email;
-                        if (displayBioElement) displayBioElement.textContent = data.user.bio || 'No bio provided.';
-                        const userDashboardAvatar = document.querySelector('.user-dashboard-avatar');
-                        if (userDashboardAvatar && data.user.profile_image_url) {
-                            userDashboardAvatar.src = data.user.profile_image_url;
-                        }
-                        // Jika nama atau avatar berubah, reload untuk update navbar
-                        if (data.user.name !== "{{user.name}}" || (data.user.profile_image_url && data.user.profile_image_url !== "{{user.profile_image_url}}")) {
-                            setTimeout(() => window.location.reload(), 1500);
-                        }
+                        showDashboardToast('✅ Profile updated successfully! Page will refresh.', 'success');
+                        if (editProfileModal) editProfileModal.hide();
+                        // Update tampilan di halaman dashboard secara dinamis (opsional, reload lebih mudah)
+                        // Atau reload halaman untuk melihat perubahan, terutama jika gambar profil berubah
+                        setTimeout(() => window.location.reload(), 1500);
                     } else {
                         showDashboardToast(data.message || 'Failed to update profile.', 'danger');
                     }
                 } catch (error) {
                     console.error('Error updating profile:', error);
                     showDashboardToast('An error occurred while updating profile.', 'danger');
+                } finally {
+                    submitButton.disabled = false;
+                    submitButton.innerHTML = originalButtonText;
                 }
             });
         }
+
     </script>
 </body>
 </html>

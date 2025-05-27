@@ -2,7 +2,8 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    {{> header}}
+    {{> header}} {{!-- Pastikan partial header.hbs ada dan berisi meta tags, title, link ke style.css --}}
+    <link rel="stylesheet" href="/path/to/your/style.css"> {{!-- Sesuaikan path ke style.css --}}
 </head>
 <body>
     {{> navbar_main }}
@@ -18,7 +19,12 @@
         <nav aria-label="breadcrumb" class="mb-3 product-breadcrumb">
             <ol class="breadcrumb">
                 <li class="breadcrumb-item"><a href="/">Home</a></li>
+                {{#if product.category_id}}
                 <li class="breadcrumb-item"><a href="/allProduk?category_id={{product.category_id}}">{{product.category_name}}</a></li>
+                {{/if}}
+                 {{#if product.style_id}}
+                <li class="breadcrumb-item"><a href="/allProduk?style={{product.style_slug}}">{{product.style_name}}</a></li>
+                {{/if}}
                 <li class="breadcrumb-item active" aria-current="page">{{product.name}}</li>
             </ol>
         </nav>
@@ -28,31 +34,28 @@
             <div class="col-lg-7 col-md-6 product-gallery">
                 <div class="main-product-image mb-3 shadow-sm">
                     <img src="{{#if product.images.length}}{{product.images.[0].image_url}}{{else}}{{product.image_url}}{{/if}}"
-                         alt="{{product.name}} Main Image" 
-                         class="img-fluid rounded-3" 
+                         alt="{{product.name}} Main Image"
+                         class="img-fluid rounded-3"
                          id="mainProductImage">
                 </div>
-                {{#if (gt product.images.length 0)}} {{!-- Tampilkan thumbnails jika product.images ada dan tidak kosong --}}
-                    {{#if (gt product.images.length 1)}} {{!-- Hanya buat baris thumbnail jika ada lebih dari 1 gambar di array --}}
-                    <div class="product-thumbnails d-flex gap-2 mt-3">
-                        {{#each product.images}}
-                        <div class="thumbnail-item">
-                            <img src="{{this.image_url}}"
-                                 alt="{{../product.name}} Thumbnail {{add @index 1}}"
-                                 class="img-fluid rounded-2 {{#if @first}}active-thumbnail{{/if}}"
-                                 onclick="changeMainImage('{{this.image_url}}', this); stopCarousel();">
-                        </div>
-                        {{/each}}
+                {{#if (gt product.images.length 1)}}
+                <div class="product-thumbnails d-flex flex-wrap gap-2 mt-3">
+                    {{#each product.images}}
+                    <div class="thumbnail-item">
+                        <img src="{{this.image_url}}"
+                             alt="{{../product.name}} Thumbnail {{add @index 1}}"
+                             class="img-thumbnail p-0 {{#if @first}}active-thumbnail{{/if}}"
+                             onclick="changeMainImage('{{this.image_url}}', this);"> {{!-- Hapus stopCarousel jika tidak ada carousel --}}
                     </div>
-                    {{/if}}
-                {{else if product.image_url}}
-                    {{! Jika product.images kosong TAPI product.image_url utama ada (sebagai satu-satunya gambar), jangan tampilkan thumbnail }}
+                    {{/each}}
+                </div>
                 {{/if}}
             </div>
 
             {{!-- Kolom Detail dan Aksi Produk --}}
             <div class="col-lg-5 col-md-6 product-details-actions">
                 <h1 class="product-title mb-2">{{product.name}}</h1>
+                <p class="mb-2"><small>Sold by: <a href="/seller/{{product.user_id}}">{{product.seller_name}}</a></small></p>
 
                 <div class="d-flex align-items-center mb-2">
                     <div class="product-rating-display">
@@ -64,81 +67,109 @@
                         <span class="ms-2 text-muted small">(No Reviews Yet)</span>
                     {{/if}}
                 </div>
-                
+
                 <div class="product-pricing mb-3">
                     <span class="current-price fs-2 fw-bold">{{{formatRupiah product.price}}}</span>
-
                 </div>
 
-                <p class="product-short-description text-muted mb-4">
+                <p class="product-short-description text-muted mb-3">
                     {{truncate product.description 150}}
                 </p>
 
-                {{!-- Pilihan Warna (Contoh Placeholder) --}}
+                {{!-- Pilihan Warna Dinamis --}}
+                {{#if product.colorOptions.length}}
                 <div class="product-options mb-3">
-                    <label class="form-label fw-semibold">Color:</label>
+                    <label class="form-label fw-semibold">Color:<span id="selectedColorNameDisplay" class="ms-1">
+                        {{#each product.colorOptions}}{{#if this.isActive}}{{this.name}}{{/if}}{{/each}}
+                    </span></label>
                     <div class="color-swatches">
-                        <button type="button" class="color-swatch active" style="background-color: #556B2F;" data-color="Olive" title="Olive"></button>
-                        <button type="button" class="color-swatch" style="background-color: #000080;" data-color="Navy" title="Navy"></button>
-                        <button type="button" class="color-swatch" style="background-color: #006400;" data-color="Dark Green" title="Dark Green"></button>
+                        {{#each product.colorOptions}}
+                        <button type="button"
+                                class="color-swatch-btn {{#if this.isActive}}active{{/if}}"
+                                style="{{this.style}}"
+                                data-color-name="{{this.dataColor}}"
+                                title="{{this.name}}">
+                            {{#if this.isActive}}
+                                <i class="bi bi-check swatch-active-icon"></i>
+                            {{/if}}
+                        </button>
+                        {{/each}}
                     </div>
+                    <input type="hidden" name="selected_color" id="selected_color_input" value="{{#each product.colorOptions}}{{#if this.isActive}}{{this.dataColor}}{{/if}}{{/each}}">
                 </div>
+                {{/if}}
 
-                {{!-- Pilihan Ukuran (Contoh Placeholder) --}}
-                <div class="product-options mb-4">
-                    <label class="form-label fw-semibold">Size:</label>
+                {{!-- Pilihan Ukuran Dinamis --}}
+                {{#if product.sizeOptions.length}}
+                <div class="product-options mb-3">
+                    <label class="form-label fw-semibold">Size:<span id="selectedSizeNameDisplay" class="ms-1">
+                        {{#each product.sizeOptions}}{{#if this.isActive}}{{this.name}}{{/if}}{{/each}}
+                    </span></label>
                     <div class="size-selector btn-group" role="group" aria-label="Size selector">
-                        <input type="radio" class="btn-check" name="size" id="sizeS" value="S" autocomplete="off">
-                        <label class="btn btn-outline-dark size-option" for="sizeS">S</label>
-
-                        <input type="radio" class="btn-check" name="size" id="sizeM" value="M" autocomplete="off" checked>
-                        <label class="btn btn-outline-dark size-option" for="sizeM">M</label>
-
-                        <input type="radio" class="btn-check" name="size" id="sizeL" value="L" autocomplete="off">
-                        <label class="btn btn-outline-dark size-option" for="sizeL">L</label>
-
-                        <input type="radio" class="btn-check" name="size" id="sizeXL" value="XL" autocomplete="off">
-                        <label class="btn btn-outline-dark size-option" for="sizeXL">XL</label>
+                        {{#each product.sizeOptions}}
+                        <input type="radio" class="btn-check size-option-radio"
+                               name="selected_size_radio"
+                               id="size-{{this.name_sanitized}}"
+                               value="{{this.name}}"
+                               autocomplete="off"
+                               {{#if this.isActive}}checked{{/if}}>
+                        <label class="btn btn-outline-dark size-option-label" for="size-{{this.name_sanitized}}">{{this.name}}</label>
+                        {{/each}}
                     </div>
+                    <input type="hidden" name="selected_size" id="selected_size_input" value="{{#each product.sizeOptions}}{{#if this.isActive}}{{this.name}}{{/if}}{{/each}}">
                 </div>
-                     <small class="text-muted d-block mt-1">Stock: {{product.stock}}</small>
+                {{/if}}
+
+                <div class="mb-3">
+                    <small class="text-muted d-block">Stock: {{product.stock}}</small>
+                </div>
 
 
-                <div class="product-actions d-grid gap-2">
-                    {{#if user}}
-                        {{#if (neq product.user_id user.id)}} {{! Jika user login DAN BUKAN pemilik produk }}
-                <div class="mb-4 quantity-control-group">
-                    <label for="quantitySingleProduct" class="form-label fw-semibold">Quantity:</label>
-                    <div class="input-group">
-                        <button class="btn btn-outline-secondary" type="button" id="button-minus-single" aria-label="Decrease quantity">-</button>
-                        <input type="number" id="quantitySingleProduct" class="form-control text-center fw-semibold" min="1" value="1" max="{{product.stock}}" aria-label="Product quantity"/>
-                        <button class="btn btn-outline-secondary" type="button" id="button-plus-single" aria-label="Increase quantity">+</button>
+                {{#if user}}
+                    {{#if (neq product.user_id user.id)}} {{!-- Jika user login DAN BUKAN pemilik produk --}}
+                    <div class="mb-3 quantity-control-group">
+                        <label for="quantitySingleProduct" class="form-label fw-semibold">Quantity:</label>
+                        <div class="input-group" style="max-width: 150px;">
+                            <button class="btn btn-outline-secondary" type="button" id="button-minus-single" aria-label="Decrease quantity">-</button>
+                            <input type="number" id="quantitySingleProduct" class="form-control text-center fw-semibold" min="1" value="1" max="{{product.stock}}" aria-label="Product quantity" readonly/>
+                            <button class="btn btn-outline-secondary" type="button" id="button-plus-single" aria-label="Increase quantity">+</button>
+                        </div>
                     </div>
-                </div>
-                            <button class="btn btn-dark btn-lg" id="btnAddToCartSingle"><i class="bi bi-cart-plus-fill me-2"></i>Add to Cart</button>
-                            <button class="btn btn-outline-secondary btn-lg btn-wishlist-single {{#if isWishlisted}}wishlisted active{{/if}}" id="btnToggleWishlistPage" data-product-id="{{product.id}}">
-                                {{#if isWishlisted}}
-                                    <i class="bi bi-heart-fill text-danger"></i> <span>Remove from Wishlist</span>
-                                {{else}}
-                                    <i class="bi bi-heart"></i> <span>Add to Wishlist</span>
-                                {{/if}}
-                            </button>
-                        {{else}}
-                            <p class="alert alert-info text-center small">This is your own product. You cannot add it to your cart or wishlist.</p>
-                        {{/if}}
-                    {{else}} {{! Jika user belum login }}
-                         <button class="btn btn-dark btn-lg" id="btnAddToCartSingle"><i class="bi bi-cart-plus-fill me-2"></i>Add to Cart</button>
+                    <div class="product-actions d-grid gap-2">
+                        <button class="btn btn-dark btn-lg" id="btnAddToCartSingle"><i class="bi bi-cart-plus-fill me-2"></i>Add to Cart</button>
+                        <button class="btn btn-outline-secondary btn-lg btn-wishlist-single {{#if isWishlisted}}wishlisted active{{/if}}" id="btnToggleWishlistPage" data-product-id="{{product.id}}">
+                            {{#if isWishlisted}}
+                                <i class="bi bi-heart-fill text-danger"></i> <span>Remove from Wishlist</span>
+                            {{else}}
+                                <i class="bi bi-heart"></i> <span>Add to Wishlist</span>
+                            {{/if}}
+                        </button>
+                    </div>
+                    {{else}}
+                        <p class="alert alert-info text-center small">This is your own product. You cannot add it to your cart or wishlist.</p>
+                    {{/if}}
+                {{else}} {{!-- Jika user belum login --}}
+                     <div class="mb-3 quantity-control-group">
+                        <label for="quantitySingleProduct" class="form-label fw-semibold">Quantity:</label>
+                        <div class="input-group" style="max-width: 150px;">
+                            <button class="btn btn-outline-secondary" type="button" id="button-minus-single" aria-label="Decrease quantity">-</button>
+                            <input type="number" id="quantitySingleProduct" class="form-control text-center fw-semibold" min="1" value="1" max="{{product.stock}}" aria-label="Product quantity" readonly/>
+                            <button class="btn btn-outline-secondary" type="button" id="button-plus-single" aria-label="Increase quantity">+</button>
+                        </div>
+                    </div>
+                    <div class="product-actions d-grid gap-2">
+                        <button class="btn btn-dark btn-lg" id="btnAddToCartSingle"><i class="bi bi-cart-plus-fill me-2"></i>Add to Cart</button>
                          <button class="btn btn-outline-secondary btn-lg btn-wishlist-single" id="btnToggleWishlistPage" data-product-id="{{product.id}}">
                             <i class="bi bi-heart"></i> <span>Add to Wishlist</span>
-                         </button>
-                    {{/if}}
-                </div>
-                
+                        </button>
+                    </div>
+                {{/if}}
+
                 {{#if user}}
                     {{#if (neq product.user_id user.id)}}
-                        <button class="btn btn-outline-info w-100 mt-3" id="btnChatWithSeller" data-seller-id="{{product.user_id}}">
-                            <i class="bi bi-chat-dots"></i> Chat with Seller
-                        </button>
+                    <button class="btn btn-outline-info w-100 mt-3" id="btnChatWithSeller" data-seller-id="{{product.user_id}}">
+                        <i class="bi bi-chat-dots"></i> Chat with Seller
+                    </button>
                     {{/if}}
                 {{/if}}
             </div>
@@ -161,7 +192,7 @@
             <div class="tab-content" id="productDetailTabContent">
                 <div class="tab-pane fade show active" id="details-tab-pane" role="tabpanel" aria-labelledby="details-tab" tabindex="0">
                     <h5 class="mb-3">Product Description</h5>
-                    <p style="white-space: pre-wrap;">{{{product.description}}}</p> {{!-- Gunakan triple stash jika deskripsi mengandung HTML yang aman --}}
+                    <p style="white-space: pre-wrap;">{{{product.description}}}</p>
                 </div>
 
                 <div class="tab-pane fade" id="reviews-tab-pane" role="tabpanel" aria-labelledby="reviews-tab" tabindex="0">
@@ -169,38 +200,46 @@
                         <div class="d-flex justify-content-between align-items-center mb-3">
                             <h4>All Reviews ({{reviews.length}})</h4>
                             {{#if user}}
-                                {{#if (neq product.user_id user.id)}}
-                                <button class="btn btn-dark" type="button" data-bs-toggle="collapse" data-bs-target="#collapseReviewForm" aria-expanded="false" aria-controls="collapseReviewForm">
-                                    Write a Review
-                                </button>
+                                {{#if (neq product.user_id user.id)}} {{!-- Cek apakah pengguna BUKAN pemilik produk --}}
+                                    {{#unless (hasUserReviewed reviews user.id)}} {{!-- Cek apakah pengguna belum mereview --}}
+                                    <button class="btn btn-dark" type="button" data-bs-toggle="collapse" data-bs-target="#collapseReviewForm" aria-expanded="false" aria-controls="collapseReviewForm">
+                                        Write a Review
+                                    </button>
+                                    {{else}}
+                                    <button class="btn btn-outline-success" type="button" disabled>
+                                        <i class="bi bi-check-circle-fill"></i> You've Reviewed This
+                                    </button>
+                                    {{/unless}}
                                 {{/if}}
                             {{/if}}
                         </div>
 
                         {{#if user}}
                             {{#if (neq product.user_id user.id)}}
-                            <div class="collapse mb-4" id="collapseReviewForm">
-                                <div class="card card-body">
-                                    <form id="formReviewProduct">
-                                        <div class="mb-3">
-                                            <label for="productRatingStars" class="form-label">Your Rating:</label>
-                                            <div id="productRatingStars" class="star-rating-input">
-                                                <i class="bi bi-star" data-value="1" title="Terrible"></i>
-                                                <i class="bi bi-star" data-value="2" title="Poor"></i>
-                                                <i class="bi bi-star" data-value="3" title="Average"></i>
-                                                <i class="bi bi-star" data-value="4" title="Good"></i>
-                                                <i class="bi bi-star" data-value="5" title="Excellent"></i>
-                                                <input type="hidden" name="rating" id="ratingValueInput" required>
+                                {{#unless (hasUserReviewed reviews user.id)}}
+                                <div class="collapse mb-4" id="collapseReviewForm">
+                                    <div class="card card-body">
+                                        <form id="formReviewProduct">
+                                            <div class="mb-3">
+                                                <label for="productRatingStars" class="form-label">Your Rating:</label>
+                                                <div id="productRatingStars" class="star-rating-input">
+                                                    <i class="bi bi-star" data-value="1" title="Terrible"></i>
+                                                    <i class="bi bi-star" data-value="2" title="Poor"></i>
+                                                    <i class="bi bi-star" data-value="3" title="Average"></i>
+                                                    <i class="bi bi-star" data-value="4" title="Good"></i>
+                                                    <i class="bi bi-star" data-value="5" title="Excellent"></i>
+                                                    <input type="hidden" name="rating" id="ratingValueInput" required>
+                                                </div>
                                             </div>
-                                        </div>
-                                        <div class="mb-3">
-                                            <label for="reviewText" class="form-label">Your Review:</label>
-                                            <textarea class="form-control" id="reviewText" name="review_text" rows="3" placeholder="Write your review here..."></textarea>
-                                        </div>
-                                        <button type="submit" class="btn btn-dark">Submit Review</button>
-                                    </form>
+                                            <div class="mb-3">
+                                                <label for="reviewText" class="form-label">Your Review:</label>
+                                                <textarea class="form-control" id="reviewText" name="review_text" rows="3" placeholder="Write your review here..."></textarea>
+                                            </div>
+                                            <button type="submit" class="btn btn-dark">Submit Review</button>
+                                        </form>
+                                    </div>
                                 </div>
-                            </div>
+                                {{/unless}}
                             {{/if}}
                         {{else}}
                         <p class="mt-3"><a href="/login?redirect=/product/{{product.id}}#reviews-tab-pane">Login</a> to write a review.</p>
@@ -222,21 +261,22 @@
                                 {{/each}}
                             </div>
                         {{else}}
-                             {{#unless user}} {{! Jika tidak ada user dan tidak ada review }}
+                            {{#unless user}}
                                 <p class="mt-3 text-muted"><em>There are no reviews for this product yet.</em></p>
-                             {{else}}
-                                {{#if (neq product.user_id user.id)}} {{! Jika user login, bukan pemilik, dan belum ada review }}
+                            {{else}}
+                                {{#if (neq product.user_id user.id)}}
                                     <p class="mt-3 text-muted"><em>There are no reviews for this product yet. Be the first to write one!</em></p>
-                                {{else}} {{! Jika user adalah pemilik dan belum ada review }}
+                                {{else}}
                                      <p class="mt-3 text-muted"><em>There are no reviews for this product yet.</em></p>
                                 {{/if}}
-                             {{/unless}}
+                            {{/unless}}
                         {{/if}}
                     </div>
                 </div>
                 <div class="tab-pane fade" id="faq-tab-pane" role="tabpanel" aria-labelledby="faq-tab" tabindex="0">
                     <h5 class="mb-3">Frequently Asked Questions</h5>
                     <div class="accordion" id="faqAccordion">
+                        {{!-- Contoh Accordion Item --}}
                         <div class="accordion-item">
                             <h2 class="accordion-header" id="headingOne">
                                 <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="false" aria-controls="collapseOne">
@@ -261,29 +301,12 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="accordion-item">
-                            <h2 class="accordion-header" id="headingThree">
-                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
-                                    What is your return policy?
-                                </button>
-                            </h2>
-                            <div id="collapseThree" class="accordion-collapse collapse" aria-labelledby="headingThree" data-bs-parent="#faqAccordion">
-                                <div class="accordion-body">
-                                    You can return unused items within 30 days of purchase for a full refund. Please see our <a href="/return-policy">Return Policy</a> page for more details.
-                                </div>
-                            </div>
-                        </div>
                     </div>
                 </div>
             </div>
-                </div>
-            </div>
         </div>
-
-
     </main>
 
-    {{!-- Modal dan Toast (pastikan ID unik jika perlu) --}}
     <div class="toast-container position-fixed bottom-0 end-0 p-3" style="z-index: 1100">
         <div id="singleProductToast" class="toast align-items-center text-bg-dark border-0" role="alert" aria-live="assertive" aria-atomic="true">
             <div class="d-flex">
@@ -292,8 +315,7 @@
             </div>
         </div>
     </div>
-    
-    {{!-- Modal Konfirmasi Toggle Wishlist untuk Single Product --}}
+
     <div class="modal fade" id="confirmToggleWishlistModalSingle" tabindex="-1" aria-labelledby="confirmToggleModalLabelSingle" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
@@ -312,19 +334,18 @@
         </div>
     </div>
 
-
     {{> footer_main }}
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
+        // Variabel global dari Handlebars
         const currentProductId = '{{product.id}}';
         const productStock = parseInt('{{product.stock}}') || 0;
         const loggedInUserId = {{#if user}}{{user.id}}{{else}}null{{/if}};
         const productOwnerId = {{product.user_id}};
 
-        // Fungsi untuk menampilkan toast notifikasi
         function showToastOnPage(message, type = 'dark') {
-            const toastEl = document.getElementById('singleProductToast'); // Ganti ID jika perlu
+            const toastEl = document.getElementById('singleProductToast');
             const toastBody = document.getElementById('singleProductToastBody');
             if (!toastEl || !toastBody) {
                 console.error('Toast elements for this page not found!');
@@ -344,277 +365,354 @@
             } catch (e) { console.error('Error showing toast:', e); }
         }
 
-        // --- Logika untuk Carousel Gambar Produk ---
-        const productCarouselElement = document.getElementById('productImagesCarousel');
-        let productCarouselInstance = null;
-        if (productCarouselElement) {
-            productCarouselInstance = new bootstrap.Carousel(productCarouselElement, {
-                interval: 3000, // Default interval
-                ride: ({{#if (gt product.images.length 1)}}'carousel'{{else}}false{{/if}}) // Ride hanya jika gambar > 1
-            });
-            const totalImagesForCarousel = {{#if product.images.length}}{{product.images.length}}{{else}}1{{/if}};
-            if (totalImagesForCarousel <= 1 && productCarouselInstance) {
-                productCarouselInstance.pause();
-            }
-        }
-        function stopCarousel() {
-            if (productCarouselInstance) {
-                productCarouselInstance.pause();
-            }
-        }
         function changeMainImage(newImageUrl, clickedThumbnail) {
             const mainImage = document.getElementById('mainProductImage');
             if (mainImage) mainImage.src = newImageUrl;
             document.querySelectorAll('.thumbnail-item img').forEach(img => img.classList.remove('active-thumbnail'));
             if (clickedThumbnail) clickedThumbnail.classList.add('active-thumbnail');
-            stopCarousel();
-        }
-        
-        // --- Logika untuk Tombol Kuantitas ---
-        const qtyInputSingle = document.getElementById('quantitySingleProduct');
-        const btnMinusSingle = document.getElementById('button-minus-single');
-        const btnPlusSingle = document.getElementById('button-plus-single');
-        if(btnMinusSingle && qtyInputSingle) {
-            btnMinusSingle.addEventListener('click', () => {
-                let val = parseInt(qtyInputSingle.value);
-                if (val > 1) qtyInputSingle.value = val - 1;
-            });
-        }
-        if(btnPlusSingle && qtyInputSingle) {
-            btnPlusSingle.addEventListener('click', () => {
-                let val = parseInt(qtyInputSingle.value);
-                if (val < productStock) { // Validasi dengan stok
-                    qtyInputSingle.value = val + 1;
-                } else {
-                    showToastOnPage(`Cannot add more than ${productStock} items (available stock).`, 'warning');
-                }
-            });
         }
 
-        // --- Logika untuk Tombol Add to Cart ---
-        const btnAddToCartPage = document.getElementById('btnAddToCartSingle');
-        if (btnAddToCartPage && qtyInputSingle) {
-            btnAddToCartPage.addEventListener('click', async () => {
-                if (!loggedInUserId) {
-                    showToastOnPage('Please login to add items to your cart.', 'warning');
-                    // Pertimbangkan redirect ke login: window.location.href = '/login?redirect=/product/' + currentProductId;
-                    return;
-                }
-                const quantity = parseInt(qtyInputSingle.value);
-                try {
-                    const response = await fetch('/api/cart/add', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ product_id: currentProductId, quantity }),
-                        credentials: 'include'
-                    });
-                    const data = await response.json();
-                    if (response.ok && data.success) {
-                        showToastOnPage('🛒 Product added to cart!', 'success');
-                    } else {
-                        showToastOnPage(data.message || 'Failed to add to cart.', 'danger');
-                    }
-                } catch (error) {
-                    console.error('Error adding to cart:', error);
-                    showToastOnPage('An error occurred while adding to cart.', 'danger');
-                }
-            });
-        }
+        document.addEventListener('DOMContentLoaded', function() {
+            const colorSwatchesContainer = document.querySelector('.color-swatches');
+            const selectedColorNameDisplay = document.getElementById('selectedColorNameDisplay');
+            const selectedColorInput = document.getElementById('selected_color_input');
 
-        // --- Logika untuk Tombol Wishlist dengan Modal Konfirmasi ---
-        let actionToConfirmWishlist = null; 
-        const btnToggleWishlistPage = document.getElementById('btnToggleWishlistPage');
-        const confirmToggleWishlistModalElement = document.getElementById('confirmToggleWishlistModalSingle');
-        const confirmToggleWishlistModal = confirmToggleWishlistModalElement ? new bootstrap.Modal(confirmToggleWishlistModalElement) : null;
-        const confirmToggleWishlistModalBody = document.getElementById('confirmToggleWishlistModalBodySingle');
-        const btnConfirmToggleWishlistAction = document.getElementById('btnConfirmToggleWishlistSingle');
+            if (colorSwatchesContainer) {
+                const swatches = colorSwatchesContainer.querySelectorAll('.color-swatch-btn');
+                swatches.forEach(swatch => {
+                    swatch.addEventListener('click', function() {
+                        swatches.forEach(s => {
+                            s.classList.remove('active');
+                            const icon = s.querySelector('.swatch-active-icon');
+                            if (icon) icon.remove();
+                        });
 
-        if (btnToggleWishlistPage) {
-            btnToggleWishlistPage.addEventListener('click', function() {
-                if (!loggedInUserId) {
-                    showToastOnPage('Please login to manage your wishlist.', 'warning');
-                    return;
-                }
-                const isCurrentlyWishlisted = this.classList.contains('wishlisted');
-                if (isCurrentlyWishlisted) {
-                    actionToConfirmWishlist = 'remove';
-                    if(confirmToggleWishlistModalBody) confirmToggleWishlistModalBody.textContent = 'Are you sure you want to remove this item from your wishlist?';
-                    if(btnConfirmToggleWishlistAction) {
-                        btnConfirmToggleWishlistAction.classList.remove('btn-primary');
-                        btnConfirmToggleWishlistAction.classList.add('btn-danger');
-                        btnConfirmToggleWishlistAction.textContent = 'Yes, Remove';
-                    }
-                } else {
-                    actionToConfirmWishlist = 'add';
-                    if(confirmToggleWishlistModalBody) confirmToggleWishlistModalBody.textContent = 'Are you sure you want to add this item to your wishlist?';
-                    if(btnConfirmToggleWishlistAction) {
-                        btnConfirmToggleWishlistAction.classList.remove('btn-danger');
-                        btnConfirmToggleWishlistAction.classList.add('btn-primary');
-                        btnConfirmToggleWishlistAction.textContent = 'Yes, Add';
-                    }
-                }
-                if (confirmToggleWishlistModal) confirmToggleWishlistModal.show();
-            });
-        }
-        if (btnConfirmToggleWishlistAction) {
-            btnConfirmToggleWishlistAction.addEventListener('click', async () => {
-                if (currentProductId && actionToConfirmWishlist) {
-                    await proceedToggleWishlist(currentProductId);
-                }
-                if (confirmToggleWishlistModal) confirmToggleWishlistModal.hide();
-            });
-        }
-        async function proceedToggleWishlist(productId) {
-            console.log('[WISHLIST PAGE] Proceeding to toggle wishlist for product ID:', productId, "Action:", actionToConfirmWishlist);
-            let response;
-            try {
-                response = await fetch('/auth/wishlist', { 
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ product_id: productId }),
-                    credentials: 'include'
-                });
-                const data = await response.json();
-                if (response.ok) {
-                    const iconElement = btnToggleWishlistPage.querySelector('i');
-                    const textElement = btnToggleWishlistPage.querySelector('span');
-                    if (data.message === 'Berhasil ditambahkan ke wishlist!') {
-                        btnToggleWishlistPage.classList.add('wishlisted', 'active');
-                        btnToggleWishlistPage.classList.replace('btn-outline-secondary', 'btn-danger');
-                        if(iconElement) { iconElement.className = 'bi bi-heart-fill text-danger'; }
-                        if(textElement) textElement.textContent = ' Remove from Wishlist';
-                        showToastOnPage('✅ Added to wishlist!', 'success');
-                    } else {
-                        btnToggleWishlistPage.classList.remove('wishlisted', 'active');
-                        btnToggleWishlistPage.classList.replace('btn-danger', 'btn-outline-secondary');
-                        if(iconElement) { iconElement.className = 'bi bi-heart'; }
-                        if(textElement) textElement.textContent = ' Add to Wishlist';
-                        showToastOnPage('❌ Removed from wishlist!');
-                    }
-                } else {
-                    showToastOnPage(data.message || 'Failed to process wishlist', 'danger');
-                }
-            } catch (err) {
-                console.error('[WISHLIST PAGE] Fetch Error:', err);
-                if (response && response.status === 401) { 
-                    showToastOnPage('You must be logged in to use wishlist.', 'warning');
-                } else {
-                    showToastOnPage('An error occurred. Please try again.', 'danger');
-                }
-            }
-            actionToConfirmWishlist = null; 
-        }
+                        this.classList.add('active');
+                        const checkIcon = document.createElement('i');
+                        checkIcon.className = 'bi bi-check swatch-active-icon';
+                        this.appendChild(checkIcon);
 
-        // --- Logika untuk Tombol Chat with Seller ---
-        const btnChatWithSeller = document.getElementById('btnChatWithSeller');
-        if (btnChatWithSeller) {
-            btnChatWithSeller.addEventListener('click', function() {
-                if (!loggedInUserId) {
-                    showToastOnPage('Please login to chat with the seller.', 'warning');
-                    return;
-                }
-                const sellerId = this.dataset.sellerId;
-                console.log('Initiating chat with seller ID:', sellerId);
-                showToastOnPage('💬 Chat with seller feature coming soon!', 'info');
-            });
-        }
+                        const colorName = this.dataset.colorName;
+                        if (selectedColorNameDisplay) selectedColorNameDisplay.textContent = colorName;
+                        if (selectedColorInput) selectedColorInput.value = colorName;
 
-        // --- Logika untuk Input Bintang Rating & Submit Form Review ---
-        const ratingStarsContainer = document.getElementById('productRatingStars');
-        const ratingValueInput = document.getElementById('ratingValueInput');
-        if (ratingStarsContainer && ratingValueInput) {
-            const stars = ratingStarsContainer.querySelectorAll('i');
-            function setStarsVisual(rating) {
-                stars.forEach(star => {
-                    if (parseInt(star.dataset.value) <= rating) {
-                        star.classList.remove('bi-star');
-                        star.classList.add('bi-star-fill', 'selected');
-                    } else {
-                        star.classList.remove('bi-star-fill', 'selected');
-                        star.classList.add('bi-star');
-                    }
-                });
-            }
-            function highlightStars(rating) {
-                stars.forEach(star => {
-                    star.classList.remove('hovered'); // Hapus hover dari semua dulu
-                    if (parseInt(star.dataset.value) <= rating) {
-                        star.classList.add('hovered');
-                    }
-                });
-            }
-            stars.forEach(star => {
-                star.addEventListener('mouseover', () => highlightStars(parseInt(star.dataset.value)));
-                star.addEventListener('mouseout', () => {
-                    const currentSelectedRating = parseInt(ratingValueInput.value) || 0;
-                    setStarsVisual(currentSelectedRating); 
-                    stars.forEach(s => s.classList.remove('hovered'));
-                });
-                star.addEventListener('click', () => {
-                    const value = parseInt(star.dataset.value);
-                    ratingValueInput.value = value;
-                    setStarsVisual(value);
-                    console.log('Rating selected:', value);
-                });
-            });
-        }
-
-        const formReviewProduct = document.getElementById('formReviewProduct');
-        if (formReviewProduct) {
-            formReviewProduct.addEventListener('submit', async function(event) {
-                event.preventDefault();
-                if (!loggedInUserId) {
-                    showToastOnPage('Please login to submit a review.', 'warning');
-                    return;
-                }
-                const rating = ratingValueInput.value;
-                const review_text = document.getElementById('reviewText').value;
-                if (!rating) {
-                    showToastOnPage('Please provide a star rating.', 'warning');
-                    return;
-                }
-                console.log('[REVIEW] Submitting review. Product ID:', currentProductId, 'Rating:', rating, 'Text:', review_text);
-                try {
-                    const response = await fetch(`/api/products/${currentProductId}/reviews`, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ rating: parseInt(rating), review_text }),
-                        credentials: 'include'
-                    });
-                    const data = await response.json();
-                    if (response.ok && data.success) {
-                        showToastOnPage('⭐ Thank you for your review! It will appear after page reload.', 'success');
-                        formReviewProduct.reset();
-                        if(ratingValueInput && ratingStarsContainer) {
-                            ratingValueInput.value = "";
-                            setStarsVisual(0);
+                        const swatchBgColor = window.getComputedStyle(this).backgroundColor;
+                        const rgb = swatchBgColor.match(/\d+/g);
+                        if (rgb) {
+                            const brightness = Math.round(((parseInt(rgb[0]) * 299) +
+                                                         (parseInt(rgb[1]) * 587) +
+                                                         (parseInt(rgb[2]) * 114)) / 1000);
+                            checkIcon.style.color = (brightness > 125) ? 'black' : 'white';
+                        } else {
+                             checkIcon.style.color = 'white';
                         }
-                        // Untuk update daftar review secara dinamis, perlu fetch ulang review atau tambah review baru ke DOM
-                        // setTimeout(() => window.location.reload(), 2000); // Reload untuk lihat review baru
+                    });
+                });
+                const activeSwatchOnInit = colorSwatchesContainer.querySelector('.color-swatch-btn.active .swatch-active-icon');
+                if (activeSwatchOnInit) {
+                    const parentSwatch = activeSwatchOnInit.parentElement;
+                    const swatchBgColor = window.getComputedStyle(parentSwatch).backgroundColor;
+                    const rgb = swatchBgColor.match(/\d+/g);
+                    if (rgb) {
+                        const brightness = Math.round(((parseInt(rgb[0]) * 299) + (parseInt(rgb[1]) * 587) + (parseInt(rgb[2]) * 114)) / 1000);
+                        activeSwatchOnInit.style.color = (brightness > 125) ? 'black' : 'white';
                     } else {
-                        showToastOnPage(data.message || 'Failed to submit review.', 'danger');
+                        activeSwatchOnInit.style.color = 'white';
+                    }
+                }
+            }
+
+            const sizeRadios = document.querySelectorAll('.size-option-radio');
+            const selectedSizeNameDisplay = document.getElementById('selectedSizeNameDisplay');
+            const selectedSizeInput = document.getElementById('selected_size_input');
+
+            function updateSelectedSizeDisplay() {
+                const checkedRadio = document.querySelector('.size-option-radio:checked');
+                if (checkedRadio) {
+                    const sizeName = checkedRadio.value;
+                    if (selectedSizeNameDisplay) selectedSizeNameDisplay.textContent = sizeName;
+                    if (selectedSizeInput) selectedSizeInput.value = sizeName;
+                } else if (selectedSizeNameDisplay) {
+                     selectedSizeNameDisplay.textContent = "";
+                     if(selectedSizeInput) selectedSizeInput.value = "";
+                }
+            }
+            sizeRadios.forEach(radio => {
+                radio.addEventListener('change', updateSelectedSizeDisplay);
+            });
+            updateSelectedSizeDisplay();
+
+            const qtyInputSingle = document.getElementById('quantitySingleProduct');
+            const btnMinusSingle = document.getElementById('button-minus-single');
+            const btnPlusSingle = document.getElementById('button-plus-single');
+            if(qtyInputSingle) qtyInputSingle.readOnly = true;
+
+            if(btnMinusSingle && qtyInputSingle) {
+                btnMinusSingle.addEventListener('click', () => {
+                    let val = parseInt(qtyInputSingle.value);
+                    if (val > 1) qtyInputSingle.value = val - 1;
+                });
+            }
+            if(btnPlusSingle && qtyInputSingle) {
+                btnPlusSingle.addEventListener('click', () => {
+                    let val = parseInt(qtyInputSingle.value);
+                    if (val < productStock) {
+                        qtyInputSingle.value = val + 1;
+                    } else {
+                        showToastOnPage(`Cannot add more than ${productStock} items (available stock).`, 'warning');
+                    }
+                });
+            }
+
+            const btnAddToCartPage = document.getElementById('btnAddToCartSingle');
+            if (btnAddToCartPage) {
+                btnAddToCartPage.addEventListener('click', async () => {
+                    if (!loggedInUserId) {
+                        showToastOnPage('Please login to add items to your cart.', 'warning');
+                        // window.location.href = '/login?redirect=' + window.location.pathname + window.location.search;
+                        return;
+                    }
+                    const quantity = parseInt(qtyInputSingle ? qtyInputSingle.value : 1);
+                    const selectedColor = selectedColorInput ? selectedColorInput.value : null;
+                    const selectedSize = selectedSizeInput ? selectedSizeInput.value : null;
+
+                    if (document.querySelector('.color-swatches') && !selectedColor && {{product.colorOptions.length}} > 0) {
+                        showToastOnPage('Please select a color.', 'warning');
+                        return;
+                    }
+                    if (document.querySelector('.size-selector') && !selectedSize && {{product.sizeOptions.length}} > 0) {
+                        showToastOnPage('Please select a size.', 'warning');
+                        return;
+                    }
+
+                    try {
+                        const response = await fetch('/api/cart/add', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                                product_id: currentProductId,
+                                quantity,
+                                color: selectedColor,
+                                size: selectedSize
+                            }),
+                            credentials: 'include'
+                        });
+                        const data = await response.json();
+                        if (response.ok && data.success) {
+                            showToastOnPage(data.message || '🛒 Product added to cart!', 'success');
+                             // Update cart count in navbar if exists
+                            const cartCountElement = document.getElementById('cartItemCount');
+                            if (cartCountElement && data.cartItemCount !== undefined) {
+                                cartCountElement.textContent = data.cartItemCount;
+                                cartCountElement.classList.remove('d-none');
+                            }
+                        } else {
+                            showToastOnPage(data.message || 'Failed to add to cart.', 'danger');
+                        }
+                    } catch (error) {
+                        console.error('Error adding to cart:', error);
+                        showToastOnPage('An error occurred while adding to cart.', 'danger');
+                    }
+                });
+            }
+
+            let actionToConfirmWishlist = null;
+            const btnToggleWishlistPage = document.getElementById('btnToggleWishlistPage');
+            const confirmToggleWishlistModalElement = document.getElementById('confirmToggleWishlistModalSingle');
+            const confirmToggleWishlistModal = confirmToggleWishlistModalElement ? new bootstrap.Modal(confirmToggleWishlistModalElement) : null;
+            const confirmToggleWishlistModalBody = document.getElementById('confirmToggleWishlistModalBodySingle');
+            const btnConfirmToggleWishlistAction = document.getElementById('btnConfirmToggleWishlistSingle');
+
+            if (btnToggleWishlistPage) {
+                btnToggleWishlistPage.addEventListener('click', function() {
+                    if (!loggedInUserId) {
+                        showToastOnPage('Please login to manage your wishlist.', 'warning');
+                        // window.location.href = '/login?redirect=' + window.location.pathname + window.location.search;
+                        return;
+                    }
+                    const isCurrentlyWishlisted = this.classList.contains('wishlisted');
+                    if (isCurrentlyWishlisted) {
+                        actionToConfirmWishlist = 'remove';
+                        if(confirmToggleWishlistModalBody) confirmToggleWishlistModalBody.textContent = 'Are you sure you want to remove this item from your wishlist?';
+                        if(btnConfirmToggleWishlistAction) {
+                            btnConfirmToggleWishlistAction.className = 'btn btn-danger';
+                            btnConfirmToggleWishlistAction.textContent = 'Yes, Remove';
+                        }
+                    } else {
+                        actionToConfirmWishlist = 'add';
+                        if(confirmToggleWishlistModalBody) confirmToggleWishlistModalBody.textContent = 'Are you sure you want to add this item to your wishlist?';
+                        if(btnConfirmToggleWishlistAction) {
+                           btnConfirmToggleWishlistAction.className = 'btn btn-primary';
+                           btnConfirmToggleWishlistAction.textContent = 'Yes, Add';
+                        }
+                    }
+                    if (confirmToggleWishlistModal) confirmToggleWishlistModal.show();
+                });
+            }
+            if (btnConfirmToggleWishlistAction) {
+                btnConfirmToggleWishlistAction.addEventListener('click', async () => {
+                    if (currentProductId && actionToConfirmWishlist) {
+                        await proceedToggleWishlist(currentProductId);
+                    }
+                    if (confirmToggleWishlistModal) confirmToggleWishlistModal.hide();
+                });
+            }
+            async function proceedToggleWishlist(productId) {
+                let response;
+                try {
+                    response = await fetch('/auth/wishlist', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ product_id: productId }),
+                        credentials: 'include'
+                    });
+                    const data = await response.json();
+                    if (response.ok) {
+                        const iconElement = btnToggleWishlistPage.querySelector('i');
+                        const textElement = btnToggleWishlistPage.querySelector('span');
+                        if (data.wishlisted) { // Assuming backend returns { wishlisted: true/false }
+                            btnToggleWishlistPage.classList.add('wishlisted', 'active');
+                            btnToggleWishlistPage.classList.replace('btn-outline-secondary', 'btn-danger');
+                            if(iconElement) { iconElement.className = 'bi bi-heart-fill text-danger'; }
+                            if(textElement) textElement.textContent = ' Remove from Wishlist';
+                            showToastOnPage(data.message || '✅ Added to wishlist!', 'success');
+                        } else {
+                            btnToggleWishlistPage.classList.remove('wishlisted', 'active');
+                            btnToggleWishlistPage.classList.replace('btn-danger', 'btn-outline-secondary');
+                            if(iconElement) { iconElement.className = 'bi bi-heart'; }
+                            if(textElement) textElement.textContent = ' Add to Wishlist';
+                            showToastOnPage(data.message || '❌ Removed from wishlist!');
+                        }
+                    } else {
+                        showToastOnPage(data.message || 'Failed to process wishlist', 'danger');
                     }
                 } catch (err) {
-                    console.error('[REVIEW] Submit Error:', err);
-                    showToastOnPage('An error occurred while submitting the review.', 'danger');
+                    console.error('Wishlist Fetch Error:', err);
+                    if (response && response.status === 401) {
+                        showToastOnPage('You must be logged in to use wishlist.', 'warning');
+                    } else {
+                        showToastOnPage('An error occurred. Please try again.', 'danger');
+                    }
                 }
-            });
-        }
-        
-        // Fungsi untuk mengaktifkan tab review saat link jumlah review diklik
-        function activateReviewTab(event) {
-            event.preventDefault(); // Mencegah default # link behavior jika ada
-            const reviewTabButton = document.getElementById('reviews-tab');
-            if (reviewTabButton) {
-                const tab = new bootstrap.Tab(reviewTabButton);
-                tab.show();
-                // Scroll ke section tab setelah tab aktif
-                const tabContentElement = document.getElementById('productInfoTabs');
-                if (tabContentElement) {
-                    tabContentElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                actionToConfirmWishlist = null;
+            }
+
+            const btnChatWithSeller = document.getElementById('btnChatWithSeller');
+            if (btnChatWithSeller) {
+                btnChatWithSeller.addEventListener('click', function() {
+                    if (!loggedInUserId) {
+                        showToastOnPage('Please login to chat with the seller.', 'warning');
+                        return;
+                    }
+                    const sellerId = this.dataset.sellerId;
+                    console.log('Initiating chat with seller ID:', sellerId);
+                    showToastOnPage('💬 Chat with seller feature coming soon!', 'info');
+                });
+            }
+
+            const ratingStarsContainer = document.getElementById('productRatingStars');
+            const ratingValueInput = document.getElementById('ratingValueInput');
+            if (ratingStarsContainer && ratingValueInput) {
+                const stars = ratingStarsContainer.querySelectorAll('i');
+                function setStarsVisual(rating) {
+                    stars.forEach(star => {
+                        if (parseInt(star.dataset.value) <= rating) {
+                            star.classList.remove('bi-star');
+                            star.classList.add('bi-star-fill', 'selected');
+                        } else {
+                            star.classList.remove('bi-star-fill', 'selected');
+                            star.classList.add('bi-star');
+                        }
+                    });
+                }
+                function highlightStars(rating) {
+                    stars.forEach(star => {
+                        star.classList.remove('hovered');
+                        if (parseInt(star.dataset.value) <= rating) {
+                            star.classList.add('hovered');
+                        }
+                    });
+                }
+                stars.forEach(star => {
+                    star.addEventListener('mouseover', () => highlightStars(parseInt(star.dataset.value)));
+                    star.addEventListener('mouseout', () => {
+                        const currentSelectedRating = parseInt(ratingValueInput.value) || 0;
+                        setStarsVisual(currentSelectedRating);
+                        stars.forEach(s => s.classList.remove('hovered'));
+                    });
+                    star.addEventListener('click', () => {
+                        const value = parseInt(star.dataset.value);
+                        ratingValueInput.value = value;
+                        setStarsVisual(value);
+                    });
+                });
+            }
+
+            const formReviewProduct = document.getElementById('formReviewProduct');
+            if (formReviewProduct) {
+                formReviewProduct.addEventListener('submit', async function(event) {
+                    event.preventDefault();
+                    if (!loggedInUserId) {
+                        showToastOnPage('Please login to submit a review.', 'warning');
+                        return;
+                    }
+                    const rating = ratingValueInput.value;
+                    const review_text = document.getElementById('reviewText').value;
+                    if (!rating) {
+                        showToastOnPage('Please provide a star rating.', 'warning');
+                        return;
+                    }
+                    try {
+                        const response = await fetch(`/api/products/${currentProductId}/reviews`, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ rating: parseInt(rating), review_text }),
+                            credentials: 'include'
+                        });
+                        const data = await response.json();
+                        if (response.ok && data.success) {
+                            showToastOnPage('⭐ Thank you! Your review will appear after page reload.', 'success');
+                            formReviewProduct.reset();
+                            if(ratingValueInput && ratingStarsContainer) {
+                                ratingValueInput.value = "";
+                                setStarsVisual(0); // Reset visual stars
+                            }
+                            // Collapse the form
+                            const reviewFormCollapse = document.getElementById('collapseReviewForm');
+                            if (reviewFormCollapse) {
+                                const bsCollapse = bootstrap.Collapse.getInstance(reviewFormCollapse) || new bootstrap.Collapse(reviewFormCollapse);
+                                bsCollapse.hide();
+                            }
+                            // Optionally, you could dynamically add the new review to the list or just prompt reload.
+                            // setTimeout(() => window.location.reload(), 2500);
+                        } else {
+                            showToastOnPage(data.message || 'Failed to submit review.', 'danger');
+                        }
+                    } catch (err) {
+                        console.error('Review Submit Error:', err);
+                        showToastOnPage('An error occurred while submitting the review.', 'danger');
+                    }
+                });
+            }
+
+            function activateReviewTab(event) {
+                event.preventDefault();
+                const reviewTabButton = document.getElementById('reviews-tab');
+                if (reviewTabButton) {
+                    const tab = new bootstrap.Tab(reviewTabButton);
+                    tab.show();
+                    const tabContentElement = document.getElementById('productInfoTabs');
+                    if (tabContentElement) {
+                        tabContentElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    }
                 }
             }
-        }
+            // Expose function to global scope if called by inline onclick from Handlebars
+            window.activateReviewTab = activateReviewTab;
+            window.changeMainImage = changeMainImage;
+
+
+        });
     </script>
 </body>
 </html>

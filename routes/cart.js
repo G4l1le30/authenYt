@@ -8,7 +8,7 @@ const { protect } = require('../middleware/auth');  // assuming you have auth mi
 router.post('/add', protect, cartController.addToCart);
 
 // Get cart items for logged-in user
-router.get('/', protect, cartController.getCart);
+//router.get('/', protect, cartController.getCart);
 
 // Update cart item quantity
 router.put('/:id', protect, cartController.updateCartItem);

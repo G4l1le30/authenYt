@@ -8,6 +8,11 @@ body {
     line-height: 1.6;
     padding-top: 70px; /* Sesuaikan dengan tinggi navbar fixed-top Anda, agar konten tidak tertutup */
 }
+#logo img {
+    max-height: 80px;
+    width: auto;      /* biar tetap rasio */
+    height: auto;     /* tambahan jika logo di-resize di mobile */
+}
 
 h1, h2, h3, h4, h5, h6 {
     font-weight: 700;
@@ -890,4 +895,118 @@ footer {
 }
 .product-actions .btn-wishlist-single i {
     margin-right: 0.4em;
+}
+/* ============== CATEGORY/ALL PRODUCTS PAGE ============== */
+.category-header {
+    /* Style untuk header halaman kategori/allproduk jika perlu */
+}
+
+.product-breadcrumb .breadcrumb-item a {
+    color: #6c757d;
+    text-decoration: none;
+}
+.product-breadcrumb .breadcrumb-item a:hover {
+    color: #000000;
+}
+.product-breadcrumb .breadcrumb-item.active {
+    color: #343a40;
+    font-weight: 500;
+}
+
+.filters-sidebar {
+    /* Style untuk kontainer filter */
+}
+
+.filters-sidebar .filter-group {
+    border-bottom: 1px solid #efefef;
+    padding-bottom: 1rem;
+}
+.filters-sidebar .filter-group:last-child {
+    border-bottom: none;
+    padding-bottom: 0;
+}
+
+.filters-sidebar .filter-title {
+    font-size: 1rem;
+    font-weight: 600;
+    color: #333;
+}
+
+.filters-sidebar .filter-list li {
+    margin-bottom: 0.4rem;
+}
+
+.filters-sidebar .filter-list .filter-link {
+    font-size: 0.9rem;
+    color: #555;
+    text-decoration: none;
+    display: block;
+    padding: 0.2rem 0;
+    transition: color 0.2s ease;
+}
+
+.filters-sidebar .filter-list .filter-link:hover,
+.filters-sidebar .filter-list .filter-link.active {
+    color: #000000;
+    font-weight: 600;
+}
+
+.size-selector-filter .size-filter-option {
+    /* Mirip dengan .size-option di singleProduct */
+    border-color: #ccc;
+    color: #555;
+}
+.size-selector-filter .size-filter-option.active,
+.size-selector-filter .size-filter-option:hover {
+    background-color: #000;
+    color: #fff;
+    border-color: #000;
+}
+
+.color-swatches-filter .color-swatch-filter {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    border: 2px solid transparent;
+    margin-right: 5px;
+    margin-bottom: 5px;
+    cursor: pointer;
+    box-shadow: 0 0 0 1px rgba(0,0,0,0.1) inset; /* inset shadow untuk efek lebih baik */
+}
+.color-swatches-filter .color-swatch-filter.active,
+.color-swatches-filter .color-swatch-filter:hover {
+    border-color: #000000;
+}
+
+
+.product-list-controls {
+    /* Style untuk baris showing results dan sort by */
+}
+.product-list-controls .form-select-sm {
+    font-size: 0.875rem;
+}
+
+/* Pastikan style .product-card-new dari index.hbs juga berlaku di sini */
+/* Anda mungkin perlu menambahkan style .favorite-icon-list jika mengaktifkan tombol wishlist di kartu */
+.favorite-icon-list {
+    position: absolute;
+    top: 0.75rem;
+    right: 0.75rem;
+    z-index: 3;
+    background-color: rgba(255,255,255,0.7);
+    border-radius: 50%;
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+}
+.favorite-icon-list i {
+    font-size: 0.9rem;
+    color: #6c757d;
+}
+.favorite-icon-list:hover i,
+.favorite-icon-list.active i {
+    color: #dc3545;
 }

@@ -2,12 +2,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>My Dashboard - Fashion HUB</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
-    <link rel="stylesheet" href="/style.css">
+    {{> header}}
 </head>
 <body>
     {{> navbar_main }}
@@ -16,16 +11,16 @@
         <div class="dashboard-header mb-4 p-4 rounded-3 shadow-sm bg-light">
             <div class="d-flex align-items-center">
                 {{#if user.profile_image_url}}
-                <img src="{{user.profile_image_url}}" 
-                     alt="{{user.name}}'s Avatar" 
-                     class="user-dashboard-avatar rounded-circle me-3" 
-                     width="80" height="80"
-                     onerror="this.onerror=null;this.src='/img/avatars/default.png';">
+                <img src="{{user.profile_image_url}}"
+                            alt="{{user.name}}'s Avatar"
+                            class="user-dashboard-avatar rounded-circle me-3"
+                            width="80" height="80"
+                            onerror="this.onerror=null;this.src='/img/avatars/default.png';">
                 {{else}}
-                <img src="/img/avatars/default.png" 
-                     alt="Default Avatar" 
-                     class="user-dashboard-avatar rounded-circle me-3" 
-                     width="80" height="80">
+                <img src="/img/avatars/default.png"
+                            alt="Default Avatar"
+                            class="user-dashboard-avatar rounded-circle me-3"
+                            width="80" height="80">
                 {{/if}}
                 <div>
                     <h2 class="mb-1">Welcome to your Dashboard, {{user.name}}!</h2>
@@ -88,7 +83,8 @@
                                 </a>
                                 <div class="card-body d-flex flex-column">
                                     <h5 class="card-title product-name mb-1">{{this.name}}</h5>
-                                    <p class="card-text text-primary fw-bold mb-1">Rp {{this.price}}</p>
+                                    {{!-- Menggunakan helper formatRupiah di sini --}}
+                                    <p class="card-text text-primary fw-bold mb-1">{{formatRupiah this.price}}</p>
                                     <div class="product-rating mb-2">
                                         {{{generateStars this.rating}}}
                                     </div>
@@ -116,24 +112,25 @@
                     <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-3">
                         {{#each wishlist}}
                         <div class="col">
-                             <div class="card shadow-sm h-100">
-                                <a href="/product/{{this.id}}">
-                                    <img src="{{this.image_url}}" class="card-img-top" alt="{{this.name}}" style="height: 200px; object-fit: cover;">
-                                </a>
-                                <div class="card-body d-flex flex-column">
-                                    <h5 class="card-title product-name mb-1">{{this.name}}</h5>
-                                    <p class="card-text text-primary fw-bold mb-1">Rp {{this.price}}</p>
-                                    <div class="product-rating mb-2">
-                                        {{{generateStars this.rating}}}
-                                    </div>
-                                    <small class="text-muted d-block mb-2">Added on: {{formatDate this.wishlist_added_at}}</small>
-                                    <div class="mt-auto">
-                                        <button class="btn btn-sm btn-outline-danger w-100" onclick="removeFromWishlistDashboard('{{this.id}}')">
-                                            <i class="bi bi-trash3"></i> Remove
-                                        </button>
-                                    </div>
+                               <div class="card shadow-sm h-100">
+                                 <a href="/product/{{this.id}}">
+                                     <img src="{{this.image_url}}" class="card-img-top" alt="{{this.name}}" style="height: 200px; object-fit: cover;">
+                                 </a>
+                                 <div class="card-body d-flex flex-column">
+                                     <h5 class="card-title product-name mb-1">{{this.name}}</h5>
+                                     {{!-- Menggunakan helper formatRupiah di sini --}}
+                                     <p class="card-text text-primary fw-bold mb-1">{{formatRupiah this.price}}</p>
+                                     <div class="product-rating mb-2">
+                                         {{{generateStars this.rating}}}
+                                     </div>
+                                     <small class="text-muted d-block mb-2">Added on: {{formatDate this.wishlist_added_at}}</small>
+                                     <div class="mt-auto">
+                                         <button class="btn btn-sm btn-outline-danger w-100" onclick="removeFromWishlistDashboard('{{this.id}}')">
+                                             <i class="bi bi-trash3"></i> Remove
+                                         </button>
+                                     </div>
+                                 </div>
                                 </div>
-                            </div>
                         </div>
                         {{/each}}
                     </div>
@@ -143,429 +140,432 @@
             </div>
 
             {{!-- views/dashboard.hbs - Tab My Cart --}}
-<div class="tab-pane fade {{#if (eq activeTab 'cart-pane-dash')}}show active{{/if}}" id="cart-pane-dash" role="tabpanel" aria-labelledby="cart-tab-dash" tabindex="0">
-    <h4>My Shopping Cart</h4>
-    {{#if cartItemsDetailed.length}}
-        <div id="cartItemsContainerDashboard">
-            {{#each cartItemsDetailed}}
-            <div class="card mb-3 cart-item-card-dashboard" data-cart-item-id="{{this.cart_item_id}}">
-                <div class="row g-0">
-                    <div class="col-md-2 col-sm-3">
-                        <img src="{{this.image_url}}" class="img-fluid rounded-start" alt="{{this.name}}" style="max-height: 120px; object-fit: contain; padding: 5px;">
-                    </div>
-                    <div class="col-md-10 col-sm-9">
-                        <div class="card-body py-2 px-3">
-                            <div class="d-flex justify-content-between">
-                                <h5 class="card-title mb-1">{{this.name}}</h5>
-                                <button type="button" class="btn-close btn-sm btn-remove-from-cart-dash" aria-label="Remove" data-cart-item-id="{{this.cart_item_id}}" title="Remove item"></button>
-                            </div>
-                            <p class="card-text mb-1">Price: Rp {{this.price}}</p>
-                            <div class="d-flex align-items-center mb-1">
-                                <label for="quantity-{{this.product_id}}-dash" class="form-label me-2 small mb-0">Qty:</label>
-                                <input type="number" id="quantity-{{this.product_id}}-dash" class="form-control form-control-sm quantity-input-dash" value="{{this.quantity}}" min="1" style="width: 70px;" data-cart-item-id="{{this.cart_item_id}}" data-product-id="{{this.product_id}}">
-                            </div>
-                            <p class="card-text mt-1 fw-semibold">Subtotal: Rp <span class="item-subtotal-dash" id="subtotal-{{this.cart_item_id}}">{{multiply this.price this.quantity}}</span></p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            {{/each}}
-        </div>
-        <div class="text-end mt-3">
-            <h5>Total: Rp <span id="cartTotalDashboard">{{toFixed cartTotal 0}}</span></h5>
-            <a href="/checkout" class="btn btn-primary">Proceed to Checkout</a>
-        </div>
-    {{else}}
-        <p>Your cart is empty. <a href="/allProduk">Continue shopping!</a></p>
-    {{/if}}
-</div>
-    </main>
-
-    {{!-- Modal Edit Profile --}}
-    <div class="modal fade" id="editProfileModal" tabindex="-1" aria-labelledby="editProfileModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="editProfileModalLabel">Edit Profile</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <form id="formEditProfile">
-                        <div class="mb-3">
-                            <label for="editName" class="form-label">Name</label>
-                            <input type="text" class="form-control" id="editName" name="name" value="{{user.name}}" required>
-                        </div>
-                        <div class="mb-3">
-                            <label for="editEmail" class="form-label">Email</label>
-                            <input type="email" class="form-control" id="editEmail" name="email" value="{{user.email}}" required>
-                        </div>
-                        <div class="mb-3">
-                            <label for="editBio" class="form-label">Bio</label>
-                            <textarea class="form-control" id="editBio" name="bio" rows="3">{{user.bio}}</textarea>
-                        </div>
-                        <div class="mb-3">
-                            <label for="editAvatar" class="form-label">Change Avatar (Optional)</label>
-                            <input type="file" class="form-control" id="editAvatar" name="avatar" accept="image/png, image/jpeg, image/gif">
-                            <div class="form-text">Max file size: 1MB. Allowed types: PNG, JPG, GIF.</div>
-                            {{#if user.profile_image_url}}
-                                <div class="mt-2">
-                                    <small>Current Avatar:</small><br>
-                                    <img src="{{user.profile_image_url}}" alt="Current Avatar" style="width: 60px; height: 60px; object-fit: cover; border-radius: 50%;">
+            <div class="tab-pane fade {{#if (eq activeTab 'cart-pane-dash')}}show active{{/if}}" id="cart-pane-dash" role="tabpanel" aria-labelledby="cart-tab-dash" tabindex="0">
+                <h4>My Shopping Cart</h4>
+                {{#if cartItemsDetailed.length}}
+                    <div id="cartItemsContainerDashboard">
+                        {{#each cartItemsDetailed}}
+                        <div class="card mb-3 cart-item-card-dashboard" data-cart-item-id="{{this.cart_item_id}}">
+                            <div class="row g-0">
+                                <div class="col-md-2 col-sm-3">
+                                    <img src="{{this.image_url}}" class="img-fluid rounded-start" alt="{{this.name}}" style="max-height: 120px; object-fit: contain; padding: 5px;">
                                 </div>
-                            {{/if}}
+                                <div class="col-md-10 col-sm-9">
+                                    <div class="card-body py-2 px-3">
+                                        <div class="d-flex justify-content-between">
+                                            <h5 class="card-title mb-1">{{this.name}}</h5>
+                                            <button type="button" class="btn-close btn-sm btn-remove-from-cart-dash" aria-label="Remove" data-cart-item-id="{{this.cart_item_id}}" title="Remove item"></button>
+                                        </div>
+                                        {{!-- Menggunakan helper formatRupiah di sini --}}
+                                        <p class="card-text mb-1">Price: {{formatRupiah this.price}}</p>
+                                        <div class="d-flex align-items-center mb-1">
+                                            <label for="quantity-{{this.product_id}}-dash" class="form-label me-2 small mb-0">Qty:</label>
+                                            <input type="number" id="quantity-{{this.product_id}}-dash" class="form-control form-control-sm quantity-input-dash" value="{{this.quantity}}" min="1" style="width: 70px;" data-cart-item-id="{{this.cart_item_id}}" data-product-id="{{this.product_id}}">
+                                        </div>
+                                        {{!-- Menggunakan helper formatRupiah dan multiply di sini --}}
+                                        <p class="card-text mt-1 fw-semibold">Subtotal: <span class="item-subtotal-dash" id="subtotal-{{this.cart_item_id}}">{{formatRupiah (multiply this.price this.quantity)}}</span></p>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
-                        <button type="submit" class="btn btn-primary w-100">Save Changes</button>
-                    </form>
-                </div>
+                        {{/each}}
+                    </div>
+                    <div class="text-end mt-3">
+                        {{!-- Menggunakan helper formatRupiah di sini --}}
+                        <h5>Total: <span id="cartTotalDashboard">{{formatRupiah cartTotal}}</span></h5>
+                        <a href="/checkout" class="btn btn-primary">Proceed to Checkout</a>
+                    </div>
+                {{else}}
+                    <p>Your cart is empty. <a href="/allProduk">Continue shopping!</a></p>
+                {{/if}}
             </div>
-        </div>
-    </div>
+        </main>
 
-    {{!-- Modal Konfirmasi Hapus Wishlist --}}
-    <div class="modal fade" id="confirmRemoveWishlistModal" tabindex="-1" aria-labelledby="confirmRemoveModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="confirmRemoveModalLabel">Confirm Removal</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    Are you sure you want to remove this item from your wishlist?
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button type="button" class="btn btn-danger" id="btnConfirmRemoveWishlist">Yes, Remove</button>
+        {{!-- Modal Edit Profile --}}
+        <div class="modal fade" id="editProfileModal" tabindex="-1" aria-labelledby="editProfileModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="editProfileModalLabel">Edit Profile</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="formEditProfile">
+                            <div class="mb-3">
+                                <label for="editName" class="form-label">Name</label>
+                                <input type="text" class="form-control" id="editName" name="name" value="{{user.name}}" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="editEmail" class="form-label">Email</label>
+                                <input type="email" class="form-control" id="editEmail" name="email" value="{{user.email}}" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="editBio" class="form-label">Bio</label>
+                                <textarea class="form-control" id="editBio" name="bio" rows="3">{{user.bio}}</textarea>
+                            </div>
+                            <div class="mb-3">
+                                <label for="editAvatar" class="form-label">Change Avatar (Optional)</label>
+                                <input type="file" class="form-control" id="editAvatar" name="avatar" accept="image/png, image/jpeg, image/gif">
+                                <div class="form-text">Max file size: 1MB. Allowed types: PNG, JPG, GIF.</div>
+                                {{#if user.profile_image_url}}
+                                    <div class="mt-2">
+                                        <small>Current Avatar:</small><br>
+                                        <img src="{{user.profile_image_url}}" alt="Current Avatar" style="width: 60px; height: 60px; object-fit: cover; border-radius: 50%;">
+                                    </div>
+                                {{/if}}
+                            </div>
+                            <button type="submit" class="btn btn-primary w-100">Save Changes</button>
+                        </form>
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
-    
-    {{!-- Elemen Toast --}}
-    <div class="toast-container position-fixed bottom-0 end-0 p-3" style="z-index: 1100">
-        <div id="dashboardToast" class="toast align-items-center text-bg-dark border-0" role="alert" aria-live="assertive" aria-atomic="true">
-            <div class="d-flex">
-                <div class="toast-body" id="dashboardToastBody"></div>
-                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+
+        {{!-- Modal Konfirmasi Hapus Wishlist --}}
+        <div class="modal fade" id="confirmRemoveWishlistModal" tabindex="-1" aria-labelledby="confirmRemoveModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="confirmRemoveModalLabel">Confirm Removal</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        Are you sure you want to remove this item from your wishlist?
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="button" class="btn btn-danger" id="btnConfirmRemoveWishlist">Yes, Remove</button>
+                    </div>
+                </div>
             </div>
         </div>
-    </div>
-    <div class="modal fade" id="confirmRemoveCartItemModal" tabindex="-1" aria-labelledby="confirmRemoveCartItemModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="confirmRemoveCartItemModalLabel">Remove Item from Cart</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                Are you sure you want to remove this item from your shopping cart?
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                <button type="button" class="btn btn-danger" id="btnConfirmRemoveCartItemAction">Yes, Remove</button>
+
+        {{!-- Elemen Toast --}}
+        <div class="toast-container position-fixed bottom-0 end-0 p-3" style="z-index: 1100">
+            <div id="dashboardToast" class="toast align-items-center text-bg-dark border-0" role="alert" aria-live="assertive" aria-atomic="true">
+                <div class="d-flex">
+                    <div class="toast-body" id="dashboardToastBody"></div>
+                    <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+                </div>
             </div>
         </div>
-    </div>
-</div>
+        <div class="modal fade" id="confirmRemoveCartItemModal" tabindex="-1" aria-labelledby="confirmRemoveCartItemModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="confirmRemoveCartItemModalLabel">Remove Item from Cart</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        Are you sure you want to remove this item from your shopping cart?
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="button" class="btn btn-danger" id="btnConfirmRemoveCartItemAction">Yes, Remove</button>
+                    </div>
+                </div>
+            </div>
+        </div>
 
     {{> footer_main }}
     {{! Letakkan ini sebelum tag </body> di views/dashboard.hbs }}
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/js/bootstrap.bundle.min.js"></script>
-<script>
-    // Fungsi untuk menampilkan toast notifikasi di dashboard
-    function showDashboardToast(message, type = 'dark') {
-        const toastEl = document.getElementById('dashboardToast');
-        const toastBody = document.getElementById('dashboardToastBody');
-        if (!toastEl || !toastBody) {
-            console.error('Dashboard Toast elements not found!');
-            return;
-        }
-        
-        toastEl.classList.remove('text-bg-dark', 'text-bg-success', 'text-bg-danger', 'text-bg-warning', 'text-bg-info');
-        let toastTypeClass = 'text-bg-dark';
-        if (type === 'success') toastTypeClass = 'text-bg-success';
-        else if (type === 'danger') toastTypeClass = 'text-bg-danger';
-        else if (type === 'warning') toastTypeClass = 'text-bg-warning';
-        else if (type === 'info') toastTypeClass = 'text-bg-info';
-        toastEl.classList.add(toastTypeClass);
-
-        toastBody.textContent = message;
-        try {
-            const toast = bootstrap.Toast.getOrCreateInstance(toastEl);
-            toast.show();
-        } catch (e) { console.error('Error showing dashboard toast:', e); }
-    }
-
-    // --- Logika untuk Tombol Hapus Wishlist dengan Modal Konfirmasi ---
-    let productIdToRemoveFromWishlist = null; 
-    const confirmRemoveWishlistModalElement = document.getElementById('confirmRemoveWishlistModal');
-    const confirmRemoveWishlistModal = confirmRemoveWishlistModalElement ? new bootstrap.Modal(confirmRemoveWishlistModalElement) : null;
-    const btnConfirmRemoveWishlistAction = document.getElementById('btnConfirmRemoveWishlist');
-
-    function removeFromWishlistDashboard(productId) {
-        console.log('[DASHBOARD WISHLIST] Requesting to remove product ID:', productId);
-        productIdToRemoveFromWishlist = productId; 
-        if (confirmRemoveWishlistModal) {
-            confirmRemoveWishlistModal.show(); 
-        } else {
-            console.error('Confirm remove wishlist modal not found. Falling back to confirm().');
-            if (confirm('Are you sure you want to remove this item from your wishlist? (Modal Error)')) {
-                proceedToRemoveWishlist(productIdToRemoveFromWishlist); 
-            }
-        }
-    }
-
-    if (btnConfirmRemoveWishlistAction) {
-        btnConfirmRemoveWishlistAction.addEventListener('click', async () => {
-            if (productIdToRemoveFromWishlist) {
-                await proceedToRemoveWishlist(productIdToRemoveFromWishlist);
-            }
-            if (confirmRemoveWishlistModal) {
-                confirmRemoveWishlistModal.hide(); 
-            }
-        });
-    }
-
-    async function proceedToRemoveWishlist(productId) {
-        console.log('[DASHBOARD WISHLIST] Proceeding to remove product ID:', productId);
-        let response; 
-        try {
-            response = await fetch(`/auth/wishlist/${productId}`, { 
-                method: 'DELETE',
-                headers: { 'Content-Type': 'application/json' },
-                credentials: 'include'
-            });
-            const data = await response.json();
-            if (response.ok && data.success) {
-                showDashboardToast('✅ Removed from wishlist! Page will reload.', 'success');
-                setTimeout(() => window.location.reload(), 1500); 
-            } else {
-                showDashboardToast(data.message || 'Failed to remove from wishlist.', 'danger');
-            }
-        } catch (error) {
-            console.error('Error removing from wishlist:', error);
-            if (response && response.status === 401){
-                 showDashboardToast('Sesi Anda berakhir. Silakan login lagi.', 'warning');
-                 setTimeout(() => { window.location.href = '/login'; }, 2000);
-            } else {
-                showDashboardToast('Error removing from wishlist. Check console.', 'danger');
-            }
-        }
-        productIdToRemoveFromWishlist = null; 
-    }
-
-    // --- Logika untuk Tombol Hapus dan Update Kuantitas di Cart pada Dashboard ---
-    const cartItemsContainerDashboard = document.getElementById('cartItemsContainerDashboard');
-    let cartItemIdToRemoveFromCart = null; 
-    const confirmRemoveCartItemModalElement = document.getElementById('confirmRemoveCartItemModal'); // Pastikan ID modal ini ada di HTML
-    const confirmRemoveCartItemModal = confirmRemoveCartItemModalElement ? new bootstrap.Modal(confirmRemoveCartItemModalElement) : null;
-    const btnConfirmRemoveCartItemAction = document.getElementById('btnConfirmRemoveCartItemAction'); // Pastikan ID tombol ini ada di HTML modal cart
-
-    if (cartItemsContainerDashboard) {
-        cartItemsContainerDashboard.addEventListener('click', async (event) => {
-            const removeButton = event.target.closest('.btn-remove-from-cart-dash');
-            if (removeButton) {
-                cartItemIdToRemoveFromCart = removeButton.dataset.cartItemId;
-                if (cartItemIdToRemoveFromCart && confirmRemoveCartItemModal) {
-                    confirmRemoveCartItemModal.show(); // Tampilkan modal konfirmasi untuk cart
-                } else if (cartItemIdToRemoveFromCart) { 
-                    console.error('Confirm remove cart item modal not found. Falling back to confirm().');
-                    if (confirm('Are you sure you want to remove this item from your cart? (Modal Error)')) {
-                        await proceedToRemoveCartItemDashboard(cartItemIdToRemoveFromCart);
-                    }
-                }
-            }
-        });
-
-        cartItemsContainerDashboard.addEventListener('change', async (event) => {
-            if (event.target.classList.contains('quantity-input-dash')) {
-                const inputElement = event.target;
-                const cartItemId = inputElement.dataset.cartItemId;
-                const productId = inputElement.dataset.productId; 
-                const newQuantity = parseInt(inputElement.value);
-
-                if (cartItemId && !isNaN(newQuantity) && newQuantity > 0) {
-                    await updateCartItemQuantityDashboard(cartItemId, newQuantity, productId);
-                } else if (isNaN(newQuantity) || newQuantity <= 0) {
-                    showDashboardToast('Invalid quantity. Please enter a number greater than 0.', 'warning');
-                }
-            }
-        });
-    }
-
-    if (btnConfirmRemoveCartItemAction) {
-        btnConfirmRemoveCartItemAction.addEventListener('click', async () => {
-            if (cartItemIdToRemoveFromCart) {
-                await proceedToRemoveCartItemDashboard(cartItemIdToRemoveFromCart);
-            }
-            if (confirmRemoveCartItemModal) {
-                confirmRemoveCartItemModal.hide(); 
-            }
-        });
-    }
-
-    async function proceedToRemoveCartItemDashboard(cartItemId) {
-        console.log('[DASHBOARD CART] Proceeding to remove cart item ID:', cartItemId);
-        let response;
-        try {
-            response = await fetch(`/api/cart/${cartItemId}`, { 
-                method: 'DELETE',
-                headers: { 'Content-Type': 'application/json' },
-                credentials: 'include'
-            });
-            const data = await response.json();
-            if (response.ok && data.success) {
-                showDashboardToast(data.message || 'Item removed from cart! Page will reload.', 'success');
-                setTimeout(() => window.location.reload(), 1500); 
-            } else {
-                showDashboardToast(data.message || 'Failed to remove item from cart.', 'danger');
-            }
-        } catch (error) {
-            console.error('Error removing cart item from dashboard:', error);
-            showDashboardToast('Error removing item from cart.', 'danger');
-        }
-        cartItemIdToRemoveFromCart = null; 
-    }
-
-    async function updateCartItemQuantityDashboard(cartItemId, quantity, productId) {
-        console.log(`[DASHBOARD CART] Updating cart item ID: ${cartItemId} to quantity: ${quantity}`);
-        let response;
-        try {
-            response = await fetch(`/api/cart/${cartItemId}`, {
-                method: 'PUT',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ quantity: quantity, product_id: productId }),
-                credentials: 'include'
-            });
-            const data = await response.json();
-            if (response.ok && data.success) {
-                showDashboardToast(data.message || 'Cart item quantity updated! Page will reload.', 'success');
-                setTimeout(() => window.location.reload(), 1500); 
-            } else {
-                showDashboardToast(data.message || 'Failed to update quantity.', 'danger');
-                // Jika gagal karena stok, reload akan mengembalikan ke nilai sebelum perubahan
-                 // window.location.reload(); 
-            }
-        } catch (error) {
-            console.error('Error updating cart quantity from dashboard:', error);
-            showDashboardToast('Error updating quantity.', 'danger');
-        }
-    }
-
-    // JavaScript untuk Tab Aktif berdasarkan Hash URL dan Update Hash saat Tab Diklik
-    document.addEventListener('DOMContentLoaded', function () {
-        const dashboardTab = document.getElementById('dashboardTab');
-        if(dashboardTab){
-            var hash = window.location.hash;
-            var tabToActivate = null;
-
-            if (hash) {
-                tabToActivate = dashboardTab.querySelector('button[data-bs-target="' + hash + '"]');
-                if (!tabToActivate && hash.endsWith('-pane')) {
-                    tabToActivate = dashboardTab.querySelector('button[data-bs-target="' + hash.substring(0, hash.length - 5) + '"]');
-                }
-                if (!tabToActivate && !hash.endsWith('-pane')) {
-                    tabToActivate = dashboardTab.querySelector('button[data-bs-target="' + hash + '-pane"]');
-                }
-            }
-            
-            if (!tabToActivate) {
-                const serverActiveTabTarget = "{{#if activeTab}}{{activeTab}}{{else}}my-profile-pane{{/if}}"; 
-                tabToActivate = dashboardTab.querySelector('button[data-bs-target="#' + serverActiveTabTarget + '"]');
-                if (!tabToActivate) { 
-                     tabToActivate = dashboardTab.querySelector('button#my-profile-tab');
-                }
-            }
-
-            if (tabToActivate) {
-                dashboardTab.querySelectorAll('button.nav-link').forEach(btn => btn.classList.remove('active'));
-                document.querySelectorAll('#dashboardTabContent .tab-pane').forEach(pane => {
-                    pane.classList.remove('show', 'active');
-                });
-                tabToActivate.classList.add('active');
-                const targetPane = document.querySelector(tabToActivate.dataset.bsTarget);
-                if(targetPane) targetPane.classList.add('show', 'active');
-            }
-
-            const tabTriggers = dashboardTab.querySelectorAll('button[data-bs-toggle="tab"]');
-            tabTriggers.forEach(trigger => {
-                trigger.addEventListener('shown.bs.tab', event => {
-                    let targetPaneId = event.target.dataset.bsTarget; 
-                    if(targetPaneId && targetPaneId.startsWith('#')) {
-                        history.replaceState(null, null, targetPaneId); 
-                    }
-                });
-            });
-        }
-    });
-
-    // --- Logika untuk Edit Profile ---
-    const editProfileModalElement = document.getElementById('editProfileModal');
-    const editProfileModal = editProfileModalElement ? new bootstrap.Modal(editProfileModalElement) : null;
-    const formEditProfile = document.getElementById('formEditProfile');
-    const displayNameElement = document.getElementById('displayName');
-    const displayEmailElement = document.getElementById('displayEmail');
-    const displayBioElement = document.getElementById('displayBio');
-
-    if (editProfileModalElement) {
-        editProfileModalElement.addEventListener('show.bs.modal', function () {
-            document.getElementById('editName').value = "{{user.name}}";
-            document.getElementById('editEmail').value = "{{user.email}}";
-            document.getElementById('editBio').value = "{{user.bio}}";
-            document.getElementById('editAvatar').value = ''; // Kosongkan input file setiap modal dibuka
-        });
-    }
-
-    if (formEditProfile) {
-        formEditProfile.addEventListener('submit', async function(event) {
-            event.preventDefault();
-            const formData = new FormData();
-            formData.append('name', document.getElementById('editName').value);
-            formData.append('email', document.getElementById('editEmail').value);
-            formData.append('bio', document.getElementById('editBio').value);
-            const avatarFile = document.getElementById('editAvatar').files[0];
-            if (avatarFile) {
-                formData.append('avatar', avatarFile);
-            }
-
-            if (!formData.get('name') || !formData.get('email')) {
-                showDashboardToast('Name and Email are required.', 'warning');
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Fungsi untuk menampilkan toast notifikasi di dashboard
+        function showDashboardToast(message, type = 'dark') {
+            const toastEl = document.getElementById('dashboardToast');
+            const toastBody = document.getElementById('dashboardToastBody');
+            if (!toastEl || !toastBody) {
+                console.error('Dashboard Toast elements not found!');
                 return;
             }
-            console.log('[PROFILE EDIT] Submitting profile update with FormData...');
+
+            toastEl.classList.remove('text-bg-dark', 'text-bg-success', 'text-bg-danger', 'text-bg-warning', 'text-bg-info');
+            let toastTypeClass = 'text-bg-dark';
+            if (type === 'success') toastTypeClass = 'text-bg-success';
+            else if (type === 'danger') toastTypeClass = 'text-bg-danger';
+            else if (type === 'warning') toastTypeClass = 'text-bg-warning';
+            else if (type === 'info') toastTypeClass = 'text-bg-info';
+            toastEl.classList.add(toastTypeClass);
+
+            toastBody.textContent = message;
             try {
-                const response = await fetch('/api/profile/update', { // Pastikan endpoint ini benar
-                    method: 'POST',
-                    body: formData,
+                const toast = bootstrap.Toast.getOrCreateInstance(toastEl);
+                toast.show();
+            } catch (e) { console.error('Error showing dashboard toast:', e); }
+        }
+
+        // --- Logika untuk Tombol Hapus Wishlist dengan Modal Konfirmasi ---
+        let productIdToRemoveFromWishlist = null;
+        const confirmRemoveWishlistModalElement = document.getElementById('confirmRemoveWishlistModal');
+        const confirmRemoveWishlistModal = confirmRemoveWishlistModalElement ? new bootstrap.Modal(confirmRemoveWishlistModalElement) : null;
+        const btnConfirmRemoveWishlistAction = document.getElementById('btnConfirmRemoveWishlist');
+
+        function removeFromWishlistDashboard(productId) {
+            console.log('[DASHBOARD WISHLIST] Requesting to remove product ID:', productId);
+            productIdToRemoveFromWishlist = productId;
+            if (confirmRemoveWishlistModal) {
+                confirmRemoveWishlistModal.show();
+            } else {
+                console.error('Confirm remove wishlist modal not found. Falling back to confirm().');
+                if (confirm('Are you sure you want to remove this item from your wishlist? (Modal Error)')) {
+                    proceedToRemoveWishlist(productIdToRemoveFromWishlist);
+                }
+            }
+        }
+
+        if (btnConfirmRemoveWishlistAction) {
+            btnConfirmRemoveWishlistAction.addEventListener('click', async () => {
+                if (productIdToRemoveFromWishlist) {
+                    await proceedToRemoveWishlist(productIdToRemoveFromWishlist);
+                }
+                if (confirmRemoveWishlistModal) {
+                    confirmRemoveWishlistModal.hide();
+                }
+            });
+        }
+
+        async function proceedToRemoveWishlist(productId) {
+            console.log('[DASHBOARD WISHLIST] Proceeding to remove product ID:', productId);
+            let response;
+            try {
+                response = await fetch(`/auth/wishlist/${productId}`, {
+                    method: 'DELETE',
+                    headers: { 'Content-Type': 'application/json' },
                     credentials: 'include'
                 });
                 const data = await response.json();
-                console.log('[PROFILE EDIT] Response Data:', data);
                 if (response.ok && data.success) {
-                    showDashboardToast('✅ Profile updated successfully! Reloading...', 'success');
-                    if (editProfileModal) {
-                        editProfileModal.hide();
-                    }
-                    // Update tampilan dinamis (atau reload)
-                    if (displayNameElement) displayNameElement.textContent = data.user.name;
-                    if (displayEmailElement) displayEmailElement.textContent = data.user.email;
-                    if (displayBioElement) displayBioElement.textContent = data.user.bio || 'No bio provided.';
-                    const userDashboardAvatar = document.querySelector('.user-dashboard-avatar');
-                    if (userDashboardAvatar && data.user.profile_image_url) {
-                        userDashboardAvatar.src = data.user.profile_image_url;
-                    }
-                    // Jika nama atau avatar berubah, reload untuk update navbar
-                    if (data.user.name !== "{{user.name}}" || (data.user.profile_image_url && data.user.profile_image_url !== "{{user.profile_image_url}}")) {
-                        setTimeout(() => window.location.reload(), 1500); 
-                    }
+                    showDashboardToast('✅ Removed from wishlist! Page will reload.', 'success');
+                    setTimeout(() => window.location.reload(), 1500);
                 } else {
-                    showDashboardToast(data.message || 'Failed to update profile.', 'danger');
+                    showDashboardToast(data.message || 'Failed to remove from wishlist.', 'danger');
                 }
             } catch (error) {
-                console.error('[PROFILE EDIT] Submit Error:', error);
-                showDashboardToast('An error occurred while updating profile.', 'danger');
+                console.error('Error removing from wishlist:', error);
+                if (response && response.status === 401){
+                    showDashboardToast('Sesi Anda berakhir. Silakan login lagi.', 'warning');
+                    setTimeout(() => { window.location.href = '/login'; }, 2000);
+                } else {
+                    showDashboardToast('Error removing from wishlist. Check console.', 'danger');
+                }
+            }
+            productIdToRemoveFromWishlist = null;
+        }
+
+        // --- Logika untuk Tombol Hapus dan Update Kuantitas di Cart pada Dashboard ---
+        const cartItemsContainerDashboard = document.getElementById('cartItemsContainerDashboard');
+        let cartItemIdToRemoveFromCart = null;
+        const confirmRemoveCartItemModalElement = document.getElementById('confirmRemoveCartItemModal'); // Pastikan ID modal ini ada di HTML
+        const confirmRemoveCartItemModal = confirmRemoveCartItemModalElement ? new bootstrap.Modal(confirmRemoveCartItemModalElement) : null;
+        const btnConfirmRemoveCartItemAction = document.getElementById('btnConfirmRemoveCartItemAction'); // Pastikan ID tombol ini ada di HTML modal cart
+
+        if (cartItemsContainerDashboard) {
+            cartItemsContainerDashboard.addEventListener('click', async (event) => {
+                const removeButton = event.target.closest('.btn-remove-from-cart-dash');
+                if (removeButton) {
+                    cartItemIdToRemoveFromCart = removeButton.dataset.cartItemId;
+                    if (cartItemIdToRemoveFromCart && confirmRemoveCartItemModal) {
+                        confirmRemoveCartItemModal.show(); // Tampilkan modal konfirmasi untuk cart
+                    } else if (cartItemIdToRemoveFromCart) {
+                        console.error('Confirm remove cart item modal not found. Falling back to confirm().');
+                        if (confirm('Are you sure you want to remove this item from your cart? (Modal Error)')) {
+                            await proceedToRemoveCartItemDashboard(cartItemIdToRemoveFromCart);
+                        }
+                    }
+                }
+            });
+
+            cartItemsContainerDashboard.addEventListener('change', async (event) => {
+                if (event.target.classList.contains('quantity-input-dash')) {
+                    const inputElement = event.target;
+                    const cartItemId = inputElement.dataset.cartItemId;
+                    const productId = inputElement.dataset.productId;
+                    const newQuantity = parseInt(inputElement.value);
+
+                    if (cartItemId && !isNaN(newQuantity) && newQuantity > 0) {
+                        await updateCartItemQuantityDashboard(cartItemId, newQuantity, productId);
+                    } else if (isNaN(newQuantity) || newQuantity <= 0) {
+                        showDashboardToast('Invalid quantity. Please enter a number greater than 0.', 'warning');
+                    }
+                }
+            });
+        }
+
+        if (btnConfirmRemoveCartItemAction) {
+            btnConfirmRemoveCartItemAction.addEventListener('click', async () => {
+                if (cartItemIdToRemoveFromCart) {
+                    await proceedToRemoveCartItemDashboard(cartItemIdToRemoveFromCart);
+                }
+                if (confirmRemoveCartItemModal) {
+                    confirmRemoveCartItemModal.hide();
+                }
+            });
+        }
+
+        async function proceedToRemoveCartItemDashboard(cartItemId) {
+            console.log('[DASHBOARD CART] Proceeding to remove cart item ID:', cartItemId);
+            let response;
+            try {
+                response = await fetch(`/api/cart/${cartItemId}`, {
+                    method: 'DELETE',
+                    headers: { 'Content-Type': 'application/json' },
+                    credentials: 'include'
+                });
+                const data = await response.json();
+                if (response.ok && data.success) {
+                    showDashboardToast(data.message || 'Item removed from cart! Page will reload.', 'success');
+                    setTimeout(() => window.location.reload(), 1500);
+                } else {
+                    showDashboardToast(data.message || 'Failed to remove item from cart.', 'danger');
+                }
+            } catch (error) {
+                console.error('Error removing cart item from dashboard:', error);
+                showDashboardToast('Error removing item from cart.', 'danger');
+            }
+            cartItemIdToRemoveFromCart = null;
+        }
+
+        async function updateCartItemQuantityDashboard(cartItemId, quantity, productId) {
+            console.log(`[DASHBOARD CART] Updating cart item ID: ${cartItemId} to quantity: ${quantity}`);
+            let response;
+            try {
+                response = await fetch(`/api/cart/${cartItemId}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ quantity: quantity, product_id: productId }),
+                    credentials: 'include'
+                });
+                const data = await response.json();
+                if (response.ok && data.success) {
+                    showDashboardToast(data.message || 'Cart item quantity updated! Page will reload.', 'success');
+                    setTimeout(() => window.location.reload(), 1500);
+                } else {
+                    showDashboardToast(data.message || 'Failed to update quantity.', 'danger');
+                    // Jika gagal karena stok, reload akan mengembalikan ke nilai sebelum perubahan
+                    // window.location.reload();
+                }
+            } catch (error) {
+                console.error('Error updating cart quantity from dashboard:', error);
+                showDashboardToast('Error updating quantity.', 'danger');
+            }
+        }
+
+        // JavaScript untuk Tab Aktif berdasarkan Hash URL dan Update Hash saat Tab Diklik
+        document.addEventListener('DOMContentLoaded', function () {
+            const dashboardTab = document.getElementById('dashboardTab');
+            if(dashboardTab){
+                var hash = window.location.hash;
+                var tabToActivate = null;
+
+                if (hash) {
+                    tabToActivate = dashboardTab.querySelector('button[data-bs-target="' + hash + '"]');
+                    if (!tabToActivate && hash.endsWith('-pane')) {
+                        tabToActivate = dashboardTab.querySelector('button[data-bs-target="' + hash.substring(0, hash.length - 5) + '"]');
+                    }
+                    if (!tabToActivate && !hash.endsWith('-pane')) {
+                        tabToActivate = dashboardTab.querySelector('button[data-bs-target="' + hash + '-pane"]');
+                    }
+                }
+
+                if (!tabToActivate) {
+                    const serverActiveTabTarget = "{{#if activeTab}}{{activeTab}}{{else}}my-profile-pane{{/if}}";
+                    tabToActivate = dashboardTab.querySelector('button[data-bs-target="#' + serverActiveTabTarget + '"]');
+                    if (!tabToActivate) {
+                        tabToActivate = dashboardTab.querySelector('button#my-profile-tab');
+                    }
+                }
+
+                if (tabToActivate) {
+                    dashboardTab.querySelectorAll('button.nav-link').forEach(btn => btn.classList.remove('active'));
+                    document.querySelectorAll('#dashboardTabContent .tab-pane').forEach(pane => {
+                        pane.classList.remove('show', 'active');
+                    });
+                    tabToActivate.classList.add('active');
+                    const targetPane = document.querySelector(tabToActivate.dataset.bsTarget);
+                    if(targetPane) targetPane.classList.add('show', 'active');
+                }
+
+                const tabTriggers = dashboardTab.querySelectorAll('button[data-bs-toggle="tab"]');
+                tabTriggers.forEach(trigger => {
+                    trigger.addEventListener('shown.bs.tab', event => {
+                        let targetPaneId = event.target.dataset.bsTarget;
+                        if(targetPaneId && targetPaneId.startsWith('#')) {
+                            history.replaceState(null, null, targetPaneId);
+                        }
+                    });
+                });
             }
         });
-    }
-</script>
+
+        // --- Logika untuk Edit Profile ---
+        const editProfileModalElement = document.getElementById('editProfileModal');
+        const editProfileModal = editProfileModalElement ? new bootstrap.Modal(editProfileModalElement) : null;
+        const formEditProfile = document.getElementById('formEditProfile');
+        const displayNameElement = document.getElementById('displayName');
+        const displayEmailElement = document.getElementById('displayEmail');
+        const displayBioElement = document.getElementById('displayBio');
+
+        if (editProfileModalElement) {
+            editProfileModalElement.addEventListener('show.bs.modal', function () {
+                document.getElementById('editName').value = "{{user.name}}";
+                document.getElementById('editEmail').value = "{{user.email}}";
+                document.getElementById('editBio').value = "{{user.bio}}";
+                document.getElementById('editAvatar').value = ''; // Kosongkan input file setiap modal dibuka
+            });
+        }
+
+        if (formEditProfile) {
+            formEditProfile.addEventListener('submit', async function(event) {
+                event.preventDefault();
+                const formData = new FormData();
+                formData.append('name', document.getElementById('editName').value);
+                formData.append('email', document.getElementById('editEmail').value);
+                formData.append('bio', document.getElementById('editBio').value);
+                const avatarFile = document.getElementById('editAvatar').files[0];
+                if (avatarFile) {
+                    formData.append('avatar', avatarFile);
+                }
+
+                if (!formData.get('name') || !formData.get('email')) {
+                    showDashboardToast('Name and Email are required.', 'warning');
+                    return;
+                }
+                console.log('[PROFILE EDIT] Submitting profile update with FormData...');
+                try {
+                    const response = await fetch('/api/profile/update', { // Pastikan endpoint ini benar
+                        method: 'POST',
+                        body: formData,
+                        credentials: 'include'
+                    });
+                    const data = await response.json();
+                    console.log('[PROFILE EDIT] Response Data:', data);
+                    if (response.ok && data.success) {
+                        showDashboardToast('✅ Profile updated successfully! Reloading...', 'success');
+                        if (editProfileModal) {
+                            editProfileModal.hide();
+                        }
+                        // Update tampilan dinamis (atau reload)
+                        if (displayNameElement) displayNameElement.textContent = data.user.name;
+                        if (displayEmailElement) displayEmailElement.textContent = data.user.email;
+                        if (displayBioElement) displayBioElement.textContent = data.user.bio || 'No bio provided.';
+                        const userDashboardAvatar = document.querySelector('.user-dashboard-avatar');
+                        if (userDashboardAvatar && data.user.profile_image_url) {
+                            userDashboardAvatar.src = data.user.profile_image_url;
+                        }
+                        // Jika nama atau avatar berubah, reload untuk update navbar
+                        if (data.user.name !== "{{user.name}}" || (data.user.profile_image_url && data.user.profile_image_url !== "{{user.profile_image_url}}")) {
+                            setTimeout(() => window.location.reload(), 1500);
+                        }
+                    } else {
+                        showDashboardToast(data.message || 'Failed to update profile.', 'danger');
+                    }
+                } catch (error) {
+                    console.error('Error updating profile:', error);
+                    showDashboardToast('An error occurred while updating profile.', 'danger');
+                }
+            });
+        }
+    </script>
 </body>
 </html>

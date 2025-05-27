@@ -1,72 +1,55 @@
+{{! views/singleProduct.hbs }}
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>{{product.name}} - Fashion HUB</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
-    <link rel="stylesheet" href="/style.css" />
+    {{> header}}
 </head>
 <body>
     {{> navbar_main }}
 
-    <main class="container single-product-page my-4 pt-3">
+    <main class="container single-product-page my-4 mt-md-5 pt-3">
+        {{#if successMessage}}
+        <div class="alert alert-success alert-dismissible fade show mt-3" role="alert">
+            {{successMessage}}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+        {{/if}}
+
         <nav aria-label="breadcrumb" class="mb-3 product-breadcrumb">
             <ol class="breadcrumb">
                 <li class="breadcrumb-item"><a href="/">Home</a></li>
-                <li class="breadcrumb-item"><a href="/allProduk?category={{#if product.category_slug}}{{product.category_slug}}{{else}}{{product.category_name}}{{/if}}">{{product.category_name}}</a></li>
+                <li class="breadcrumb-item"><a href="/allProduk?category_id={{product.category_id}}">{{product.category_name}}</a></li>
                 <li class="breadcrumb-item active" aria-current="page">{{product.name}}</li>
             </ol>
         </nav>
 
         <div class="row g-md-4 g-lg-5">
             {{!-- Kolom Gambar Produk --}}
-            {{!-- Kolom Gambar Produk --}}
-<div class="col-lg-7 col-md-6 product-gallery">
-    <div id="productImagesCarousel" class="carousel slide" 
-         {{#if (gt product.images.length 1)}}data-bs-ride="carousel"{{/if}} {{! Aktifkan auto-slide jika gambar > 1 }}
-         data-bs-interval="3000">
-        <div class="carousel-inner">
-            {{#if product.images.length}}
-                {{#each product.images}}
-                <div class="carousel-item {{#if @first}}active{{/if}}">
-                    <img src="{{this.image_url}}" class="d-block w-100" alt="Image for {{../product.name}}" />
+            <div class="col-lg-7 col-md-6 product-gallery">
+                <div class="main-product-image mb-3 shadow-sm">
+                    <img src="{{#if product.images.length}}{{product.images.[0].image_url}}{{else}}{{product.image_url}}{{/if}}"
+                         alt="{{product.name}} Main Image" 
+                         class="img-fluid rounded-3" 
+                         id="mainProductImage">
                 </div>
-                {{/each}}
-            {{else}}
-                {{! Fallback jika product.images kosong, gunakan image_url utama produk }}
-                <div class="carousel-item active">
-                    <img src="{{product.image_url}}" class="d-block w-100" alt="{{product.name}}" />
-                </div>
-            {{/if}}
-        </div>
+                {{#if (gt product.images.length 0)}} {{!-- Tampilkan thumbnails jika product.images ada dan tidak kosong --}}
+                    {{#if (gt product.images.length 1)}} {{!-- Hanya buat baris thumbnail jika ada lebih dari 1 gambar di array --}}
+                    <div class="product-thumbnails d-flex gap-2 mt-3">
+                        {{#each product.images}}
+                        <div class="thumbnail-item">
+                            <img src="{{this.image_url}}"
+                                 alt="{{../product.name}} Thumbnail {{add @index 1}}"
+                                 class="img-fluid rounded-2 {{#if @first}}active-thumbnail{{/if}}"
+                                 onclick="changeMainImage('{{this.image_url}}', this); stopCarousel();">
+                        </div>
+                        {{/each}}
+                    </div>
+                    {{/if}}
+                {{else if product.image_url}}
+                    {{! Jika product.images kosong TAPI product.image_url utama ada (sebagai satu-satunya gambar), jangan tampilkan thumbnail }}
+                {{/if}}
+            </div>
 
-        {{! Tampilkan tombol kontrol HANYA JIKA ada lebih dari satu gambar }}
-        {{#if (gt product.images.length 1)}}
-            <button class="carousel-control-prev" type="button" data-bs-target="#productImagesCarousel" data-bs-slide="prev">
-                <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-                <span class="visually-hidden">Previous</span>
-            </button>
-            <button class="carousel-control-next" type="button" data-bs-target="#productImagesCarousel" data-bs-slide="next">
-                <span class="carousel-control-next-icon" aria-hidden="true"></span>
-                <span class="visually-hidden">Next</span>
-            </button>
-        {{/if}}
-    </div>
-    {{#if (gt product.images.length 1)}} {{! Tampilkan thumbnails jika gambar > 1 }}
-    <div class="product-thumbnails d-flex gap-2 mt-3"> {{! Tambah mt-3 untuk jarak }}
-        {{#each product.images}}
-        <div class="thumbnail-item">
-            <img src="{{this.image_url}}"
-                 alt="{{../product.name}} Thumbnail"
-                 class="img-fluid rounded-2 {{#if @first}}active-thumbnail{{/if}}"
-                 onclick="changeMainImage('{{this.image_url}}', this); stopCarousel();"> {{! Tambah stopCarousel }}
-        </div>
-        {{/each}}
-    </div>
-    {{/if}}
-</div>
             {{!-- Kolom Detail dan Aksi Produk --}}
             <div class="col-lg-5 col-md-6 product-details-actions">
                 <h1 class="product-title mb-2">{{product.name}}</h1>
@@ -76,82 +59,82 @@
                         {{{generateStars product.rating}}}
                     </div>
                     {{#if product.review_count}}
-                        <a href="#productInfoTabs" class="ms-2 text-muted small product-review-link">({{product.review_count}} Reviews)</a>
+                        <a href="#reviews-tab-pane" class="ms-2 text-muted small product-review-link" onclick="activateReviewTab(event)">({{product.review_count}} Reviews)</a>
                     {{else}}
                         <span class="ms-2 text-muted small">(No Reviews Yet)</span>
                     {{/if}}
                 </div>
-
+                
                 <div class="product-pricing mb-3">
-                    {{#if product.discount_price}}
-                        <span class="current-price fs-2 fw-bold text-danger">Rp {{product.discount_price}}</span>
-                        <span class="original-price text-muted text-decoration-line-through ms-2 fs-5">Rp {{product.price}}</span>
-                    {{else}}
-                        <span class="current-price fs-2 fw-bold">Rp {{product.price}}</span>
-                    {{/if}}
+                    <span class="current-price fs-2 fw-bold">{{{formatRupiah product.price}}}</span>
+
                 </div>
 
                 <p class="product-short-description text-muted mb-4">
                     {{truncate product.description 150}}
                 </p>
 
-                {{!-- Pilihan Warna (Contoh Placeholder - Ganti dengan data dinamis) --}}
+                {{!-- Pilihan Warna (Contoh Placeholder) --}}
                 <div class="product-options mb-3">
                     <label class="form-label fw-semibold">Color:</label>
                     <div class="color-swatches">
                         <button type="button" class="color-swatch active" style="background-color: #556B2F;" data-color="Olive" title="Olive"></button>
                         <button type="button" class="color-swatch" style="background-color: #000080;" data-color="Navy" title="Navy"></button>
                         <button type="button" class="color-swatch" style="background-color: #006400;" data-color="Dark Green" title="Dark Green"></button>
-                        {{!-- {{#each product.available_colors}}
-                        <button type="button" class="color-swatch" style="background-color: {{this.hex_code}};" data-color="{{this.name}}" title="{{this.name}}"></button>
-                        {{/each}} --}}
                     </div>
                 </div>
 
-                {{!-- Pilihan Ukuran (Contoh Placeholder - Ganti dengan data dinamis) --}}
+                {{!-- Pilihan Ukuran (Contoh Placeholder) --}}
                 <div class="product-options mb-4">
                     <label class="form-label fw-semibold">Size:</label>
-                    <div class="size-selector btn-group" role="group">
-                        <input type="radio" class="btn-check" name="size" id="sizeS" autocomplete="off">
+                    <div class="size-selector btn-group" role="group" aria-label="Size selector">
+                        <input type="radio" class="btn-check" name="size" id="sizeS" value="S" autocomplete="off">
                         <label class="btn btn-outline-dark size-option" for="sizeS">S</label>
 
-                        <input type="radio" class="btn-check" name="size" id="sizeM" autocomplete="off" checked>
+                        <input type="radio" class="btn-check" name="size" id="sizeM" value="M" autocomplete="off" checked>
                         <label class="btn btn-outline-dark size-option" for="sizeM">M</label>
 
-                        <input type="radio" class="btn-check" name="size" id="sizeL" autocomplete="off">
+                        <input type="radio" class="btn-check" name="size" id="sizeL" value="L" autocomplete="off">
                         <label class="btn btn-outline-dark size-option" for="sizeL">L</label>
 
-                        <input type="radio" class="btn-check" name="size" id="sizeXL" autocomplete="off">
+                        <input type="radio" class="btn-check" name="size" id="sizeXL" value="XL" autocomplete="off">
                         <label class="btn btn-outline-dark size-option" for="sizeXL">XL</label>
-                        {{!-- {{#each product.available_sizes}}
-                        <input type="radio" class="btn-check" name="size" id="size{{this}}" autocomplete="off" {{#if (eq this 'M')}}checked{{/if}}>
-                        <label class="btn btn-outline-dark size-option" for="size{{this}}">{{this}}</label>
-                        {{/each}} --}}
                     </div>
                 </div>
+                     <small class="text-muted d-block mt-1">Stock: {{product.stock}}</small>
 
+
+                <div class="product-actions d-grid gap-2">
+                    {{#if user}}
+                        {{#if (neq product.user_id user.id)}} {{! Jika user login DAN BUKAN pemilik produk }}
                 <div class="mb-4 quantity-control-group">
                     <label for="quantitySingleProduct" class="form-label fw-semibold">Quantity:</label>
                     <div class="input-group">
                         <button class="btn btn-outline-secondary" type="button" id="button-minus-single" aria-label="Decrease quantity">-</button>
-                        <input type="number" id="quantitySingleProduct" class="form-control text-center fw-semibold" min="1" value="1" aria-label="Product quantity"/>
+                        <input type="number" id="quantitySingleProduct" class="form-control text-center fw-semibold" min="1" value="1" max="{{product.stock}}" aria-label="Product quantity"/>
                         <button class="btn btn-outline-secondary" type="button" id="button-plus-single" aria-label="Increase quantity">+</button>
                     </div>
                 </div>
-
-                <div class="product-actions d-grid gap-2">
-                    <button class="btn btn-dark btn-lg" id="btnAddToCartSingle"><i class="bi bi-cart-plus-fill me-2"></i>Add to Cart</button>
-                    {{#if user}}
-                    <button class="btn btn-outline-secondary btn-lg btn-wishlist-single {{#if isWishlisted}}wishlisted active{{/if}}" id="btnToggleWishlistPage" data-product-id="{{product.id}}">
-                        {{#if isWishlisted}}
-                            <i class="bi bi-heart-fill text-danger"></i> <span>Remove from Wishlist</span>
+                            <button class="btn btn-dark btn-lg" id="btnAddToCartSingle"><i class="bi bi-cart-plus-fill me-2"></i>Add to Cart</button>
+                            <button class="btn btn-outline-secondary btn-lg btn-wishlist-single {{#if isWishlisted}}wishlisted active{{/if}}" id="btnToggleWishlistPage" data-product-id="{{product.id}}">
+                                {{#if isWishlisted}}
+                                    <i class="bi bi-heart-fill text-danger"></i> <span>Remove from Wishlist</span>
+                                {{else}}
+                                    <i class="bi bi-heart"></i> <span>Add to Wishlist</span>
+                                {{/if}}
+                            </button>
                         {{else}}
-                            <i class="bi bi-heart"></i> <span>Add to Wishlist</span>
+                            <p class="alert alert-info text-center small">This is your own product. You cannot add it to your cart or wishlist.</p>
                         {{/if}}
-                    </button>
+                    {{else}} {{! Jika user belum login }}
+                         <button class="btn btn-dark btn-lg" id="btnAddToCartSingle"><i class="bi bi-cart-plus-fill me-2"></i>Add to Cart</button>
+                         <button class="btn btn-outline-secondary btn-lg btn-wishlist-single" id="btnToggleWishlistPage" data-product-id="{{product.id}}">
+                            <i class="bi bi-heart"></i> <span>Add to Wishlist</span>
+                         </button>
                     {{/if}}
                 </div>
-                 {{#if user}}
+                
+                {{#if user}}
                     {{#if (neq product.user_id user.id)}}
                         <button class="btn btn-outline-info w-100 mt-3" id="btnChatWithSeller" data-seller-id="{{product.user_id}}">
                             <i class="bi bi-chat-dots"></i> Chat with Seller
@@ -164,7 +147,7 @@
 
         {{!-- Bagian Tab Informasi Produk --}}
         <div class="product-info-tabs mt-4" id="productInfoTabs">
-            <ul class="nav nav-tabs nav-fill mb-4" id="myTab" role="tablist">
+            <ul class="nav nav-tabs nav-fill mb-4" id="productDetailTab" role="tablist">
                 <li class="nav-item" role="presentation">
                     <button class="nav-link active" id="details-tab" data-bs-toggle="tab" data-bs-target="#details-tab-pane" type="button" role="tab" aria-controls="details-tab-pane" aria-selected="true">Product Details</button>
                 </li>
@@ -175,57 +158,52 @@
                     <button class="nav-link" id="faq-tab" data-bs-toggle="tab" data-bs-target="#faq-tab-pane" type="button" role="tab" aria-controls="faq-tab-pane" aria-selected="false">FAQs</button>
                 </li>
             </ul>
-            <div class="tab-content" id="myTabContent">
+            <div class="tab-content" id="productDetailTabContent">
                 <div class="tab-pane fade show active" id="details-tab-pane" role="tabpanel" aria-labelledby="details-tab" tabindex="0">
                     <h5 class="mb-3">Product Description</h5>
-                    <p style="white-space: pre-wrap;">{{product.description}}</p>
-                    {{!-- Tambahkan spesifikasi lain jika ada --}}
-                    {{#if product.specifications}}
-                    <h6 class="mt-4">Specifications:</h6>
-                    <ul>
-                        {{#each product.specifications}}
-                        <li><strong>{{this.name}}:</strong> {{this.value}}</li>
-                        {{/each}}
-                    </ul>
-                    {{/if}}
+                    <p style="white-space: pre-wrap;">{{{product.description}}}</p> {{!-- Gunakan triple stash jika deskripsi mengandung HTML yang aman --}}
                 </div>
+
                 <div class="tab-pane fade" id="reviews-tab-pane" role="tabpanel" aria-labelledby="reviews-tab" tabindex="0">
-                    {{!-- Bagian Ulasan Produk (sudah Anda buat sebelumnya) --}}
                     <div class="product-reviews-section">
                         <div class="d-flex justify-content-between align-items-center mb-3">
-                            <h4>All Reviews</h4>
+                            <h4>All Reviews ({{reviews.length}})</h4>
                             {{#if user}}
-                            <button class="btn btn-dark" type="button" data-bs-toggle="collapse" data-bs-target="#collapseReviewForm" aria-expanded="false" aria-controls="collapseReviewForm">
-                                Write a Review
-                            </button>
+                                {{#if (neq product.user_id user.id)}}
+                                <button class="btn btn-dark" type="button" data-bs-toggle="collapse" data-bs-target="#collapseReviewForm" aria-expanded="false" aria-controls="collapseReviewForm">
+                                    Write a Review
+                                </button>
+                                {{/if}}
                             {{/if}}
                         </div>
 
                         {{#if user}}
-                        <div class="collapse" id="collapseReviewForm">
-                            <div class="card card-body mb-4">
-                                <form id="formReviewProduct">
-                                    <div class="mb-3">
-                                        <label for="productRatingStars" class="form-label">Your Rating:</label>
-                                        <div id="productRatingStars" class="star-rating-input">
-                                            <i class="bi bi-star" data-value="1" title="Terrible"></i>
-                                            <i class="bi bi-star" data-value="2" title="Poor"></i>
-                                            <i class="bi bi-star" data-value="3" title="Average"></i>
-                                            <i class="bi bi-star" data-value="4" title="Good"></i>
-                                            <i class="bi bi-star" data-value="5" title="Excellent"></i>
-                                            <input type="hidden" name="rating" id="ratingValueInput" required>
+                            {{#if (neq product.user_id user.id)}}
+                            <div class="collapse mb-4" id="collapseReviewForm">
+                                <div class="card card-body">
+                                    <form id="formReviewProduct">
+                                        <div class="mb-3">
+                                            <label for="productRatingStars" class="form-label">Your Rating:</label>
+                                            <div id="productRatingStars" class="star-rating-input">
+                                                <i class="bi bi-star" data-value="1" title="Terrible"></i>
+                                                <i class="bi bi-star" data-value="2" title="Poor"></i>
+                                                <i class="bi bi-star" data-value="3" title="Average"></i>
+                                                <i class="bi bi-star" data-value="4" title="Good"></i>
+                                                <i class="bi bi-star" data-value="5" title="Excellent"></i>
+                                                <input type="hidden" name="rating" id="ratingValueInput" required>
+                                            </div>
                                         </div>
-                                    </div>
-                                    <div class="mb-3">
-                                        <label for="reviewText" class="form-label">Your Review:</label>
-                                        <textarea class="form-control" id="reviewText" name="review_text" rows="3" placeholder="Write your review here..."></textarea>
-                                    </div>
-                                    <button type="submit" class="btn btn-dark">Submit Review</button>
-                                </form>
+                                        <div class="mb-3">
+                                            <label for="reviewText" class="form-label">Your Review:</label>
+                                            <textarea class="form-control" id="reviewText" name="review_text" rows="3" placeholder="Write your review here..."></textarea>
+                                        </div>
+                                        <button type="submit" class="btn btn-dark">Submit Review</button>
+                                    </form>
+                                </div>
                             </div>
-                        </div>
+                            {{/if}}
                         {{else}}
-                        <p><a href="/login">Login</a> to write a review.</p>
+                        <p class="mt-3"><a href="/login?redirect=/product/{{product.id}}#reviews-tab-pane">Login</a> to write a review.</p>
                         {{/if}}
 
                         {{#if reviews.length}}
@@ -239,12 +217,20 @@
                                     <div class="mb-1 product-rating-display review-stars">
                                         {{{generateStars this.rating}}}
                                     </div>
-                                    <p class="mb-1 review-text">{{this.review_text}}</p>
+                                    <p class="mb-1 review-text" style="white-space: pre-wrap;">{{this.review_text}}</p>
                                 </div>
                                 {{/each}}
                             </div>
                         {{else}}
-                            <p class="mt-3 text-muted"><em>There are no reviews for this product yet. Be the first to write one!</em></p>
+                             {{#unless user}} {{! Jika tidak ada user dan tidak ada review }}
+                                <p class="mt-3 text-muted"><em>There are no reviews for this product yet.</em></p>
+                             {{else}}
+                                {{#if (neq product.user_id user.id)}} {{! Jika user login, bukan pemilik, dan belum ada review }}
+                                    <p class="mt-3 text-muted"><em>There are no reviews for this product yet. Be the first to write one!</em></p>
+                                {{else}} {{! Jika user adalah pemilik dan belum ada review }}
+                                     <p class="mt-3 text-muted"><em>There are no reviews for this product yet.</em></p>
+                                {{/if}}
+                             {{/unless}}
                         {{/if}}
                     </div>
                 </div>
@@ -290,43 +276,104 @@
                     </div>
                 </div>
             </div>
+                </div>
+            </div>
         </div>
+
 
     </main>
 
+    {{!-- Modal dan Toast (pastikan ID unik jika perlu) --}}
     <div class="toast-container position-fixed bottom-0 end-0 p-3" style="z-index: 1100">
-        <div id="wishlistToastSinglePage" class="toast align-items-center text-bg-dark border-0" role="alert" aria-live="assertive" aria-atomic="true">
+        <div id="singleProductToast" class="toast align-items-center text-bg-dark border-0" role="alert" aria-live="assertive" aria-atomic="true">
             <div class="d-flex">
-                <div class="toast-body" id="wishlistToastBodySinglePage"></div>
+                <div class="toast-body" id="singleProductToastBody"></div>
                 <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
             </div>
         </div>
     </div>
+    
+    {{!-- Modal Konfirmasi Toggle Wishlist untuk Single Product --}}
+    <div class="modal fade" id="confirmToggleWishlistModalSingle" tabindex="-1" aria-labelledby="confirmToggleModalLabelSingle" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="confirmToggleModalLabelSingle">Confirm Action</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body" id="confirmToggleWishlistModalBodySingle">
+                    Are you sure?
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary" id="btnConfirmToggleWishlistSingle">Yes, Proceed</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
 
     {{> footer_main }}
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
         const currentProductId = '{{product.id}}';
+        const productStock = parseInt('{{product.stock}}') || 0;
+        const loggedInUserId = {{#if user}}{{user.id}}{{else}}null{{/if}};
+        const productOwnerId = {{product.user_id}};
 
-        // Fungsi untuk mengganti gambar utama produk
-        function changeMainImage(imageUrl, clickedThumbnail) {
-            const mainImage = document.getElementById('mainProductImage');
-            mainImage.src = imageUrl;
-
-            // Hapus kelas 'active-thumbnail' dari semua thumbnail
-            document.querySelectorAll('.thumbnail-item img').forEach(img => {
-                img.classList.remove('active-thumbnail');
-            });
-            // Tambahkan kelas 'active-thumbnail' ke thumbnail yang diklik
-            clickedThumbnail.classList.add('active-thumbnail');
+        // Fungsi untuk menampilkan toast notifikasi
+        function showToastOnPage(message, type = 'dark') {
+            const toastEl = document.getElementById('singleProductToast'); // Ganti ID jika perlu
+            const toastBody = document.getElementById('singleProductToastBody');
+            if (!toastEl || !toastBody) {
+                console.error('Toast elements for this page not found!');
+                return;
+            }
+            toastEl.classList.remove('text-bg-dark', 'text-bg-success', 'text-bg-danger', 'text-bg-warning', 'text-bg-info');
+            let toastTypeClass = 'text-bg-dark';
+            if (type === 'success') toastTypeClass = 'text-bg-success';
+            else if (type === 'danger') toastTypeClass = 'text-bg-danger';
+            else if (type === 'warning') toastTypeClass = 'text-bg-warning';
+            else if (type === 'info') toastTypeClass = 'text-bg-info';
+            toastEl.classList.add(toastTypeClass);
+            toastBody.textContent = message;
+            try {
+                const toast = bootstrap.Toast.getOrCreateInstance(toastEl);
+                toast.show();
+            } catch (e) { console.error('Error showing toast:', e); }
         }
 
-        // Logika untuk tombol quantity (+/-)
+        // --- Logika untuk Carousel Gambar Produk ---
+        const productCarouselElement = document.getElementById('productImagesCarousel');
+        let productCarouselInstance = null;
+        if (productCarouselElement) {
+            productCarouselInstance = new bootstrap.Carousel(productCarouselElement, {
+                interval: 3000, // Default interval
+                ride: ({{#if (gt product.images.length 1)}}'carousel'{{else}}false{{/if}}) // Ride hanya jika gambar > 1
+            });
+            const totalImagesForCarousel = {{#if product.images.length}}{{product.images.length}}{{else}}1{{/if}};
+            if (totalImagesForCarousel <= 1 && productCarouselInstance) {
+                productCarouselInstance.pause();
+            }
+        }
+        function stopCarousel() {
+            if (productCarouselInstance) {
+                productCarouselInstance.pause();
+            }
+        }
+        function changeMainImage(newImageUrl, clickedThumbnail) {
+            const mainImage = document.getElementById('mainProductImage');
+            if (mainImage) mainImage.src = newImageUrl;
+            document.querySelectorAll('.thumbnail-item img').forEach(img => img.classList.remove('active-thumbnail'));
+            if (clickedThumbnail) clickedThumbnail.classList.add('active-thumbnail');
+            stopCarousel();
+        }
+        
+        // --- Logika untuk Tombol Kuantitas ---
         const qtyInputSingle = document.getElementById('quantitySingleProduct');
         const btnMinusSingle = document.getElementById('button-minus-single');
         const btnPlusSingle = document.getElementById('button-plus-single');
-
         if(btnMinusSingle && qtyInputSingle) {
             btnMinusSingle.addEventListener('click', () => {
                 let val = parseInt(qtyInputSingle.value);
@@ -336,50 +383,23 @@
         if(btnPlusSingle && qtyInputSingle) {
             btnPlusSingle.addEventListener('click', () => {
                 let val = parseInt(qtyInputSingle.value);
-                // Pertimbangkan untuk menambahkan validasi terhadap product.stock di sini
-                // if (val < {{product.stock}}) qtyInputSingle.value = val + 1;
-                qtyInputSingle.value = val + 1;
+                if (val < productStock) { // Validasi dengan stok
+                    qtyInputSingle.value = val + 1;
+                } else {
+                    showToastOnPage(`Cannot add more than ${productStock} items (available stock).`, 'warning');
+                }
             });
         }
 
-const productCarouselElement = document.getElementById('productImagesCarousel');
-let productCarouselInstance = null; // Simpan instance carousel
-
-if (productCarouselElement) {
-    productCarouselInstance = new bootstrap.Carousel(productCarouselElement); // Inisialisasi carousel
-
-    // Jika hanya ada satu gambar total (termasuk fallback), hentikan auto-play
-    const totalImages = {{#if product.images.length}}{{product.images.length}}{{else}}1{{/if}};
-    if (totalImages <= 1) {
-        productCarouselInstance.pause(); // Hentikan jika hanya 1 gambar
-    }
-}
-
-function stopCarousel() {
-    if (productCarouselInstance) {
-        productCarouselInstance.pause(); // Hentikan auto-slide
-    }
-}
-
-function changeMainImage(newImageUrl, clickedThumbnail) {
-    const mainImage = document.getElementById('mainProductImage');
-    if (mainImage) {
-        mainImage.src = newImageUrl;
-    }
-    
-    document.querySelectorAll('.thumbnail-item img').forEach(img => {
-        img.classList.remove('active-thumbnail');
-    });
-    if (clickedThumbnail) { // Pastikan clickedThumbnail ada
-        clickedThumbnail.classList.add('active-thumbnail');
-    }
-    stopCarousel(); // Hentikan auto-slide saat thumbnail diklik
-}
-
-        // Logika untuk tombol "Add to Cart"
+        // --- Logika untuk Tombol Add to Cart ---
         const btnAddToCartPage = document.getElementById('btnAddToCartSingle');
         if (btnAddToCartPage && qtyInputSingle) {
             btnAddToCartPage.addEventListener('click', async () => {
+                if (!loggedInUserId) {
+                    showToastOnPage('Please login to add items to your cart.', 'warning');
+                    // Pertimbangkan redirect ke login: window.location.href = '/login?redirect=/product/' + currentProductId;
+                    return;
+                }
                 const quantity = parseInt(qtyInputSingle.value);
                 try {
                     const response = await fetch('/api/cart/add', {
@@ -389,10 +409,10 @@ function changeMainImage(newImageUrl, clickedThumbnail) {
                         credentials: 'include'
                     });
                     const data = await response.json();
-                    if (response.ok) {
+                    if (response.ok && data.success) {
                         showToastOnPage('🛒 Product added to cart!', 'success');
                     } else {
-                        showToastOnPage('Failed to add to cart: ' + (data.message || 'Unknown error'), 'danger');
+                        showToastOnPage(data.message || 'Failed to add to cart.', 'danger');
                     }
                 } catch (error) {
                     console.error('Error adding to cart:', error);
@@ -401,108 +421,110 @@ function changeMainImage(newImageUrl, clickedThumbnail) {
             });
         }
 
-        // Logika untuk tombol Wishlist
+        // --- Logika untuk Tombol Wishlist dengan Modal Konfirmasi ---
+        let actionToConfirmWishlist = null; 
         const btnToggleWishlistPage = document.getElementById('btnToggleWishlistPage');
+        const confirmToggleWishlistModalElement = document.getElementById('confirmToggleWishlistModalSingle');
+        const confirmToggleWishlistModal = confirmToggleWishlistModalElement ? new bootstrap.Modal(confirmToggleWishlistModalElement) : null;
+        const confirmToggleWishlistModalBody = document.getElementById('confirmToggleWishlistModalBodySingle');
+        const btnConfirmToggleWishlistAction = document.getElementById('btnConfirmToggleWishlistSingle');
+
         if (btnToggleWishlistPage) {
-            btnToggleWishlistPage.addEventListener('click', async function() {
-                const productIdFromButton = this.dataset.productId;
-                console.log('[WISHLIST PAGE] Toggling wishlist for product ID:', productIdFromButton);
-
-                let response;
-                try {
-                    response = await fetch('/auth/wishlist', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ product_id: productIdFromButton }),
-                        credentials: 'include'
-                    });
-
-                    const data = await response.json();
-                    console.log('[WISHLIST PAGE] Response Status:', response.status);
-                    console.log('[WISHLIST PAGE] Response Data:', data);
-
-                    if (response.ok) {
-                        const iconElement = this.querySelector('i');
-                        const textElement = this.querySelector('span');
-
-                        if (data.message === 'Berhasil ditambahkan ke wishlist!') {
-                            if(iconElement) {
-                                iconElement.classList.remove('bi-heart');
-                                iconElement.classList.add('bi-heart-fill', 'text-danger');
-                            }
-                            if(textElement) textElement.textContent = ' Remove from Wishlist';
-                            this.classList.add('wishlisted', 'active');
-                            showToastOnPage('✅ Added to wishlist!', 'success');
-                        } else {
-                            if(iconElement) {
-                                iconElement.classList.remove('bi-heart-fill', 'text-danger');
-                                iconElement.classList.add('bi-heart');
-                            }
-                            if(textElement) textElement.textContent = ' Add to Wishlist';
-                            this.classList.remove('wishlisted', 'active');
-                            showToastOnPage('❌ Removed from wishlist!');
-                        }
-                    } else {
-                        showToastOnPage(data.message || 'Failed to process wishlist', 'danger');
+            btnToggleWishlistPage.addEventListener('click', function() {
+                if (!loggedInUserId) {
+                    showToastOnPage('Please login to manage your wishlist.', 'warning');
+                    return;
+                }
+                const isCurrentlyWishlisted = this.classList.contains('wishlisted');
+                if (isCurrentlyWishlisted) {
+                    actionToConfirmWishlist = 'remove';
+                    if(confirmToggleWishlistModalBody) confirmToggleWishlistModalBody.textContent = 'Are you sure you want to remove this item from your wishlist?';
+                    if(btnConfirmToggleWishlistAction) {
+                        btnConfirmToggleWishlistAction.classList.remove('btn-primary');
+                        btnConfirmToggleWishlistAction.classList.add('btn-danger');
+                        btnConfirmToggleWishlistAction.textContent = 'Yes, Remove';
                     }
-                } catch (err) {
-                    console.error('[WISHLIST PAGE] Fetch Error:', err);
-                    if (response && response.status === 401) {
-                         showToastOnPage('You must be logged in to add to wishlist.', 'warning');
-                         // setTimeout(() => { window.location.href = '/login'; }, 2000); // Uncomment to redirect
-                    } else {
-                        showToastOnPage('An error occurred. Please try again.', 'danger');
+                } else {
+                    actionToConfirmWishlist = 'add';
+                    if(confirmToggleWishlistModalBody) confirmToggleWishlistModalBody.textContent = 'Are you sure you want to add this item to your wishlist?';
+                    if(btnConfirmToggleWishlistAction) {
+                        btnConfirmToggleWishlistAction.classList.remove('btn-danger');
+                        btnConfirmToggleWishlistAction.classList.add('btn-primary');
+                        btnConfirmToggleWishlistAction.textContent = 'Yes, Add';
                     }
                 }
+                if (confirmToggleWishlistModal) confirmToggleWishlistModal.show();
             });
         }
-
-        // Fungsi untuk menampilkan Toast Notifikasi
-        function showToastOnPage(message, type = 'dark') {
-            const toastEl = document.getElementById('wishlistToastSinglePage');
-            const toastBody = document.getElementById('wishlistToastBodySinglePage');
-            if (!toastEl || !toastBody) {
-                console.error('Toast elements for single page not found!');
-                return;
-            }
-
-            toastEl.classList.remove('text-bg-dark', 'text-bg-success', 'text-bg-danger', 'text-bg-warning', 'text-bg-info');
-            let toastTypeClass = 'text-bg-dark'; // Default
-            if (type === 'success') toastTypeClass = 'text-bg-success';
-            else if (type === 'danger') toastTypeClass = 'text-bg-danger';
-            else if (type === 'warning') toastTypeClass = 'text-bg-warning';
-            else if (type === 'info') toastTypeClass = 'text-bg-info';
-            toastEl.classList.add(toastTypeClass);
-
-            toastBody.textContent = message;
+        if (btnConfirmToggleWishlistAction) {
+            btnConfirmToggleWishlistAction.addEventListener('click', async () => {
+                if (currentProductId && actionToConfirmWishlist) {
+                    await proceedToggleWishlist(currentProductId);
+                }
+                if (confirmToggleWishlistModal) confirmToggleWishlistModal.hide();
+            });
+        }
+        async function proceedToggleWishlist(productId) {
+            console.log('[WISHLIST PAGE] Proceeding to toggle wishlist for product ID:', productId, "Action:", actionToConfirmWishlist);
+            let response;
             try {
-                const toast = bootstrap.Toast.getOrCreateInstance(toastEl);
-                toast.show();
-            } catch (e) {
-                console.error('Error showing toast:', e);
+                response = await fetch('/auth/wishlist', { 
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ product_id: productId }),
+                    credentials: 'include'
+                });
+                const data = await response.json();
+                if (response.ok) {
+                    const iconElement = btnToggleWishlistPage.querySelector('i');
+                    const textElement = btnToggleWishlistPage.querySelector('span');
+                    if (data.message === 'Berhasil ditambahkan ke wishlist!') {
+                        btnToggleWishlistPage.classList.add('wishlisted', 'active');
+                        btnToggleWishlistPage.classList.replace('btn-outline-secondary', 'btn-danger');
+                        if(iconElement) { iconElement.className = 'bi bi-heart-fill text-danger'; }
+                        if(textElement) textElement.textContent = ' Remove from Wishlist';
+                        showToastOnPage('✅ Added to wishlist!', 'success');
+                    } else {
+                        btnToggleWishlistPage.classList.remove('wishlisted', 'active');
+                        btnToggleWishlistPage.classList.replace('btn-danger', 'btn-outline-secondary');
+                        if(iconElement) { iconElement.className = 'bi bi-heart'; }
+                        if(textElement) textElement.textContent = ' Add to Wishlist';
+                        showToastOnPage('❌ Removed from wishlist!');
+                    }
+                } else {
+                    showToastOnPage(data.message || 'Failed to process wishlist', 'danger');
+                }
+            } catch (err) {
+                console.error('[WISHLIST PAGE] Fetch Error:', err);
+                if (response && response.status === 401) { 
+                    showToastOnPage('You must be logged in to use wishlist.', 'warning');
+                } else {
+                    showToastOnPage('An error occurred. Please try again.', 'danger');
+                }
             }
+            actionToConfirmWishlist = null; 
         }
 
-        // Logika untuk tombol "Chat with Seller"
+        // --- Logika untuk Tombol Chat with Seller ---
         const btnChatWithSeller = document.getElementById('btnChatWithSeller');
         if (btnChatWithSeller) {
             btnChatWithSeller.addEventListener('click', function() {
+                if (!loggedInUserId) {
+                    showToastOnPage('Please login to chat with the seller.', 'warning');
+                    return;
+                }
                 const sellerId = this.dataset.sellerId;
                 console.log('Initiating chat with seller ID:', sellerId);
                 showToastOnPage('💬 Chat with seller feature coming soon!', 'info');
-                // Di sini nantinya bisa memicu modal chat, redirect ke halaman chat, dll.
             });
         }
 
-        // --- Logika untuk Input Bintang Rating ---
+        // --- Logika untuk Input Bintang Rating & Submit Form Review ---
         const ratingStarsContainer = document.getElementById('productRatingStars');
         const ratingValueInput = document.getElementById('ratingValueInput');
-
         if (ratingStarsContainer && ratingValueInput) {
-            const stars = ratingStarsContainer.querySelectorAll('i.bi-star, i.bi-star-fill'); // Bisa juga bi-star-fill jika sudah ada rating awal
-
-            // Fungsi untuk set visual bintang
-            function setStars(rating) {
+            const stars = ratingStarsContainer.querySelectorAll('i');
+            function setStarsVisual(rating) {
                 stars.forEach(star => {
                     if (parseInt(star.dataset.value) <= rating) {
                         star.classList.remove('bi-star');
@@ -513,74 +535,62 @@ function changeMainImage(newImageUrl, clickedThumbnail) {
                     }
                 });
             }
-
-            // Fungsi untuk highlight bintang saat hover
             function highlightStars(rating) {
                 stars.forEach(star => {
+                    star.classList.remove('hovered'); // Hapus hover dari semua dulu
                     if (parseInt(star.dataset.value) <= rating) {
                         star.classList.add('hovered');
-                    } else {
-                        star.classList.remove('hovered');
                     }
                 });
             }
-
             stars.forEach(star => {
-                star.addEventListener('mouseover', () => {
-                    highlightStars(parseInt(star.dataset.value));
-                });
-
+                star.addEventListener('mouseover', () => highlightStars(parseInt(star.dataset.value)));
                 star.addEventListener('mouseout', () => {
-                    // Kembalikan ke state selected, atau reset jika tidak ada yang selected
                     const currentSelectedRating = parseInt(ratingValueInput.value) || 0;
-                    setStars(currentSelectedRating);
-                    stars.forEach(s => s.classList.remove('hovered')); // Hapus semua highlight hover
+                    setStarsVisual(currentSelectedRating); 
+                    stars.forEach(s => s.classList.remove('hovered'));
                 });
-
                 star.addEventListener('click', () => {
                     const value = parseInt(star.dataset.value);
-                    ratingValueInput.value = value; // Simpan nilai rating di input hidden
-                    setStars(value); // Set visual bintang permanen (sampai klik berikutnya)
+                    ratingValueInput.value = value;
+                    setStarsVisual(value);
                     console.log('Rating selected:', value);
                 });
             });
         }
 
-
-        // --- Logika untuk Submit Form Review ---
         const formReviewProduct = document.getElementById('formReviewProduct');
         if (formReviewProduct) {
             formReviewProduct.addEventListener('submit', async function(event) {
                 event.preventDefault();
-
+                if (!loggedInUserId) {
+                    showToastOnPage('Please login to submit a review.', 'warning');
+                    return;
+                }
                 const rating = ratingValueInput.value;
                 const review_text = document.getElementById('reviewText').value;
-
                 if (!rating) {
                     showToastOnPage('Please provide a star rating.', 'warning');
                     return;
                 }
-
                 console.log('[REVIEW] Submitting review. Product ID:', currentProductId, 'Rating:', rating, 'Text:', review_text);
-
                 try {
-                    const response = await fetch(`/api/products/${currentProductId}/reviews`, { // Endpoint API baru
+                    const response = await fetch(`/api/products/${currentProductId}/reviews`, {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({ rating: parseInt(rating), review_text }),
                         credentials: 'include'
                     });
-
                     const data = await response.json();
-                    if (response.ok) {
-                        showToastOnPage('⭐ Thank you for your review!', 'success');
-                        formReviewProduct.reset(); // Kosongkan form
-                        // Mungkin reset bintang ke state awal juga
+                    if (response.ok && data.success) {
+                        showToastOnPage('⭐ Thank you for your review! It will appear after page reload.', 'success');
+                        formReviewProduct.reset();
                         if(ratingValueInput && ratingStarsContainer) {
                             ratingValueInput.value = "";
-                            setStars(0); // Reset visual bintang
+                            setStarsVisual(0);
                         }
-                        // Idealnya, muat ulang daftar ulasan di halaman ini (akan dibahas nanti)
+                        // Untuk update daftar review secara dinamis, perlu fetch ulang review atau tambah review baru ke DOM
+                        // setTimeout(() => window.location.reload(), 2000); // Reload untuk lihat review baru
                     } else {
                         showToastOnPage(data.message || 'Failed to submit review.', 'danger');
                     }
@@ -590,26 +600,21 @@ function changeMainImage(newImageUrl, clickedThumbnail) {
                 }
             });
         }
-
-        // Logika untuk Color Swatches (Contoh placeholder)
-        document.querySelectorAll('.color-swatch').forEach(swatch => {
-            swatch.addEventListener('click', function() {
-                document.querySelectorAll('.color-swatch').forEach(s => s.classList.remove('active'));
-                this.classList.add('active');
-                console.log('Selected Color:', this.dataset.color);
-                // Di sini Anda bisa memperbarui state produk yang dipilih (misal: kirim ke server atau update harga/gambar)
-            });
-        });
-
-        // Logika untuk Size Selector (Contoh placeholder)
-        document.querySelectorAll('.size-option').forEach(sizeOption => {
-            sizeOption.addEventListener('click', function() {
-                // Input radio sudah mengelola 'checked' state, tapi jika ada styling tambahan:
-                // document.querySelectorAll('.size-option').forEach(s => s.classList.remove('active'));
-                // this.classList.add('active'); // Jika Anda ingin menambahkan kelas 'active' pada label
-                console.log('Selected Size:', this.textContent.trim());
-            });
-        });
+        
+        // Fungsi untuk mengaktifkan tab review saat link jumlah review diklik
+        function activateReviewTab(event) {
+            event.preventDefault(); // Mencegah default # link behavior jika ada
+            const reviewTabButton = document.getElementById('reviews-tab');
+            if (reviewTabButton) {
+                const tab = new bootstrap.Tab(reviewTabButton);
+                tab.show();
+                // Scroll ke section tab setelah tab aktif
+                const tabContentElement = document.getElementById('productInfoTabs');
+                if (tabContentElement) {
+                    tabContentElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+            }
+        }
     </script>
 </body>
 </html>

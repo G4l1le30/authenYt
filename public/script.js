@@ -26,6 +26,56 @@ signupLoginLink.forEach(link => {
     });
 });
 */
+const socket = io(); // Membuat koneksi ke server Socket.IO
+
+socket.on('connect', () => {
+    console.log('[Socket.IO Client] Terhubung ke server dengan ID:', socket.id);
+    // Kirim event tes saat terhubung
+    socket.emit('testEvent', { from: 'client', data: 'Halo, ini tes dari klien!' });
+});
+
+socket.on('eventFromServer', (data) => {
+    console.log('[Socket.IO Client] eventFromServer diterima:', data);
+});
+
+socket.on('disconnect', () => {
+    console.log('[Socket.IO Client] Terputus dari server.');
+});
+if (typeof socket !== 'undefined') {
+    socket.on('chatNotification', (data) => {
+        // Cek apakah pengguna ada di halaman produk yang sama dengan chat atau di dashboard chat
+        // Ini contoh sederhana, Anda mungkin perlu logika lebih canggih
+        let currentChattingWith = null;
+        const chatModalEl = document.getElementById('chatWithSellerModal');
+        const chatReceiverIdInput = document.getElementById('chatCurrentReceiverId');
+
+        if (chatModalEl && chatModalEl.classList.contains('show') && chatReceiverIdInput) {
+            currentChattingWith = parseInt(chatReceiverIdInput.value);
+        }
+
+        // Hanya tampilkan notifikasi jika bukan untuk chat yang sedang aktif dibuka
+        if (data.fromUserId !== currentChattingWith) {
+            // Anda perlu fungsi global showToast atau cara lain untuk menampilkan notifikasi
+            // Misal, jika Anda punya fungsi showGlobalToast:
+            // showGlobalToast(`Pesan baru dari <span class="math-inline">\{data\.fromUserName\}\: "</span>{data.messagePreview}"`, 'info', () => {
+            //    window.location.href = `/product/<span class="math-inline">\{data\.productId\}?action\=chat&sellerId\=</span>{data.fromUserId}` // Atau ke halaman chat khusus
+            // });
+            console.log(`[Global Notif] Pesan baru dari ${data.fromUserName}: ${data.messagePreview}`);
+            // Untuk sementara, kita bisa gunakan alert jika tidak ada sistem toast global
+            // Ini akan mengganggu jika pengguna di halaman lain.
+            // Idealnya, ini adalah notifikasi "toast" kecil yang tidak mengganggu.
+            if (typeof showDashboardToast === 'function') { // Jika fungsi toast dashboard tersedia
+                showDashboardToast(`Pesan baru dari ${data.fromUserName}`, 'info');
+            } else if (typeof showToastOnPage === 'function') { // Jika fungsi toast singleProduct tersedia
+                 showToastOnPage(`Pesan baru dari ${data.fromUserName}`, 'info');
+            } else {
+                // Fallback sangat dasar
+                // alert(`Pesan baru dari ${data.fromUserName}`);
+                console.warn("Tidak ada fungsi toast global untuk menampilkan notifikasi chat.");
+            }
+        }
+    });
+}
 // Hover effect untuk tombol detail
 document.querySelectorAll('.product-card').forEach(card => {
   card.addEventListener('mouseenter', () => {

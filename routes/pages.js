@@ -406,4 +406,55 @@ router.get('/order/success/:orderId', authMiddleware.protect, (req, res) => {
         // atau mengambil detail pesanan dari DB untuk ditampilkan.
     });
 });
+
+
+// BARU: Rute untuk menampilkan halaman chat terpisah
+router.get('/chat/:sellerId', authMiddleware.protect, async (req, res) => {
+    if (!req.user) { // Seharusnya sudah ditangani oleh authMiddleware.protect
+        return res.redirect('/login');
+    }
+
+    const buyer = req.user; // Pengguna yang login adalah pembeli
+    const sellerId = parseInt(req.params.sellerId);
+
+    if (isNaN(sellerId)) {
+        if(req.flash) req.flash('error_msg', 'ID Penjual tidak valid.');
+        return res.redirect('back'); // Kembali ke halaman sebelumnya
+    }
+
+    if (buyer.id === sellerId) {
+        if(req.flash) req.flash('error_msg', 'Anda tidak dapat chat dengan diri sendiri.');
+        return res.redirect('back');
+    }
+
+    try {
+        // Ambil detail penjual
+        const [sellerRows] = await pool.query(
+            'SELECT id, name, profile_image_url FROM users WHERE id = ?',
+            [sellerId]
+        );
+
+        if (sellerRows.length === 0) {
+            if(req.flash) req.flash('error_msg', 'Penjual tidak ditemukan.');
+            return res.redirect('back');
+        }
+        const seller = sellerRows[0];
+
+        // Anda akan merender halaman chat baru di sini
+        // Data yang dikirim akan digunakan oleh JavaScript di halaman chat untuk menginisialisasi Socket.IO
+        res.render('chatPage', { // Nama file template baru: chatPage.hbs
+            user: buyer, // Info pengguna yang login (pembeli)
+            receiver: seller, // Info pengguna yang akan diajak chat (penjual)
+            pageTitle: `Chat dengan ${seller.name}`,
+            layout: 'chatPage' // (Opsional) Jika Anda ingin layout khusus untuk halaman chat
+        });
+
+    } catch (error) {
+        console.error("Error rendering chat page:", error);
+        if(req.flash) req.flash('error_msg', 'Gagal memuat halaman chat.');
+        res.redirect('/');
+    }
+});
+
+
 module.exports = router;

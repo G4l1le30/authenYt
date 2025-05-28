@@ -46,7 +46,7 @@
         <!-- New Arrivals -->
         <section class="new-arrivals-section py-5"> <!- py-5 untuk padding atas bawah ->
     <div class="container">
-        <h2 class="section-title">NEW ARRIVALS</h2> <div class="row g-4"> {{#each products}} <div class="col-lg-3 col-md-4 col-sm-6 mb-4"> <div class="product-card-new custom-card h-100"> <a href="/product/{{this.id}}" class="product-image-link">
+        <h2 class="section-title">NEW ARRIVALS</h2> <div class="row g-4"> {{#each products}} <div class="col-lg-3 col-md-4 col-sm-6 mb-4"> <div class="product-card-new custom-card h-100"> <a href="/product/{{this.id}}" class="product-image-link" style = "width:244px;height:244px;">
                         <img src="{{this.image_url}}" class="card-img-top product-card-img" alt="{{this.name}}">
                     </a>
                     <div class="card-body text-center product-card-body"> <h5 class="product-name mb-2">{{this.name}}</h5>

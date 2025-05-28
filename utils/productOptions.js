@@ -1,27 +1,37 @@
 // utils/productOptions.js
 const PREDEFINED_COLORS_CONFIG = [
-    { name: 'Black', hex: '#000000', border: false }, { name: 'White', hex: '#FFFFFF', border: true },
-    { name: 'Red', hex: '#FF0000', border: false }, { name: 'Blue', hex: '#0000FF', border: false },
-    { name: 'Green', hex: '#008000', border: false }, { name: 'Yellow', hex: '#FFFF00', border: true },
-    { name: 'Purple', hex: '#800080', border: false }, { name: 'Orange', hex: '#FFA500', border: false },
-    { name: 'Pink', hex: '#FFC0CB', border: true }, { name: 'Brown', hex: '#A52A2A', border: false },
-    { name: 'Gray', hex: '#808080', border: false }, { name: 'Silver', hex: '#C0C0C0', border: true },
-    { name: 'Gold', hex: '#FFD700', border: false }, { name: 'Navy', hex: '#000080', border: false },
-    { name: 'Olive', hex: '#808000', border: false }, { name: 'Maroon', hex: '#800000', border: false },
-    { name: 'Beige', hex: '#F5F5DC', border: true }, { name: 'Teal', hex: '#008080', border: false },
-    { name: 'Sky Blue', hex: '#87CEEB', border: true }, { name: 'Lime', hex: '#00FF00', border: true }
-    // Tambahkan warna lain yang umum atau relevan dengan produk Anda
+    { name: 'Black', hex: '#000000', border: false }, 
+    { name: 'White', hex: '#FFFFFF', border: true },
+    { name: 'Red', hex: '#FF0000', border: false }, 
+    { name: 'Blue', hex: '#0000FF', border: false },
+    { name: 'Green', hex: '#008000', border: false }, 
+    { name: 'Yellow', hex: '#FFFF00', border: true },
+    { name: 'Purple', hex: '#800080', border: false }, 
+    { name: 'Orange', hex: '#FFA500', border: false },
+    { name: 'Pink', hex: '#FFC0CB', border: true }, 
+    { name: 'Brown', hex: '#A52A2A', border: false },
+    { name: 'Gray', hex: '#808080', border: false }, 
+    { name: 'Silver', hex: '#C0C0C0', border: true },
+    { name: 'Gold', hex: '#FFD700', border: false }, 
+    { name: 'Navy', hex: '#000080', border: false },
+    { name: 'Olive', hex: '#808000', border: false }, 
+    { name: 'Maroon', hex: '#800000', border: false },
+    { name: 'Beige', hex: '#F5F5DC', border: true }, 
+    { name: 'Teal', hex: '#008080', border: false },
+    { name: 'Sky Blue', hex: '#87CEEB', border: true }, 
+    { name: 'Lime', hex: '#00FF00', border: true }
 ];
 
 const PREDEFINED_SIZES = ['XS', 'S', 'M', 'L', 'XL', 'XXL', 'Free Size'];
 
+// PERBAIKAN: Menggunakan syntax yang kompatibel dengan MariaDB/MySQL
 const SORT_OPTIONS = [
     { value: 'latest', text: 'Sort by: Latest', orderBy: 'p.created_at DESC' },
     { value: 'price_asc', text: 'Price: Low to High', orderBy: 'p.price ASC' },
     { value: 'price_desc', text: 'Price: High to Low', orderBy: 'p.price DESC' },
-    { value: 'rating', text: 'Rating: High to Low', orderBy: 'p.rating DESC NULLS LAST' } // NULLS LAST jika DB Anda mendukung (mis. PostgreSQL)
-                                                                                          // Untuk MySQL, produk dengan rating NULL akan di awal atau akhir tergantung ASC/DESC.
-                                                                                          // Jika ingin rating NULL di akhir untuk DESC, bisa: ORDER BY p.rating IS NULL, p.rating DESC
+    // PERBAIKAN: Untuk MySQL/MariaDB, gunakan IS NULL untuk menangani nilai NULL
+    // Ini akan menempatkan produk dengan rating NULL di akhir, diikuti rating tertinggi ke terendah
+    { value: 'rating', text: 'Rating: High to Low', orderBy: 'p.rating IS NULL, p.rating DESC' }
 ];
 
 // Map untuk pencarian detail warna yang lebih cepat (case-insensitive untuk key)
@@ -65,5 +75,5 @@ module.exports = {
     PREDEFINED_COLORS_CONFIG,
     PREDEFINED_SIZES,
     SORT_OPTIONS,
-    getColorDetails // Pastikan fungsi ini diekspor
+    getColorDetails
 };

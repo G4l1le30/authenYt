@@ -3,7 +3,7 @@
 <html lang="en">
 <head>
     {{> header}}
-    <link rel="stylesheet" href="/style.css"> {{!-- Pastikan path ke style.css benar --}}
+    <link rel="stylesheet" href="/style.css">
 </head>
 <body>
     {{> navbar_main}}
@@ -81,17 +81,20 @@
                         {{#if filterSizeOptions.length}}
                         <div class="filter-group mb-4">
                             <h6 class="filter-title mb-2">Size</h6>
-                            <div class="size-selector-filter btn-group-toggle d-flex flex-wrap gap-1" data-bs-toggle="buttons">
+                            <div class="size-selector-filter d-flex flex-wrap gap-2">
                                 {{#each filterSizeOptions}}
-                                <label class="btn btn-sm btn-outline-secondary btn-filter-size {{#if this.isActive}}active{{/if}}" for="size-filter-{{this.name_dashed}}">
-                                    <input type="checkbox" class="btn-check filter-checkbox"
-                                           name="sizes"
-                                           value="{{this.name}}"
-                                           id="size-filter-{{this.name_dashed}}"
-                                           autocomplete="off"
+                                <div class="size-option">
+                                    <input class="form-check-input size-checkbox d-none" 
+                                           type="checkbox" 
+                                           name="sizes" 
+                                           value="{{this.name}}" 
+                                           id="size-{{this.name_dashed}}"
                                            {{#if this.isActive}}checked{{/if}}>
-                                    {{this.name}}
-                                </label>
+                                    <label class="btn btn-sm btn-outline-secondary btn-filter-size {{#if this.isActive}}active{{/if}}" 
+                                           for="size-{{this.name_dashed}}">
+                                        {{this.name}}
+                                    </label>
+                                </div>
                                 {{/each}}
                             </div>
                         </div>
@@ -182,103 +185,141 @@
     {{> footer_main }}
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const filterForm = document.getElementById('filterForm');
-            const selectedColorsInput = document.getElementById('selected_colors_filter_input');
-            const colorSwatches = document.querySelectorAll('.filter-color-swatch');
-            const sortBySelect = document.getElementById('sort_by_select');
-            const hiddenCategoryIdInput = document.getElementById('hidden_category_id');
-            const hiddenStyleSlugInput = document.getElementById('hidden_style_slug');
+document.addEventListener('DOMContentLoaded', function() {
+    const filterForm = document.getElementById('filterForm');
+    const selectedColorsInput = document.getElementById('selected_colors_filter_input');
+    const colorSwatches = document.querySelectorAll('.filter-color-swatch');
+    const sortBySelect = document.getElementById('sort_by_select');
+    const hiddenCategoryIdInput = document.getElementById('hidden_category_id');
+    const hiddenStyleSlugInput = document.getElementById('hidden_style_slug');
+    const sizeCheckboxes = document.querySelectorAll('.size-checkbox');
+    const sizeLabels = document.querySelectorAll('.btn-filter-size');
 
-            // Memastikan Kategori dan Style tetap ada saat filter lain di-submit
-            // Link kategori dan style akan melakukan navigasi langsung.
-            // Jika ingin mereka menjadi bagian dari "Apply Filters", perlu modifikasi lebih lanjut
-            // untuk hanya update hidden input dan tidak navigasi.
-            // Saat ini, jika user klik kategori/style, filter lain akan ter-reset.
+    // Fungsi untuk menangani checkbox ukuran
+    sizeLabels.forEach((label, index) => {
+        const checkbox = sizeCheckboxes[index];
+        
+        label.addEventListener('click', function(e) {
+            e.preventDefault();
+            
+            // Toggle checkbox
+            checkbox.checked = !checkbox.checked;
+            
+            // Update visual state
+            if (checkbox.checked) {
+                this.classList.add('active');
+            } else {
+                this.classList.remove('active');
+            }
+            
+            // Debug log
+            console.log(`Size ${checkbox.value}: ${checkbox.checked ? 'selected' : 'deselected'}`);
+            
+            // Log semua size yang dipilih
+            const selectedSizes = Array.from(sizeCheckboxes)
+                .filter(cb => cb.checked)
+                .map(cb => cb.value);
+            console.log('Currently selected sizes:', selectedSizes);
+        });
+    });
 
-            // Logika untuk swatch warna filter
-            let currentActiveColorNames = selectedColorsInput.value ? selectedColorsInput.value.split(',').filter(c => c) : [];
+    // Set initial state untuk size buttons
+    sizeCheckboxes.forEach((checkbox, index) => {
+        const label = sizeLabels[index];
+        if (checkbox.checked && label) {
+            label.classList.add('active');
+        }
+    });
 
-            colorSwatches.forEach(swatch => {
-                swatch.addEventListener('click', function() {
-                    this.classList.toggle('active');
-                    const colorName = this.dataset.colorName;
-                    const icon = this.querySelector('.swatch-check-icon');
+    // Logika untuk swatch warna filter
+    let currentActiveColorNames = selectedColorsInput ? (selectedColorsInput.value ? selectedColorsInput.value.split(',').filter(c => c) : []) : [];
 
-                    if (this.classList.contains('active')) {
-                        if (!currentActiveColorNames.includes(colorName)) {
-                            currentActiveColorNames.push(colorName);
-                        }
-                        if (!icon) {
-                            const checkIcon = document.createElement('i');
-                            checkIcon.className = 'bi bi-check swatch-check-icon';
-                            const swatchBgColor = window.getComputedStyle(this).backgroundColor;
-                            const rgb = swatchBgColor.match(/\d+/g);
-                            if (rgb) {
-                                const brightness = Math.round(((parseInt(rgb[0]) * 299) + (parseInt(rgb[1]) * 587) + (parseInt(rgb[2]) * 114)) / 1000);
-                                checkIcon.style.color = (brightness > 125) ? 'black' : 'white';
-                            } else { checkIcon.style.color = 'white'; }
-                            this.appendChild(checkIcon);
-                        }
-                    } else {
-                        currentActiveColorNames = currentActiveColorNames.filter(c => c !== colorName);
-                        if (icon) icon.remove();
-                    }
-                    selectedColorsInput.value = currentActiveColorNames.join(',');
-                });
-            });
+    colorSwatches.forEach(swatch => {
+        swatch.addEventListener('click', function() {
+            this.classList.toggle('active');
+            const colorName = this.dataset.colorName;
+            const icon = this.querySelector('.swatch-check-icon');
 
-            // Inisialisasi ikon centang untuk warna yang sudah aktif dari server (saat halaman dimuat)
-            colorSwatches.forEach(swatch => {
-                if (swatch.classList.contains('active') && !swatch.querySelector('.swatch-check-icon')) {
+            if (this.classList.contains('active')) {
+                if (!currentActiveColorNames.includes(colorName)) {
+                    currentActiveColorNames.push(colorName);
+                }
+                if (!icon) {
                     const checkIcon = document.createElement('i');
                     checkIcon.className = 'bi bi-check swatch-check-icon';
-                    const swatchBgColor = window.getComputedStyle(swatch).backgroundColor;
+                    const swatchBgColor = window.getComputedStyle(this).backgroundColor;
                     const rgb = swatchBgColor.match(/\d+/g);
                     if (rgb) {
                         const brightness = Math.round(((parseInt(rgb[0]) * 299) + (parseInt(rgb[1]) * 587) + (parseInt(rgb[2]) * 114)) / 1000);
                         checkIcon.style.color = (brightness > 125) ? 'black' : 'white';
                     } else { checkIcon.style.color = 'white'; }
-                    swatch.appendChild(checkIcon);
+                    this.appendChild(checkIcon);
                 }
-            });
-
-            // Jika sort by diubah, langsung submit form
-            if (sortBySelect) {
-                sortBySelect.addEventListener('change', function() {
-                    if (filterForm) {
-                        // Sebelum submit, pastikan hidden category dan style terisi dari URL jika ada
-                        // (meskipun seharusnya sudah diisi oleh Handlebars dari controller)
-                        const urlParams = new URLSearchParams(window.location.search);
-                        if (hiddenCategoryIdInput && urlParams.has('category_id')) {
-                            hiddenCategoryIdInput.value = urlParams.get('category_id');
-                        }
-                        if (hiddenStyleSlugInput && urlParams.has('style')) {
-                            hiddenStyleSlugInput.value = urlParams.get('style');
-                        }
-                        filterForm.submit();
-                    }
-                });
+            } else {
+                currentActiveColorNames = currentActiveColorNames.filter(c => c !== colorName);
+                if (icon) icon.remove();
             }
-
-            // Membersihkan input field yang kosong sebelum submit agar URL lebih bersih
-            if (filterForm) {
-                filterForm.addEventListener('submit', function(event) {
-                    const inputs = filterForm.querySelectorAll('input[name], select[name]');
-                    inputs.forEach(input => {
-                        if (input.name === 'sizes' && !input.checked) {
-                            // Jangan disable checkbox, biarkan browser tidak mengirimnya jika tidak checked
-                        } else if (!input.value) {
-                            // Untuk input lain, jika kosong, kita bisa men-disable-nya agar tidak masuk query string
-                            // Tapi untuk GET form, browser biasanya akan mengirim parameter kosong jika input punya 'name'
-                            // Jadi, lebih baik pastikan backend menangani parameter kosong/undefined dengan benar.
-                            // Atau, bangun query string secara manual dengan JS jika ingin kontrol penuh.
-                            // Saat ini, biarkan browser menangani pengiriman field form.
-                        }
-                    });
-                });
+            if (selectedColorsInput) {
+                selectedColorsInput.value = currentActiveColorNames.join(',');
             }
         });
-    </script>
+    });
+
+    // Inisialisasi ikon centang untuk warna yang sudah aktif dari server
+    colorSwatches.forEach(swatch => {
+        if (swatch.classList.contains('active') && !swatch.querySelector('.swatch-check-icon')) {
+            const checkIcon = document.createElement('i');
+            checkIcon.className = 'bi bi-check swatch-check-icon';
+            const swatchBgColor = window.getComputedStyle(swatch).backgroundColor;
+            const rgb = swatchBgColor.match(/\d+/g);
+            if (rgb) {
+                const brightness = Math.round(((parseInt(rgb[0]) * 299) + (parseInt(rgb[1]) * 587) + (parseInt(rgb[2]) * 114)) / 1000);
+                checkIcon.style.color = (brightness > 125) ? 'black' : 'white';
+            } else { checkIcon.style.color = 'white'; }
+            swatch.appendChild(checkIcon);
+        }
+    });
+
+    // Jika sort by diubah, langsung submit form
+    if (sortBySelect) {
+        sortBySelect.addEventListener('change', function() {
+            if (filterForm) {
+                const urlParams = new URLSearchParams(window.location.search);
+                if (hiddenCategoryIdInput && urlParams.has('category_id')) {
+                    hiddenCategoryIdInput.value = urlParams.get('category_id');
+                }
+                if (hiddenStyleSlugInput && urlParams.has('style')) {
+                    hiddenStyleSlugInput.value = urlParams.get('style');
+                }
+                filterForm.submit();
+            }
+        });
+    }
+
+    // Handler untuk form submit - Debug what's being sent
+    if (filterForm) {
+        filterForm.addEventListener('submit', function(event) {
+            console.log('=== FORM SUBMISSION DEBUG ===');
+            
+            // Log semua data form
+            const formData = new FormData(filterForm);
+            console.log('Form data being sent:');
+            for (let [key, value] of formData.entries()) {
+                console.log(`${key}: ${value}`);
+            }
+            
+            console.log('=== END DEBUG ===');
+        });
+    }
+
+    // Debug: Log initial state
+    console.log('=== INITIAL STATE ===');
+    const initialSelectedSizes = Array.from(sizeCheckboxes)
+        .filter(cb => cb.checked)
+        .map(cb => cb.value);
+    console.log('Initially selected sizes:', initialSelectedSizes);
+    console.log('=== END INITIAL STATE ===');
+});
+</script>
 </body>
 </html>

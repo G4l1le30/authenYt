@@ -153,13 +153,31 @@ router.get('/allProduk', async (req, res) => {
         });
 
         // Filter Ukuran (dari query string, berupa nama ukuran)
-        const currentSelectedSizes = selectedSizesQuery ? selectedSizesQuery.split(',').map(s => s.trim()).filter(s => s) : [];
-        if (currentSelectedSizes.length > 0) {
-            const sizeConditions = currentSelectedSizes.map(sizeName => {
-                queryParams.push(sizeName); return `FIND_IN_SET(?, p.available_sizes)`;
-            });
-            conditions.push(`(${sizeConditions.join(' OR ')})`);
-        }
+        let currentSelectedSizes = [];
+if (selectedSizesQuery) {
+    // Cek apakah selectedSizesQuery adalah array atau string
+    if (Array.isArray(selectedSizesQuery)) {
+        // Jika array (multiple sizes dipilih), proses setiap elemen
+        currentSelectedSizes = selectedSizesQuery.map(s => s.trim()).filter(s => s);
+    } else {
+        // Jika string (single size dipilih), proses sebagai string
+        currentSelectedSizes = selectedSizesQuery.split(',').map(s => s.trim()).filter(s => s);
+    }
+}
+
+// Debug log untuk memastikan data benar
+console.log('selectedSizesQuery type:', typeof selectedSizesQuery);
+console.log('selectedSizesQuery value:', selectedSizesQuery);
+console.log('currentSelectedSizes:', currentSelectedSizes);
+
+// Bagian selanjutnya tetap sama seperti kode asli
+if (currentSelectedSizes.length > 0) {
+    const sizeConditions = currentSelectedSizes.map(sizeName => {
+        queryParams.push(sizeName);
+        return `FIND_IN_SET(?, p.available_sizes)`;
+    });
+    conditions.push(`(${sizeConditions.join(' OR ')})`);
+}
 
         // Filter Warna (dari query string, berupa nama warna)
         if (currentSelectedColorNames.length > 0) {

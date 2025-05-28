@@ -6,10 +6,13 @@ body {
     color: #1D1D1F;
     background-color: #FFFFFF;
     line-height: 1.6;
-    padding-top: 70px; /* Sesuaikan dengan tinggi navbar fixed-top Anda */
+    padding-top: 20px; /* Sesuaikan dengan tinggi navbar fixed-top Anda */
     font-size: 16px; /* Ukuran font dasar untuk skalabilitas rem */
 }
 
+@media (max-width: 767px) { /* Mobile dan di bawahnya */
+    body { padding-top: 60px; }
+}
 
 #logo img {
     max-height: 80px;

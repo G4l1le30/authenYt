@@ -2,7 +2,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    {{> header title=pageTitle}} {{!-- Pastikan pageTitle dikirim dari controller dashboard Anda --}}
+    {{> header title=pageTitle}} {{!-- Pastikan pageTitle dikirim dari controller dashboard  --}}
     {{!-- <link rel="stylesheet" href="/style.css"> --}} {{!-- Jika belum ada di header.hbs atau ingin style khusus dashboard --}}
 </head>
 <body>
@@ -58,6 +58,9 @@
             <li class="nav-item" role="presentation">
                 <button class="nav-link {{#if (eq activeTab 'cart-pane-dash')}}active{{/if}}" id="cart-tab-dash" data-bs-toggle="tab" data-bs-target="#cart-pane-dash" type="button" role="tab" aria-controls="cart-pane-dash" aria-selected="{{#if (eq activeTab 'cart-pane-dash')}}true{{else}}false{{/if}}">My Cart</button>
             </li>
+            <li class="nav-item" role="presentation">
+    <button class="nav-link {{#if (eq activeTab 'chat-dash-pane')}}active{{/if}}" id="chat-dash-tab" data-bs-toggle="tab" data-bs-target="#chat-dash-pane" type="button" role="tab" aria-controls="chat-dash-pane" aria-selected="{{#if (eq activeTab 'chat-dash-pane')}}true{{else}}false{{/if}}">My Chat</button>
+</li>
         </ul>
 
         {{!-- Konten Tab --}}
@@ -145,13 +148,38 @@
                 {{else}}
                     <div class="text-center py-5">
                         <i class="bi bi-journal-text" style="font-size: 4rem; color: #6c757d;"></i>
-                        <p class="lead mt-3">Anda belum memiliki riwayat pesanan.</p>
+                        <p class="lead mt-3"> belum memiliki riwayat pesanan.</p>
                         <a href="/allProduk" class="btn btn-lg btn-primary mt-2">Mulai Belanja Sekarang</a>
                     </div>
                 {{/if}}
             </div>
             {{!-- ========================================================================== --}}
-
+            {{! -- Konten my chat --}}
+            <div class="tab-pane fade {{#if (eq activeTab 'chat-dash-pane')}}show active{{/if}}" id="chat-dash-pane" role="tabpanel" aria-labelledby="chat-dash-tab" tabindex="0">
+    <h4>Pesan Saya</h4>
+    {{#if conversations.length}}
+        <div class="list-group mt-3">
+            {{#each conversations}}
+            <a href="/chat/{{this.otherUserId}}" class="list-group-item list-group-item-action d-flex align-items-center mb-2">
+                <img src="{{this.otherUserAvatar}}" alt="{{this.otherUserName}}" class="rounded-circle me-3" width="50" height="50" onerror="this.onerror=null;this.src='/img/avatars/default.png';">
+                <div class="flex-grow-1">
+                    <div class="d-flex w-100 justify-content-between">
+                        <h6 class="mb-1 fw-bold">{{this.otherUserName}}</h6>
+                        <small class="text-muted">{{this.formattedLastMessageTime}}</small>
+                    </div>
+                    <small class="mb-1 d-block text-muted text-truncate" style="max-width: 90%;">{{this.lastMessagePreview}}</small>
+                </div>
+            </a>
+            {{/each}}
+        </div>
+    {{else}}
+        <div class="text-center py-4">
+            <i class="bi bi-chat-square-dots" style="font-size: 3rem; color: #6c757d;"></i>
+            <p class="lead mt-2">Anda belum memiliki percakapan.</p>
+            {{!-- Opsional: Tambahkan tombol untuk memulai chat atau melihat produk --}}
+        </div>
+    {{/if}}
+</div>
             {{!-- Tab My Wishlist --}}
             <div class="tab-pane fade {{#if (eq activeTab 'wishlist-pane-dash')}}show active{{/if}}" id="wishlist-pane-dash" role="tabpanel" aria-labelledby="wishlist-tab-dash" tabindex="0">
                 <h4>My Wishlist</h4>
@@ -370,7 +398,7 @@
             });
         }
         async function proceedToRemoveWishlist(productId) {
-            // ... (logika fetch DELETE /auth/wishlist/{productId} Anda) ...
+            // ... (logika fetch DELETE /auth/wishlist/{productId} ) ...
              try {
                 const response = await fetch(`/auth/wishlist/${productId}`, { method: 'DELETE', headers: { 'Content-Type': 'application/json' }, credentials: 'include' });
                 const data = await response.json();
@@ -450,7 +478,7 @@
             });
         }
         async function proceedToRemoveCartItemDashboard(cartItemId) {
-            // ... (logika fetch DELETE /api/cart/{cartItemId} Anda) ...
+            // ... (logika fetch DELETE /api/cart/{cartItemId} ) ...
             try {
                 const response = await fetch(`/api/cart/${cartItemId}`, { method: 'DELETE', headers: { 'Content-Type': 'application/json' }, credentials: 'include' });
                 const data = await response.json();
@@ -467,7 +495,7 @@
             cartItemIdToRemoveFromCart = null;
         }
         async function updateCartItemQuantityDashboard(cartItemId, quantity, productId) {
-             // ... (logika fetch PUT /api/cart/{cartItemId} Anda dengan body { quantity, product_id }) ...
+             // ... (logika fetch PUT /api/cart/{cartItemId}  dengan body { quantity, product_id }) ...
             try {
                 const response = await fetch(`/api/cart/${cartItemId}`, {
                     method: 'PUT',

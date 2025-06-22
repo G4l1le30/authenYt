@@ -43,7 +43,7 @@
         {{/if}}
 
         <div class="row g-4">
-            {{!-- Kolom Kiri: Detail Pesanan & Pengiriman (jika ada) --}}
+            
             <div class="col-lg-8">
                 <div class="card shadow-sm">
                     <div class="card-header bg-light">
@@ -185,13 +185,7 @@
                     this.disabled = true;
                     this.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Memproses...';
 
-                    // Tidak perlu mengirim item secara eksplisit jika controller mengambilnya dari DB
-                    // const productId = document.getElementById('checkout_product_id') ? document.getElementById('checkout_product_id').value : null;
-                    // const quantity = document.getElementById('checkout_quantity') ? parseInt(document.getElementById('checkout_quantity').value) : 0;
-                    // const color = document.getElementById('checkout_color') ? document.getElementById('checkout_color').value : null;
-                    // const size = document.getElementById('checkout_size') ? document.getElementById('checkout_size').value : null;
-                    // const priceAtPurchase = document.getElementById('checkout_price_at_purchase') ? parseFloat(document.getElementById('checkout_price_at_purchase').value) : 0;
-
+ 
                     try {
                         const response = await fetch('/api/checkout/process', {
                             method: 'POST',

@@ -221,19 +221,18 @@ if (newsletterForm) {
 
     newsletterForm.addEventListener('submit', function(event) {
         event.preventDefault();
-        // Di sini Anda bisa menambahkan logika untuk mengirim email ke backend
-        // Untuk contoh, kita hanya tampilkan pesan sukses
+
         if (newsletterEmail.value && newsletterEmail.checkValidity()) {
             newsletterMessage.textContent = 'Thank you for subscribing!';
-            newsletterMessage.style.color = 'lightgreen'; // Atau warna yang sesuai
+            newsletterMessage.style.color = 'lightgreen'; 
             newsletterEmail.value = ''; // Kosongkan input
         } else {
             newsletterMessage.textContent = 'Please enter a valid email address.';
-            newsletterMessage.style.color = 'pink'; // Atau warna error
+            newsletterMessage.style.color = 'pink'; 
         }
         setTimeout(() => {
             newsletterMessage.textContent = '';
-        }, 5000); // Hilangkan pesan setelah 5 detik
+        }, 5000); 
     });
 }
             

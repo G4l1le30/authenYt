@@ -2,8 +2,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    {{!-- Gunakan partial header atau definisikan meta dan CSS di sini --}}
-    {{!-- Jika menggunakan layout khusus, pastikan CSS dan JS Bootstrap/Socket.IO tetap dimuat --}}
+
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{pageTitle}} - SHOP.CO</title>
@@ -11,7 +10,7 @@
     
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
-    <link rel="stylesheet" href="/style.css"> {{!-- Path ke CSS utama Anda --}}
+    <link rel="stylesheet" href="/style.css"> 
     <style>
         body { display: flex; flex-direction: column; min-height: 100vh; }
         .chat-container { flex-grow: 1; display: flex; flex-direction: column; max-height: calc(100vh - 56px - 73px); /* Sesuaikan 56px dengan tinggi navbar Anda, 73px dengan tinggi footer chat */ }
@@ -30,7 +29,7 @@
     </style>
 </head>
 <body>
-    {{> navbar_main }} {{!-- Atau header chat khusus jika menggunakan layout berbeda --}}
+    {{> navbar_main }} 
 
     <div class="chat-container container-fluid p-0">
         <div class="chat-header">
@@ -42,7 +41,7 @@
                     <i class="bi bi-person-circle fs-3 me-2 text-secondary"></i>
                 {{/if}}
                 <h5 class="mb-0">{{receiver.name}}</h5>
-                {{!-- Status online bisa ditambahkan di sini nanti --}}
+                
             </div>
         </div>
 
@@ -64,7 +63,7 @@
         </div>
     </div>
     
-    {{!-- Tidak menggunakan footer_main standar jika ingin UI full-page chat --}}
+    
     {{!-- {{> footer_main }} --}}
 
     <script src="/socket.io/socket.io.js"></script>
@@ -76,7 +75,7 @@
         const receiverIdChat = parseInt('{{receiver.id}}');
         const receiverNameChat = '{{receiver.name}}';
 
-        // Inisialisasi socket jika belum ada secara global (atau pastikan sudah ada dari script.js)
+       
         let socket;
         if (typeof io !== 'undefined') {
             socket = io(); // Membuat koneksi baru atau menggunakan yang sudah ada jika io() mengelola itu
@@ -88,7 +87,7 @@
         }
 
         document.addEventListener('DOMContentLoaded', function() {
-            if (!socket) return; // Jangan lanjutkan jika socket tidak terinisialisasi
+            if (!socket) return; 
 
             const messagesArea = document.getElementById('chatPageMessagesArea');
             const messageForm = document.getElementById('chatPageSendMessageForm');
@@ -123,7 +122,7 @@
                         // Optimistic UI update
                         appendChatMessage({
                             senderId: loggedInUserIdChat,
-                            senderName: 'Anda', // Atau {{user.name}} jika tersedia global
+                            senderName: 'Anda', 
                             messageText: text,
                             sentAt: new Date().toISOString(),
                             isOptimistic: true
@@ -132,7 +131,7 @@
                         messageInput.value = '';
                     } else {
                         console.warn("Tidak bisa kirim pesan, data tidak lengkap atau sesi chat belum siap.");
-                        // Mungkin tampilkan toast error kecil di sini
+                        
                     }
                 });
             }
@@ -177,7 +176,7 @@
                         }
                     }
                 }
-                // Jika Anda ingin notifikasi untuk chat lain, tangani di listener global di script.js
+                
             });
 
             socket.on('chatError', (errorData) => {
@@ -185,7 +184,7 @@
                 if (messagesArea) {
                     appendChatMessage({ systemMessage: `Error: ${errorData.message}` });
                 }
-                // Mungkin tampilkan toast error juga
+                
             });
 
             function appendChatMessage(msg) {

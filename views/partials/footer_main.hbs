@@ -1,78 +1,74 @@
-{{! views/partials/footer.hbs }}
-<footer class="main-footer bg-dark text-white py-5">
+{{! views/partials/footer_main.hbs }}
+<footer class="main-footer">
     <div class="container">
         <div class="row gy-4">
-            <div class="col-lg-4 col-md-12 mb-4 mb-lg-0">
-                <a href="/" class="footer-brand mb-3 d-inline-block"> 
-                    <img 
-                        src="/img/logo/LOGO FINAL white.png" 
-                        alt="SHOP.CO Logo" 
-                        class="img-fluid" 
-                        style="max-height: 40px;"
-                    > 
+            <div class="col-lg-4 col-md-12 mb-2 mb-lg-0">
+                <a href="/" class="footer-brand d-inline-block mb-3">
+                    <img src="/img/logo/LOGO FINAL.png" alt="AuthenYt Logo" class="footer-logo">
                 </a>
-                <p class="footer-description">We have clothes that suit your style and which you're proud to wear. From women to men.</p>
+                <p class="footer-description">Temukan koleksi fashion terbaik dari penjual lokal di seluruh Indonesia. Belanja aman, mudah, dan cepat.</p>
                 <div class="social-icons-footer mt-3">
-                    <a href="#" class="social-icon-item me-2"><i class="bi bi-twitter"></i></a>
-                    <a href="#" class="social-icon-item me-2"><i class="bi bi-facebook"></i></a>
-                    <a href="#" class="social-icon-item me-2"><i class="bi bi-instagram"></i></a>
-                    <a href="#" class="social-icon-item"><i class="bi bi-github"></i></a>
+                    <a href="#" class="social-icon-item" title="Twitter"><i class="bi bi-twitter"></i></a>
+                    <a href="#" class="social-icon-item" title="Facebook"><i class="bi bi-facebook"></i></a>
+                    <a href="#" class="social-icon-item" title="Instagram"><i class="bi bi-instagram"></i></a>
+                    <a href="#" class="social-icon-item" title="GitHub"><i class="bi bi-github"></i></a>
                 </div>
             </div>
-            
+
             <div class="col-lg-2 col-md-3 col-6">
-                <h5 class="footer-heading text-uppercase mb-3">Company</h5>
+                <h5 class="footer-heading">Perusahaan</h5>
                 <ul class="list-unstyled footer-links">
-                    <li class="mb-2"><a href="#">About</a></li>
-                    <li class="mb-2"><a href="#">Features</a></li>
-                    <li class="mb-2"><a href="#">Works</a></li>
-                    <li><a href="#">Career</a></li>
-                </ul>
-            </div>
-            
-            <div class="col-lg-2 col-md-3 col-6">
-                <h5 class="footer-heading text-uppercase mb-3">Help</h5>
-                <ul class="list-unstyled footer-links">
-                    <li class="mb-2"><a href="#">Customer Support</a></li>
-                    <li class="mb-2"><a href="#">Delivery Details</a></li>
-                    <li class="mb-2"><a href="#">Terms & Conditions</a></li>
-                    <li><a href="#">Privacy Policy</a></li>
+                    <li class="mb-2"><a href="#">Tentang Kami</a></li>
+                    <li class="mb-2"><a href="#">Fitur</a></li>
+                    <li class="mb-2"><a href="#">Karier</a></li>
+                    <li><a href="#">Berita</a></li>
                 </ul>
             </div>
 
             <div class="col-lg-2 col-md-3 col-6">
-                <h5 class="footer-heading text-uppercase mb-3">FAQ</h5>
+                <h5 class="footer-heading">Bantuan</h5>
                 <ul class="list-unstyled footer-links">
-                    <li class="mb-2"><a href="#">Account</a></li>
-                    <li class="mb-2"><a href="#">Manage Deliveries</a></li>
-                    <li class="mb-2"><a href="#">Orders</a></li>
-                    <li><a href="#">Payments</a></li>
+                    <li class="mb-2"><a href="#">Pusat Bantuan</a></li>
+                    <li class="mb-2"><a href="#">Pengiriman</a></li>
+                    <li class="mb-2"><a href="#">Syarat &amp; Ketentuan</a></li>
+                    <li><a href="#">Kebijakan Privasi</a></li>
                 </ul>
             </div>
-            
+
             <div class="col-lg-2 col-md-3 col-6">
-                <h5 class="footer-heading text-uppercase mb-3">Resources</h5>
+                <h5 class="footer-heading">Akun</h5>
                 <ul class="list-unstyled footer-links">
-                    <li class="mb-2"><a href="#">Free eBooks</a></li>
-                    <li class="mb-2"><a href="#">Development Tutorial</a></li>
-                    <li class="mb-2"><a href="#">How to - Blog</a></li>
-                    <li><a href="#">Youtube Playlist</a></li>
+                    <li class="mb-2"><a href="/dashboard">Dashboard Saya</a></li>
+                    <li class="mb-2"><a href="/dashboard?tab=my-orders-pane">Pesanan</a></li>
+                    <li class="mb-2"><a href="/dashboard?tab=wishlist-pane-dash">Wishlist</a></li>
+                    <li><a href="/allProduk">Katalog</a></li>
+                </ul>
+            </div>
+
+            <div class="col-lg-2 col-md-3 col-6">
+                <h5 class="footer-heading">Hubungi</h5>
+                <ul class="list-unstyled footer-links">
+                    <li class="mb-2"><a href="#">Customer Support</a></li>
+                    <li class="mb-2"><a href="#">Email</a></li>
+                    <li class="mb-2"><a href="#">WhatsApp</a></li>
+                    <li><a href="#">Alamat</a></li>
                 </ul>
             </div>
         </div>
-        
-        <hr class="my-4 footer-divider">
-        
+
+        <hr class="footer-divider">
+
         <div class="row align-items-center">
             <div class="col-md-6 text-center text-md-start mb-2 mb-md-0">
-                <p class="footer-copyright mb-0">&copy; {{currentYear}} SHOP.CO. All rights reserved.</p>
+                <p class="footer-copyright mb-0">&copy; {{currentYear}} AuthenYt. All rights reserved.</p>
             </div>
             <div class="col-md-6 text-center text-md-end">
-                <img src="/img/icon-pay-05.png" alt="Payment methods" class="img-fluid payment-icons" style="max-height: 28px;">
+                <img src="/img/icon-pay-05.png" alt="Metode Pembayaran" class="payment-icons" style="max-height: 28px;">
             </div>
         </div>
     </div>
 </footer>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script src="/socket.io/socket.io.js"></script>
 <script src="/script.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>

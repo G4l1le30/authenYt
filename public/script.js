@@ -76,6 +76,49 @@ if (typeof socket !== 'undefined') {
         }
     });
 }
+// Inisialisasi paksa khusus untuk dropdown My Account agar 100% kebal dari error Bootstrap
+document.addEventListener('DOMContentLoaded', function () {
+    const accountBtns = document.querySelectorAll('#accountDropdown, [data-bs-toggle="dropdown"]');
+    
+    accountBtns.forEach(accountBtn => {
+        accountBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation(); // Mencegah bentrok dengan listener lain
+            
+            const menu = this.nextElementSibling; // Element <ul> dropdown
+            if (!menu || !menu.classList.contains('dropdown-menu')) return;
+            
+            // Toggle class 'show' pada button dan menu
+            const isShowing = menu.classList.contains('show');
+            
+            // Tutup semua menu lain dulu (opsional, agar bersih)
+            document.querySelectorAll('.dropdown-menu.show').forEach(m => m.classList.remove('show'));
+            document.querySelectorAll('[data-bs-toggle="dropdown"].show').forEach(b => {
+                b.classList.remove('show');
+                b.setAttribute('aria-expanded', 'false');
+            });
+
+            if (!isShowing) {
+                this.classList.add('show');
+                this.setAttribute('aria-expanded', 'true');
+                menu.classList.add('show');
+            }
+        });
+    });
+
+    // Menutup dropdown jika user klik di luar area dropdown
+    document.addEventListener('click', function(e) {
+        accountBtns.forEach(accountBtn => {
+            const menu = accountBtn.nextElementSibling;
+            if (menu && menu.classList.contains('show') && !accountBtn.contains(e.target) && !menu.contains(e.target)) {
+                accountBtn.classList.remove('show');
+                accountBtn.setAttribute('aria-expanded', 'false');
+                menu.classList.remove('show');
+            }
+        });
+    });
+});
+
 // Hover effect untuk tombol detail
 document.querySelectorAll('.product-card').forEach(card => {
   card.addEventListener('mouseenter', () => {

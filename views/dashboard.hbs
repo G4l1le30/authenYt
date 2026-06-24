@@ -9,22 +9,23 @@
     {{> navbar_main }}
 
     <main class="container mt-5 pt-5">
-        <div class="dashboard-header mb-4 p-4 rounded-3 shadow-sm bg-light">
-            <div class="d-flex align-items-center">
+        <section class="dashboard-header mb-5 p-4 p-md-5 custom-card">
+            <div class="d-flex align-items-center flex-wrap">
                 {{#if user.profile_image_url}}
                 <img src="{{user.profile_image_url}}"
                      alt="{{user.name}}'s Avatar"
-                     class="user-dashboard-avatar rounded-circle me-3"
-                     width="80" height="80"
-                     onerror="this.onerror=null;this.src='/img/avatars/default.png';">
+                     class="user-dashboard-avatar rounded-circle me-4 mb-3 mb-md-0"
+                     width="96" height="96"
+                     onerror="this.onerror=null;this.src='https://ui-avatars.com/api/?name={{user.name}}&background=random';">
                 {{else}}
-                <img src="/img/avatars/default.png"
+                <img src="https://ui-avatars.com/api/?name={{user.name}}&background=random"
                      alt="Default Avatar"
-                     class="user-dashboard-avatar rounded-circle me-3"
-                     width="80" height="80">
+                     class="user-dashboard-avatar rounded-circle me-4 mb-3 mb-md-0"
+                     width="96" height="96">
                 {{/if}}
-                <div>
-                    <h2 class="mb-1">Welcome to your Dashboard, {{user.name}}!</h2>
+                <div class="flex-grow-1">
+                    <p class="dashboard-greeting mb-1">Selamat datang kembali,</p>
+                    <h1 class="dashboard-name mb-2">{{user.name}}</h1>
                     {{#if user.average_seller_rating}}
                     <div class="seller-rating-display mb-2" title="Your average seller rating based on your product reviews">
                         <span class="product-rating-display">
@@ -32,50 +33,87 @@
                         </span>
                     </div>
                     {{/if}}
-                    <p class="text-muted mb-0">Here you can manage your account, view your orders, and more.</p>
+                    <p class="text-muted mb-0">Kelola akun Anda, lihat pesanan, dan produk yang Anda jual di sini.</p>
+                </div>
+                <div class="dashboard-balance-pill ms-md-auto mt-3 mt-md-0">
+                    <small class="d-block text-muted">Saldo</small>
+                    <strong class="text-success">{{{formatRupiah user.balance}}}</strong>
                 </div>
             </div>
-        </div>
-
-        <hr>
+        </section>
 
         {{!-- Navigasi Tab Dashboard --}}
-        <ul class="nav nav-tabs mb-3" id="dashboardTab" role="tablist">
-            <li class="nav-item" role="presentation">
-                <button class="nav-link {{#if (eq activeTab 'my-profile-pane')}}active{{/if}}" id="my-profile-tab" data-bs-toggle="tab" data-bs-target="#my-profile-pane" type="button" role="tab" aria-controls="my-profile-pane" aria-selected="{{#if (eq activeTab 'my-profile-pane')}}true{{else}}false{{/if}}">My Profile</button>
-            </li>
-            <li class="nav-item" role="presentation">
-                <button class="nav-link {{#if (eq activeTab 'my-products-pane')}}active{{/if}}" id="my-products-tab" data-bs-toggle="tab" data-bs-target="#my-products-pane" type="button" role="tab" aria-controls="my-products-pane" aria-selected="{{#if (eq activeTab 'my-products-pane')}}true{{else}}false{{/if}}">My Products</button>
-            </li>
-            {{!-- ==================== TAB BARU UNTUK MY ORDERS ==================== --}}
-            <li class="nav-item" role="presentation">
-                <button class="nav-link {{#if (eq activeTab 'my-orders-pane')}}active{{/if}}" id="my-orders-tab" data-bs-toggle="tab" data-bs-target="#my-orders-pane" type="button" role="tab" aria-controls="my-orders-pane" aria-selected="{{#if (eq activeTab 'my-orders-pane')}}true{{else}}false{{/if}}">My Orders</button>
-            </li>
-            {{!-- =================================================================== --}}
-            <li class="nav-item" role="presentation">
-                <button class="nav-link {{#if (eq activeTab 'wishlist-pane-dash')}}active{{/if}}" id="wishlist-tab-dash" data-bs-toggle="tab" data-bs-target="#wishlist-pane-dash" type="button" role="tab" aria-controls="wishlist-pane-dash" aria-selected="{{#if (eq activeTab 'wishlist-pane-dash')}}true{{else}}false{{/if}}">My Wishlist</button>
-            </li>
-            <li class="nav-item" role="presentation">
-                <button class="nav-link {{#if (eq activeTab 'cart-pane-dash')}}active{{/if}}" id="cart-tab-dash" data-bs-toggle="tab" data-bs-target="#cart-pane-dash" type="button" role="tab" aria-controls="cart-pane-dash" aria-selected="{{#if (eq activeTab 'cart-pane-dash')}}true{{else}}false{{/if}}">My Cart</button>
-            </li>
-            <li class="nav-item" role="presentation">
-    <button class="nav-link {{#if (eq activeTab 'chat-dash-pane')}}active{{/if}}" id="chat-dash-tab" data-bs-toggle="tab" data-bs-target="#chat-dash-pane" type="button" role="tab" aria-controls="chat-dash-pane" aria-selected="{{#if (eq activeTab 'chat-dash-pane')}}true{{else}}false{{/if}}">My Chat</button>
-</li>
-        </ul>
+        <div class="dashboard-tab-wrapper mb-4">
+            <ul class="dashboard-tabs" id="dashboardTab" role="tablist">
+                <li>
+                    <a href="/dashboard?tab=my-profile-pane" class="{{#if (eq activeTab 'my-profile-pane')}}active{{/if}}">
+                        <i class="bi bi-person-circle me-2"></i>Profil
+                    </a>
+                </li>
+                <li>
+                    <a href="/dashboard?tab=my-products-pane" class="{{#if (eq activeTab 'my-products-pane')}}active{{/if}}">
+                        <i class="bi bi-box-seam me-2"></i>Produk Saya
+                    </a>
+                </li>
+                <li>
+                    <a href="/dashboard?tab=store-orders-pane" class="{{#if (eq activeTab 'store-orders-pane')}}active{{/if}}">
+                        <i class="bi bi-shop me-2"></i>Pesanan Toko
+                    </a>
+                </li>
+                <li>
+                    <a href="/dashboard?tab=my-orders-pane" class="{{#if (eq activeTab 'my-orders-pane')}}active{{/if}}">
+                        <i class="bi bi-bag-check me-2"></i>Pesanan Saya
+                    </a>
+                </li>
+                <li>
+                    <a href="/dashboard?tab=wishlist-pane-dash" class="{{#if (eq activeTab 'wishlist-pane-dash')}}active{{/if}}">
+                        <i class="bi bi-heart me-2"></i>Wishlist
+                    </a>
+                </li>
+                <li>
+                    <a href="/dashboard?tab=cart-pane-dash" class="{{#if (eq activeTab 'cart-pane-dash')}}active{{/if}}">
+                        <i class="bi bi-cart3 me-2"></i>Keranjang
+                    </a>
+                </li>
+                <li>
+                    <a href="/dashboard?tab=chat-dash-pane" class="{{#if (eq activeTab 'chat-dash-pane')}}active{{/if}}">
+                        <i class="bi bi-chat-dots me-2"></i>Chat
+                    </a>
+                </li>
+            </ul>
+        </div>
 
         {{!-- Konten Tab --}}
         <div class="tab-content" id="dashboardTabContent">
             {{!-- Tab My Profile --}}
             <div class="tab-pane fade {{#if (eq activeTab 'my-profile-pane')}}show active{{/if}}" id="my-profile-pane" role="tabpanel" aria-labelledby="my-profile-tab" tabindex="0">
-                <div class="d-flex justify-content-between align-items-center mb-3">
-                    <h4>My Profile Details</h4>
-                    <button class="btn btn-sm btn-outline-primary" id="btnEditProfile" data-bs-toggle="modal" data-bs-target="#editProfileModal">
-                        <i class="bi bi-pencil-square"></i> Edit Profile
-                    </button>
+                <div class="d-flex justify-content-between align-items-center flex-wrap mb-3">
+                    <h4>Profil Saya</h4>
+                    <div>
+                        <button class="btn btn-sm btn-outline-dark me-2" data-bs-toggle="modal" data-bs-target="#changePasswordModal">
+                            <i class="bi bi-key"></i> Ubah Password
+                        </button>
+                        <button class="btn btn-sm btn-dark" id="btnEditProfile" data-bs-toggle="modal" data-bs-target="#editProfileModal">
+                            <i class="bi bi-pencil-square"></i> Edit Profil
+                        </button>
+                    </div>
                 </div>
-                <p><strong>Name:</strong> <span id="displayName">{{user.name}}</span></p>
-                <p><strong>Email:</strong> <span id="displayEmail">{{user.email}}</span></p>
-                <p><strong>Bio:</strong> <span id="displayBio">{{#if user.bio}}{{user.bio}}{{else}}<em>No bio provided.</em>{{/if}}</span></p>
+                <div class="custom-card p-4">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <small class="text-muted text-uppercase fw-bold d-block mb-1" style="font-size: 0.7rem; letter-spacing: 1px;">Nama</small>
+                            <p class="mb-0 fw-semibold" id="displayName">{{user.name}}</p>
+                        </div>
+                        <div class="col-md-6">
+                            <small class="text-muted text-uppercase fw-bold d-block mb-1" style="font-size: 0.7rem; letter-spacing: 1px;">Email</small>
+                            <p class="mb-0 fw-semibold" id="displayEmail">{{user.email}}</p>
+                        </div>
+                        <div class="col-12 mt-3">
+                            <small class="text-muted text-uppercase fw-bold d-block mb-1" style="font-size: 0.7rem; letter-spacing: 1px;">Bio</small>
+                            <p class="mb-0" id="displayBio">{{#if user.bio}}{{user.bio}}{{else}}<em class="text-muted">Belum ada bio.</em>{{/if}}</p>
+                        </div>
+                    </div>
+                </div>
             </div>
 
             {{!-- Tab My Products --}}
@@ -98,8 +136,9 @@
                                     <p class="card-text small text-muted mb-2">Stock: {{this.stock}}</p>
                                     <div class="mt-auto">
                                         <div class="btn-group d-flex">
-                                            <a href="/product/{{this.id}}" class="btn btn-sm btn-outline-secondary w-50">View</a>
-                                            {{!-- <a href="/product/edit/{{this.id}}" class="btn btn-sm btn-outline-primary w-50">Edit</a> --}}
+                                            <a href="/product/{{this.id}}" class="btn btn-sm btn-outline-secondary w-100">View</a>
+                                            <button type="button" class="btn btn-sm btn-outline-primary w-100 btn-edit-product" data-product-id="{{this.id}}" data-product-name="{{this.name}}" data-product-price="{{this.price}}" data-product-stock="{{this.stock}}">Edit</button>
+                                            <button type="button" class="btn btn-sm btn-outline-danger w-100 btn-delete-product" data-product-id="{{this.id}}">Del</button>
                                         </div>
                                     </div>
                                 </div>
@@ -109,6 +148,57 @@
                     </div>
                 {{else}}
                     <p>You haven't listed any products yet. <a href="/sell">Sell your first item!</a></p>
+                {{/if}}
+            </div>
+
+            {{!-- Tab Store Orders --}}
+            <div class="tab-pane fade {{#if (eq activeTab 'store-orders-pane')}}show active{{/if}}" id="store-orders-pane" role="tabpanel" aria-labelledby="store-orders-tab" tabindex="0">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h4>Pesanan Masuk (Toko Saya)</h4>
+                </div>
+                {{#if storeOrders.length}}
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Order ID</th>
+                                <th>Tanggal</th>
+                                <th>Produk</th>
+                                <th>Pembeli</th>
+                                <th>Status Saat Ini</th>
+                                <th>Ubah Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {{#each storeOrders}}
+                            <tr>
+                                <td>#{{this.order_id}}</td>
+                                <td>{{this.order_date}}</td>
+                                <td>{{this.product_name}} (x{{this.quantity}})</td>
+                                <td>{{this.buyer_name}}</td>
+                                <td><span class="badge bg-{{this.status_class}}">{{this.status}}</span></td>
+                                <td>
+                                    <form class="d-flex form-update-order-status" data-order-id="{{this.order_id}}">
+                                        <select class="form-select form-select-sm me-2 status-select" required>
+                                            <option value="" disabled selected>Pilih...</option>
+                                            <option value="pending">Pending</option>
+                                            <option value="shipped">Shipped</option>
+                                            <option value="completed">Completed</option>
+                                            <option value="cancelled">Cancelled</option>
+                                        </select>
+                                        <button type="submit" class="btn btn-sm btn-primary">Save</button>
+                                    </form>
+                                </td>
+                            </tr>
+                            {{/each}}
+                        </tbody>
+                    </table>
+                </div>
+                {{else}}
+                <div class="text-center py-5 bg-light rounded">
+                    <i class="bi bi-box-seam text-muted" style="font-size: 3rem;"></i>
+                    <p class="mt-3 text-muted">Belum ada pesanan masuk untuk produk Anda.</p>
+                </div>
                 {{/if}}
             </div>
 
@@ -161,7 +251,11 @@
         <div class="list-group mt-3">
             {{#each conversations}}
             <a href="/chat/{{this.otherUserId}}" class="list-group-item list-group-item-action d-flex align-items-center mb-2">
-                <img src="{{this.otherUserAvatar}}" alt="{{this.otherUserName}}" class="rounded-circle me-3" width="50" height="50" onerror="this.onerror=null;this.src='/img/avatars/default.png';">
+                {{#if this.otherUserAvatar}}
+                <img src="{{this.otherUserAvatar}}" alt="{{this.otherUserName}}" class="rounded-circle me-3" width="50" height="50" onerror="this.onerror=null;this.src='https://ui-avatars.com/api/?name={{this.otherUserName}}&background=random';">
+                {{else}}
+                <img src="https://ui-avatars.com/api/?name={{this.otherUserName}}&background=random" alt="{{this.otherUserName}}" class="rounded-circle me-3" width="50" height="50">
+                {{/if}}
                 <div class="flex-grow-1">
                     <div class="d-flex w-100 justify-content-between">
                         <h6 class="mb-1 fw-bold">{{this.otherUserName}}</h6>
@@ -349,8 +443,63 @@
         </div>
     </div>
 
+    {{!-- Modal Edit Product --}}
+    <div class="modal fade" id="editProductModal" tabindex="-1" aria-labelledby="editProductModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editProductModalLabel">Edit Produk</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="formEditProduct">
+                        <input type="hidden" id="editProductId" name="id">
+                        <div class="mb-3">
+                            <label for="editProductName" class="form-label">Nama Produk</label>
+                            <input type="text" class="form-control" id="editProductName" name="name" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="editProductPrice" class="form-label">Harga (Rp)</label>
+                            <input type="number" class="form-control" id="editProductPrice" name="price" required min="0">
+                        </div>
+                        <div class="mb-3">
+                            <label for="editProductStock" class="form-label">Stok</label>
+                            <input type="number" class="form-control" id="editProductStock" name="stock" required min="0">
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100">Simpan Perubahan</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {{!-- Modal Ubah Password --}}
+    <div class="modal fade" id="changePasswordModal" tabindex="-1" aria-labelledby="changePasswordModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="changePasswordModalLabel">Ubah Password</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="formChangePassword">
+                        <div class="mb-3">
+                            <label for="oldPassword" class="form-label">Password Lama</label>
+                            <input type="password" class="form-control" id="oldPassword" name="oldPassword" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="newPassword" class="form-label">Password Baru</label>
+                            <input type="password" class="form-control" id="newPassword" name="newPassword" required minlength="6">
+                            <div class="form-text">Minimal 6 karakter.</div>
+                        </div>
+                        <button type="submit" class="btn btn-warning w-100">Simpan Password Baru</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
     {{> footer_main }}
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/js/bootstrap.bundle.min.js"></script>
     <script>
         // Fungsi untuk menampilkan toast notifikasi di dashboard
         function showDashboardToast(message, type = 'dark') {
@@ -519,69 +668,105 @@
         }
 
 
-        // JavaScript untuk Tab Aktif (sesuaikan jika perlu)
-        document.addEventListener('DOMContentLoaded', function () { // Ini duplikat, gabungkan dengan yang di atas
-            const dashboardTabContainer = document.getElementById('dashboardTab'); // Ganti nama variabel agar unik
-            if(dashboardTabContainer){
-                var currentHash = window.location.hash;
-                var tabToActivateButton = null;
+        // --- Logika Update Status Pesanan Toko ---
+        document.querySelectorAll('.form-update-order-status').forEach(form => {
+            form.addEventListener('submit', async function(e) {
+                e.preventDefault();
+                const btnSubmit = this.querySelector('button[type="submit"]');
+                const selectEl = this.querySelector('.status-select');
+                const orderId = this.getAttribute('data-order-id');
+                const newStatus = selectEl.value;
 
-                if (currentHash) {
-                    tabToActivateButton = dashboardTabContainer.querySelector('button[data-bs-target="' + currentHash + '"]');
-                    // Coba variasi jika -pane ada di hash dari URL tapi tidak di data-bs-target tombol
-                    if (!tabToActivateButton && currentHash.endsWith('-dash') && currentHash.includes('-pane')) {
-                         const simplifiedHash = currentHash.replace('-pane-dash', '-pane'); // atau variasi lain
-                         tabToActivateButton = dashboardTabContainer.querySelector('button[data-bs-target="' + simplifiedHash + '"]');
-                    }
-                     if (!tabToActivateButton && currentHash.startsWith('#') && !currentHash.includes('-pane-dash') && currentHash.includes('-pane')){
-                         const complexHash = currentHash + "-dash"; // e.g #wishlist-pane -> #wishlist-pane-dash
-                         tabToActivateButton = dashboardTabContainer.querySelector('button[data-bs-target="' + complexHash.replace('-pane-dash', '-dash') + '"]');
-                          if(!tabToActivateButton) { // Mencoba mencocokkan target pane dengan hash langsung
-                            tabToActivateButton = dashboardTabContainer.querySelector('button[data-bs-target="' + currentHash + '"]');
-                          }
-                     }
+                btnSubmit.disabled = true;
+                btnSubmit.innerHTML = '...';
 
-                }
-
-                if (!tabToActivateButton) {
-                    const serverActiveTabId = "{{#if activeTab}}{{activeTab}}{{else}}my-profile-pane{{/if}}";
-                    tabToActivateButton = dashboardTabContainer.querySelector('button[data-bs-target="#' + serverActiveTabId + '"]');
-                    if (!tabToActivateButton) { // Fallback ke tab pertama jika serverActiveTabId tidak cocok
-                        tabToActivateButton = dashboardTabContainer.querySelector('.nav-link');
-                    }
-                }
-
-                if (tabToActivateButton) {
-                    // Non-Bootstrap way to activate (jika Bootstrap JS belum init atau ada konflik)
-                    dashboardTabContainer.querySelectorAll('.nav-link').forEach(btn => {
-                        btn.classList.remove('active');
-                        btn.setAttribute('aria-selected', 'false');
-                        const pane = document.querySelector(btn.dataset.bsTarget);
-                        if (pane) pane.classList.remove('show', 'active');
+                try {
+                    const res = await fetch(`/api/orders/${orderId}/status`, {
+                        method: 'PUT',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ status: newStatus })
                     });
-                    tabToActivateButton.classList.add('active');
-                    tabToActivateButton.setAttribute('aria-selected', 'true');
-                    const targetPaneToShow = document.querySelector(tabToActivateButton.dataset.bsTarget);
-                    if(targetPaneToShow) targetPaneToShow.classList.add('show', 'active');
-
-                    // Jika Bootstrap sudah aktif, ini bisa juga:
-                    // const tab = new bootstrap.Tab(tabToActivateButton);
-                    // tab.show();
+                    const data = await res.json();
+                    if (data.success) {
+                        showDashboardToast(data.message, 'success');
+                        setTimeout(() => { window.location.hash = 'store-orders-pane'; window.location.reload(); }, 1500);
+                    } else {
+                        showDashboardToast(data.message, 'danger');
+                    }
+                } catch(err) {
+                    showDashboardToast('Kesalahan server.', 'danger');
+                } finally {
+                    btnSubmit.disabled = false;
+                    btnSubmit.innerHTML = 'Save';
                 }
+            });
+        });
 
-                const tabTriggers = dashboardTabContainer.querySelectorAll('button[data-bs-toggle="tab"]');
-                tabTriggers.forEach(trigger => {
-                    trigger.addEventListener('shown.bs.tab', event => {
-                        let targetPaneId = event.target.dataset.bsTarget; // Ini adalah ID pane, misal "#my-profile-pane"
-                         if(targetPaneId && targetPaneId.startsWith('#')) {
-                            // Untuk URL hash, kita ingin bagian setelah '#', dan mungkin ingin konsisten
-                            // dengan ID tab-pane (-pane) atau ID tombol (-tab)
-                            // atau ID yang dikirim dari server (misal, 'my-profile-pane' atau 'cart-pane-dash')
-                            // Jika target adalah #cart-pane-dash, kita set hash ke #cart-pane-dash
-                            history.replaceState(null, null, targetPaneId);
+        // --- Logika Hapus Produk (Penjual) ---
+        document.querySelectorAll('.btn-delete-product').forEach(btn => {
+            btn.addEventListener('click', async function() {
+                if(confirm('Apakah Anda yakin ingin menghapus produk ini?')) {
+                    const productId = this.getAttribute('data-product-id');
+                    try {
+                        const res = await fetch(`/api/products/${productId}`, { method: 'DELETE' });
+                        const data = await res.json();
+                        if (data.success) {
+                            showDashboardToast(data.message, 'success');
+                            setTimeout(() => { window.location.hash = 'my-products-pane'; window.location.reload(); }, 1500);
+                        } else {
+                            showDashboardToast(data.message, 'danger');
                         }
-                    });
+                    } catch(err) {
+                        showDashboardToast('Kesalahan server saat menghapus produk.', 'danger');
+                    }
+                }
+            });
+        });
+
+        // --- Logika Edit Produk Cepat ---
+        const editProductModal = new bootstrap.Modal(document.getElementById('editProductModal'));
+        document.querySelectorAll('.btn-edit-product').forEach(btn => {
+            btn.addEventListener('click', function() {
+                document.getElementById('editProductId').value = this.getAttribute('data-product-id');
+                document.getElementById('editProductName').value = this.getAttribute('data-product-name');
+                document.getElementById('editProductPrice').value = this.getAttribute('data-product-price');
+                document.getElementById('editProductStock').value = this.getAttribute('data-product-stock');
+                editProductModal.show();
+            });
+        });
+
+        document.getElementById('formEditProduct').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const btnSubmit = this.querySelector('button[type="submit"]');
+            btnSubmit.disabled = true;
+            btnSubmit.innerHTML = 'Menyimpan...';
+
+            const productId = document.getElementById('editProductId').value;
+            const payload = {
+                name: document.getElementById('editProductName').value,
+                price: document.getElementById('editProductPrice').value,
+                stock: document.getElementById('editProductStock').value
+            };
+
+            try {
+                const res = await fetch(`/api/products/${productId}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
                 });
+                const data = await res.json();
+                if (data.success) {
+                    showDashboardToast(data.message, 'success');
+                    setTimeout(() => { window.location.hash = 'my-products-pane'; window.location.reload(); }, 1500);
+                } else {
+                    showDashboardToast(data.message, 'danger');
+                }
+            } catch(err) {
+                showDashboardToast('Kesalahan saat mengedit produk.', 'danger');
+            } finally {
+                btnSubmit.disabled = false;
+                btnSubmit.innerHTML = 'Simpan Perubahan';
+                editProductModal.hide();
             }
         });
 
@@ -623,7 +808,7 @@
                 const formData = new FormData(this); // 'this' merujuk ke form
 
                 try {
-                    const response = await fetch('/api/profile/update', {
+                    const response = await fetch('/auth/profile/update', {
                         method: 'POST',
                         body: formData, // FormData akan otomatis set Content-Type ke multipart/form-data
                         credentials: 'include'
@@ -647,6 +832,40 @@
                 }
             });
         }
+
+        // --- Logika Ubah Password ---
+        document.getElementById('formChangePassword')?.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const btnSubmit = this.querySelector('button[type="submit"]');
+            btnSubmit.disabled = true;
+            btnSubmit.innerHTML = 'Memproses...';
+
+            const payload = {
+                oldPassword: document.getElementById('oldPassword').value,
+                newPassword: document.getElementById('newPassword').value
+            };
+
+            try {
+                const res = await fetch('/auth/profile/password', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                const data = await res.json();
+                if (data.success) {
+                    showDashboardToast('✅ Password berhasil diubah!', 'success');
+                    bootstrap.Modal.getInstance(document.getElementById('changePasswordModal')).hide();
+                    this.reset();
+                } else {
+                    showDashboardToast(data.message, 'danger');
+                }
+            } catch(err) {
+                showDashboardToast('Terjadi kesalahan.', 'danger');
+            } finally {
+                btnSubmit.disabled = false;
+                btnSubmit.innerHTML = 'Simpan Password Baru';
+            }
+        });
 
     </script>
 </body>

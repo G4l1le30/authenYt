@@ -2,116 +2,126 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{pageTitle}} - SHOP.CO</title>
-    <link rel="icon" href="/img/logo/LOGO FINAL.png" type="image/png" />
-    
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
-    <link rel="stylesheet" href="/style.css"> 
-    <style>
-        body { display: flex; flex-direction: column; min-height: 100vh; }
-        .chat-container { flex-grow: 1; display: flex; flex-direction: column; max-height: calc(100vh - 56px - 73px); /* Sesuaikan 56px dengan tinggi navbar Anda, 73px dengan tinggi footer chat */ }
-        .chat-header { background-color: #f8f9fa; border-bottom: 1px solid #dee2e6; padding: 0.75rem 1rem; }
-        .chat-messages { flex-grow: 1; overflow-y: auto; padding: 1rem; display: flex; flex-direction: column; /* Bubble akan di-append ke bawah */ }
-        .chat-footer { border-top: 1px solid #dee2e6; padding: 0.75rem 1rem; background-color: #fff; }
-        
-        .chat-messages .chat-bubble { max-width: 75%; padding: 8px 12px; border-radius: 15px; margin-bottom: 8px; word-wrap: break-word; }
-        .chat-messages .chat-bubble.sent { background-color: #007bff; color: white; margin-left: auto; border-bottom-right-radius: 5px; }
-        .chat-messages .chat-bubble.received { background-color: #e9ecef; color: #212529; margin-right: auto; border-bottom-left-radius: 5px; }
-        .chat-messages .chat-bubble .msg-text { white-space: pre-wrap; }
-        .chat-messages .chat-bubble .msg-time { font-size: 0.7rem; opacity: 0.8; display: block; text-align: right; margin-top: 2px; }
-        .chat-messages .chat-bubble.sent .msg-time { color: #f0f0f0; }
-        .chat-messages .chat-bubble.received .msg-time { color: #6c757d; }
-        .chat-messages .system-message { text-align: center; font-size: 0.8em; color: #6c757d; margin: 10px 0; font-style: italic; }
-    </style>
+    {{> header title=pageTitle}}
 </head>
 <body>
-    {{> navbar_main }} 
+    {{> navbar_main}}
 
-    <div class="chat-container container-fluid p-0">
-        <div class="chat-header">
-            <div class="container d-flex align-items-center">
-                 <a href="javascript:history.back()" class="btn btn-light me-3" title="Kembali"><i class="bi bi-arrow-left"></i></a>
-                {{#if receiver.profile_image_url}}
-                    <img src="{{receiver.profile_image_url}}" alt="{{receiver.name}}" class="rounded-circle me-2" width="40" height="40">
-                {{else}}
-                    <i class="bi bi-person-circle fs-3 me-2 text-secondary"></i>
-                {{/if}}
-                <h5 class="mb-0">{{receiver.name}}</h5>
-                
+    <div class="chat-page-wrapper">
+        <div class="chat-container">
+            <div class="chat-header">
+                <div class="container d-flex align-items-center">
+                    <a href="javascript:history.back()" class="chat-back-btn me-3" title="Kembali">
+                        <i class="bi bi-arrow-left"></i>
+                    </a>
+                    {{#if receiver.profile_image_url}}
+                        <img src="{{receiver.profile_image_url}}" alt="{{receiver.name}}" class="chat-avatar me-2" onerror="this.onerror=null;this.src='https://ui-avatars.com/api/?name={{receiver.name}}&background=random';">
+                    {{else}}
+                        <img src="https://ui-avatars.com/api/?name={{receiver.name}}&background=random" alt="{{receiver.name}}" class="chat-avatar me-2">
+                    {{/if}}
+                    <div class="flex-grow-1">
+                        <h5 class="chat-receiver-name mb-0">{{receiver.name}}</h5>
+                        <small class="chat-status"><i class="bi bi-circle-fill"></i> Online</small>
+                    </div>
+                </div>
             </div>
-        </div>
 
-        <div class="chat-messages container" id="chatPageMessagesArea">
-            <p class="text-center text-muted system-message">Memuat percakapan...</p>
-        </div>
+            <div class="chat-messages-area" id="chatPageMessagesArea">
+                <p class="chat-system-message" id="chatLoadingText">Memuat percakapan...</p>
+            </div>
 
-        <div class="chat-footer">
-            <div class="container">
-                <form id="chatPageSendMessageForm" class="d-flex">
-                    <input type="text" class="form-control me-2" id="chatPageMessageInput" placeholder="Ketik pesan Anda..." autocomplete="off" required>
-                    <input type="hidden" id="chatPageCurrentRoomId">
-                    <input type="hidden" id="chatPageCurrentReceiverId" value="{{receiver.id}}"> {{!-- Receiver ID dari data Handlebars --}}
-                    <button type="submit" class="btn btn-primary">
-                        <i class="bi bi-send-fill"></i> <span class="d-none d-sm-inline">Kirim</span>
-                    </button>
-                </form>
+            <div class="chat-footer">
+                <div class="container">
+                    <form id="chatPageSendMessageForm" class="chat-input-wrapper">
+                        <input type="text" class="chat-input" id="chatPageMessageInput" placeholder="Ketik pesan..." autocomplete="off" required>
+                        <input type="hidden" id="chatPageCurrentRoomId">
+                        <input type="hidden" id="chatPageCurrentReceiverId" value="{{receiver.id}}">
+                        <button type="submit" class="chat-send-btn" title="Kirim">
+                            <i class="bi bi-send-fill"></i>
+                        </button>
+                    </form>
+                </div>
             </div>
         </div>
     </div>
-    
-    
-    {{!-- {{> footer_main }} --}}
 
-    <script src="/socket.io/socket.io.js"></script>
-    {{!-- <script src="/script.js"></script> --}} {{!-- Panggil socket global jika diperlukan, atau inisialisasi di sini --}}
+    {{> footer_main}}
 
     <script>
-        // Variabel dari Handlebars
-        const loggedInUserIdChat = {{#if user}}{{user.id}}{{else}}null{{/if}};
-        const receiverIdChat = parseInt('{{receiver.id}}');
-        const receiverNameChat = '{{receiver.name}}';
+        // socket.io sudah di-inisialisasi di /script.js sebagai global `socket`
+        (function() {
+            const loggedInUserIdChat = {{#if user}}{{user.id}}{{else}}null{{/if}};
+            const receiverIdChat = parseInt('{{receiver.id}}');
+            const receiverNameChat = '{{receiver.name}}';
 
-       
-        let socket;
-        if (typeof io !== 'undefined') {
-            socket = io(); // Membuat koneksi baru atau menggunakan yang sudah ada jika io() mengelola itu
-        } else {
-            console.error("Socket.IO client library not found. Chat will not work.");
-            // Tampilkan pesan error ke pengguna di UI
-            const chatArea = document.getElementById('chatPageMessagesArea');
-            if (chatArea) chatArea.innerHTML = '<p class="text-danger text-center">Fitur chat tidak tersedia saat ini.</p>';
-        }
+            console.log('[Chat] Init. loggedInUserId=' + loggedInUserIdChat + ' receiverId=' + receiverIdChat);
 
-        document.addEventListener('DOMContentLoaded', function() {
-            if (!socket) return; 
+            document.addEventListener('DOMContentLoaded', function() {
+                if (typeof socket === 'undefined') {
+                    console.error('[Chat] Socket global not found');
+                    const chatArea = document.getElementById('chatPageMessagesArea');
+                    if (chatArea) chatArea.innerHTML = '<p class="chat-system-message text-danger">Fitur chat tidak tersedia saat ini.</p>';
+                    return;
+                }
 
             const messagesArea = document.getElementById('chatPageMessagesArea');
+            const loadingText = document.getElementById('chatLoadingText');
             const messageForm = document.getElementById('chatPageSendMessageForm');
             const messageInput = document.getElementById('chatPageMessageInput');
-            const roomIdInput = document.getElementById('chatPageCurrentRoomId'); // Untuk menyimpan Room ID dari server
-            // Receiver ID sudah ada di chatPageCurrentReceiverIdInput.value
+            const roomIdInput = document.getElementById('chatPageCurrentRoomId');
 
-            // 1. Saat halaman chat dimuat, kirim event untuk memulai/bergabung dengan chat
-            if (loggedInUserIdChat && !isNaN(receiverIdChat) && loggedInUserIdChat !== receiverIdChat) {
-                console.log(`[Chat Page] Mengirim initiateChat ke sellerId: ${receiverIdChat}`);
-                socket.emit('initiateChat', { sellerId: receiverIdChat });
-            } else if (loggedInUserIdChat === receiverIdChat) {
-                 if(messagesArea) messagesArea.innerHTML = '<p class="text-center text-muted system-message">Anda tidak bisa chat dengan diri sendiri.</p>';
-            } else if (!loggedInUserIdChat) {
-                 if(messagesArea) messagesArea.innerHTML = '<p class="text-center text-muted system-message">Silakan <a href="/login">login</a> untuk memulai chat.</p>';
+            function setStatus(text, isError) {
+                if (!loadingText) return;
+                loadingText.textContent = text;
+                loadingText.style.color = isError ? '#dc3545' : '';
             }
 
+            // Timeout fallback: jika 8 detik tidak ada response, tampilkan error
+            setTimeout(() => {
+                if (loadingText && loadingText.textContent === 'Memuat percakapan...') {
+                    setStatus('Koneksi lambat. Coba refresh halaman.', true);
+                }
+            }, 8000);
 
-            // 2. Handler untuk mengirim pesan
+            // Socket global sudah diinisialisasi oleh /script.js
+            // Jika sudah connected, langsung emit. Jika belum, tunggu event connect.
+            function startChatSession() {
+                if (loggedInUserIdChat && !isNaN(receiverIdChat) && loggedInUserIdChat !== receiverIdChat) {
+                    console.log('[Chat] Emitting initiateChat for sellerId=' + receiverIdChat);
+                    socket.emit('initiateChat', { sellerId: receiverIdChat });
+                } else if (loggedInUserIdChat === receiverIdChat) {
+                    if(messagesArea) messagesArea.innerHTML = '<p class="chat-system-message">Anda tidak bisa chat dengan diri sendiri.</p>';
+                } else if (!loggedInUserIdChat) {
+                    if(messagesArea) messagesArea.innerHTML = '<p class="chat-system-message">Silakan <a href="/login">login</a> untuk memulai chat.</p>';
+                } else {
+                    setStatus('Tidak dapat memulai chat: ID tidak valid.', true);
+                }
+            }
+            if (socket.connected) {
+                console.log('[Chat] Socket already connected:', socket.id);
+                startChatSession();
+            } else {
+                socket.once('connect', () => {
+                    console.log('[Chat] Socket connected:', socket.id);
+                    startChatSession();
+                });
+            }
+
+            socket.on('disconnect', () => {
+                console.log('[Chat] Socket disconnected');
+                setStatus('Koneksi terputus. Menyambungkan ulang...', true);
+            });
+
+            socket.on('connect_error', (err) => {
+                console.error('[Chat] Connection error:', err.message);
+                setStatus('Gagal menyambung ke server chat. Coba refresh halaman.', true);
+            });
+
             if (messageForm) {
                 messageForm.addEventListener('submit', function(event) {
                     event.preventDefault();
                     const text = messageInput.value.trim();
-                    const currentRoomId = roomIdInput.value; // Room ID yang didapat dari server
+                    const currentRoomId = roomIdInput.value;
 
                     if (text && currentRoomId && loggedInUserIdChat && !isNaN(receiverIdChat)) {
                         socket.emit('sendMessage', {
@@ -119,10 +129,8 @@
                             receiverId: receiverIdChat,
                             text: text
                         });
-                        // Optimistic UI update
                         appendChatMessage({
                             senderId: loggedInUserIdChat,
-                            senderName: 'Anda', 
                             messageText: text,
                             sentAt: new Date().toISOString(),
                             isOptimistic: true
@@ -130,17 +138,15 @@
                         scrollToBottomChatPage();
                         messageInput.value = '';
                     } else {
-                        console.warn("Tidak bisa kirim pesan, data tidak lengkap atau sesi chat belum siap.");
-                        
+                        console.warn('[Chat] Cannot send. text=' + !!text + ' roomId=' + currentRoomId);
                     }
                 });
             }
 
-            // 3. Listener untuk event dari server
             socket.on('chatSessionStarted', (data) => {
-                console.log('[Chat Page] chatSessionStarted:', data);
-                if (messagesArea) messagesArea.innerHTML = ''; // Bersihkan pesan loading
-                if (roomIdInput) roomIdInput.value = data.roomId; // Simpan Room ID
+                console.log('[Chat] chatSessionStarted:', data);
+                if (messagesArea) messagesArea.innerHTML = '';
+                if (roomIdInput) roomIdInput.value = data.roomId;
 
                 if (data.messages && data.messages.length > 0) {
                     data.messages.forEach(msg => appendChatMessage(msg));
@@ -151,13 +157,13 @@
             });
 
             socket.on('newMessage', (message) => {
-                console.log('[Chat Page] newMessage:', message);
+                console.log('[Chat] newMessage:', message);
                 const currentRoomId = roomIdInput ? roomIdInput.value : null;
-                if (message.roomId === currentRoomId) { // Pastikan pesan untuk room ini
-                     if (message.senderId !== loggedInUserIdChat) { 
+                if (message.roomId === currentRoomId) {
+                    if (message.senderId !== loggedInUserIdChat) {
                         appendChatMessage(message);
                         scrollToBottomChatPage();
-                    } else { // Konfirmasi pesan optimistik
+                    } else {
                         const optimisticMsgEl = document.querySelector(`.chat-bubble[data-temp-id="${(message.messageText || message.text).substring(0,15)}-${message.senderId}"]`);
                         if(optimisticMsgEl) {
                             optimisticMsgEl.removeAttribute('data-temp-id');
@@ -165,10 +171,7 @@
                             optimisticMsgEl.style.opacity = '1';
                             const timeEl = optimisticMsgEl.querySelector('.msg-time');
                             if(timeEl) timeEl.textContent = formatChatPageTimestamp(message.sentAt);
-                        } else { 
-                            // Jika pesan optimistik tidak ditemukan, mungkin sudah di-render oleh server,
-                            // atau ini adalah pesan dari tab lain oleh user yang sama. Untuk simpel, kita render jika tidak ada.
-                            // Cek dulu apakah message ID sudah ada
+                        } else {
                             if (!document.querySelector(`.chat-bubble[data-message-id="${message.id}"]`)) {
                                 appendChatMessage(message);
                                 scrollToBottomChatPage();
@@ -176,28 +179,25 @@
                         }
                     }
                 }
-                
             });
 
             socket.on('chatError', (errorData) => {
-                console.error('[Chat Page] chatError:', errorData.message);
+                console.error('[Chat] chatError:', errorData.message);
                 if (messagesArea) {
                     appendChatMessage({ systemMessage: `Error: ${errorData.message}` });
                 }
-                
             });
 
             function appendChatMessage(msg) {
-    console.log('[Chat Page Client] appendChatMessage - Raw msg object:', JSON.stringify(msg, null, 2)); // Log objek mentah
-    if (!messagesArea) return;
-                const loadingMsg = messagesArea.querySelector('p.system-message');
+                if (!messagesArea) return;
+                const loadingMsg = messagesArea.querySelector('p.chat-system-message');
                 if (loadingMsg && !msg.systemMessage) loadingMsg.remove();
 
                 const msgDiv = document.createElement('div');
                 msgDiv.classList.add('chat-bubble');
 
                 if (msg.systemMessage) {
-                    msgDiv.classList.add('system-message');
+                    msgDiv.classList.add('chat-system-message');
                     msgDiv.textContent = msg.systemMessage;
                 } else {
                     const isMyMessage = msg.senderId === loggedInUserIdChat;
@@ -207,13 +207,11 @@
                         msgDiv.setAttribute('data-temp-id', `${(msg.messageText || msg.text).substring(0,15)}-${msg.senderId}`);
                         msgDiv.style.opacity = '0.7';
                     } else if (msg.id) {
-                         msgDiv.setAttribute('data-message-id', msg.id);
+                        msgDiv.setAttribute('data-message-id', msg.id);
                     }
-                    
+
                     const messageContent = escapeHTML(msg.messageText || msg.text);
-                    const senderDisplayName = isMyMessage ? 'Anda' : (msg.senderName || `User ${msg.senderId}`);
                     const timeString = formatChatPageTimestamp(msg.sentAt);
-                    console.log(`[Chat Page Client] appendChatMessage - Parsed: sender='${senderDisplayName}', content='${messageContent}', time='${timeString}'`);
                     msgDiv.innerHTML = `<div class="msg-text">${messageContent}</div><div class="msg-time">${timeString}</div>`;
                 }
                 messagesArea.appendChild(msgDiv);
@@ -222,29 +220,19 @@
             function scrollToBottomChatPage() {
                 if (messagesArea) messagesArea.scrollTop = messagesArea.scrollHeight;
             }
+
             function escapeHTML(str) {
                 if (typeof str !== 'string') return '';
                 return str.replace(/[&<>"']/g, m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[m]);
             }
+
             function formatChatPageTimestamp(timestamp) {
                 if (!timestamp) return new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
                 try { return new Date(timestamp).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }); }
                 catch (e) { return ''; }
             }
-            
-            // Logika untuk mengaktifkan chat jika ada parameter action=chat di URL
-            const urlParams = new URLSearchParams(window.location.search);
-            if (loggedInUserId && urlParams.has('startChat') && urlParams.get('startChat') === 'true') {
-                console.log(`[Chat Page] Auto-initiating chat with sellerId: ${receiverIdChat} due to URL param.`);
-                socket.emit('initiateChat', { sellerId: receiverIdChat });
-                // Hapus parameter dari URL
-                 if (window.history.replaceState) {
-                    const cleanUrl = window.location.pathname; // Hanya path, tanpa query string
-                    window.history.replaceState({ path: cleanUrl }, '', cleanUrl);
-                }
-            }
-
-        });
+            }); // end DOMContentLoaded
+        })();
     </script>
 </body>
 </html>

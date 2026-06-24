@@ -21,6 +21,20 @@ exports.addReview = async (req, res) => {
     let connection;
     try {
         connection = await pool.getConnection();
+
+        // 0. VERIFIKASI PEMBELI (Verified Buyer Check)
+        const [buyerCheck] = await connection.query(`
+            SELECT oi.id FROM order_items oi
+            JOIN orders o ON oi.order_id = o.id
+            WHERE oi.product_id = ? AND o.user_id = ? AND o.status = 'completed'
+            LIMIT 1
+        `, [productId, userId]);
+
+        if (buyerCheck.length === 0) {
+            connection.release();
+            return res.status(403).json({ success: false, message: 'Hanya pembeli yang sudah menyelesaikan pesanan ini (Completed) yang dapat memberikan ulasan.' });
+        }
+
         await connection.beginTransaction();
 
         // 1. Simpan ulasan baru ke tabel 'reviews'

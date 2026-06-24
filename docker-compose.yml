@@ -1,0 +1,50 @@
+version: '3.8'
+
+services:
+  app:
+    build: .
+    container_name: thrifts_app
+    ports:
+      - "5050:5000"
+    environment:
+      - PORT=5000
+      - NODE_ENV=development
+      - DATABASE_HOST=db
+      - DATABASE_USER=root
+      - DATABASE_PASSWORD=rootpassword
+      - DATABASE=thrifts
+      - JWT_SECRET=docker_secret_key_change_me_in_production
+      - JWT_EXPIRES_IN=7d
+      - JWT_COOKIE_EXPIRES=7
+    volumes:
+      # Mount seluruh kode sumber lokal ke dalam container untuk hot-reload
+      - .:/app
+      # Cegah node_modules lokal (misal untuk macOS/Windows) menimpa node_modules alpine Linux di dalam container
+      - /app/node_modules
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: unless-stopped
+
+  db:
+    image: mysql:8.0
+    container_name: thrifts_db
+    environment:
+      - MYSQL_ROOT_PASSWORD=rootpassword
+      - MYSQL_DATABASE=thrifts
+    ports:
+      - "3307:3306"
+    volumes:
+      - db_data:/var/lib/mysql
+      # Mount script sql ke entrypoint agar dieksekusi otomatis saat init database
+      - ./schema.sql:/docker-entrypoint-initdb.d/1-schema.sql
+      - ./seed.sql:/docker-entrypoint-initdb.d/2-seed.sql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-prootpassword"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+volumes:
+  db_data:

@@ -1,10 +1,13 @@
 {
-  "name": "authenyt",
+  "name": "thrifts",
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "start": "nodemon app.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "nodemon server.js",
+    "start:prod": "node server.js",
+    "test": "node --test test/**/*.test.js",
+    "lint": "eslint .",
+    "format": "prettier --write ."
   },
   "keywords": [],
   "author": "",
@@ -12,20 +15,22 @@
   "description": "",
   "dependencies": {
     "bcrypt": "^6.0.0",
-    "bcryptjs": "^3.0.2",
-    "body-parser": "^2.2.0",
     "cookie": "^1.0.2",
     "cookie-parser": "^1.4.7",
     "dotenv": "^16.5.0",
     "express": "^5.1.0",
+    "express-rate-limit": "^8.5.2",
     "hbs": "^4.2.0",
+    "helmet": "^8.2.0",
     "jsonwebtoken": "^9.0.2",
     "multer": "^2.0.0",
-    "mysql": "^2.18.1",
     "mysql2": "^3.14.1",
     "socket.io": "^4.8.1"
   },
   "devDependencies": {
-    "nodemon": "^3.1.10"
+    "eslint": "^10.5.0",
+    "globals": "^17.7.0",
+    "nodemon": "^3.1.10",
+    "prettier": "^3.8.4"
   }
 }

@@ -86,8 +86,8 @@ exports.uploadProduct = async (req, res) => {
         let categories = [];
         let styles = [];
         try {
-            [categories] = await pool.query('SELECT * FROM categories ORDER BY name');
-            [styles] = await pool.query('SELECT * FROM styles ORDER BY name');
+            [categories] = await pool.query('SELECT id, name FROM categories ORDER BY name');
+            [styles] = await pool.query('SELECT id, name, slug FROM styles ORDER BY name');
         } catch(dbError) {
             console.error('Error fetching categories/styles for sell page during validation:', dbError);
         }
@@ -156,8 +156,8 @@ exports.uploadProduct = async (req, res) => {
         let categories = [];
         let styles = [];
         try {
-            [categories] = await pool.query('SELECT * FROM categories ORDER BY name');
-            [styles] = await pool.query('SELECT * FROM styles ORDER BY name');
+            [categories] = await pool.query('SELECT id, name FROM categories ORDER BY name');
+            [styles] = await pool.query('SELECT id, name, slug FROM styles ORDER BY name');
         } catch(dbErrorForCatch) {
             console.error('Error fetching categories/styles for error rendering in uploadProduct:', dbErrorForCatch);
         }
@@ -331,3 +331,70 @@ exports.showProductDetailPage = async (req, res) => {
 };
 
 module.exports = exports;
+// --- TAMBAHAN FASE 9: EDIT DAN HAPUS PRODUK ---
+
+exports.updateProduct = async (req, res) => {
+    if (!req.user) return res.status(401).json({ success: false, message: 'Harap login.' });
+
+    const productId = req.params.id;
+    const userId = req.user.id;
+    let { name, price, description, stock, category_id, style_id, available_colors, available_sizes } = req.body;
+    
+    // Pastikan array dikonversi ke string CSV
+    if (Array.isArray(available_colors)) available_colors = available_colors.join(',');
+    if (Array.isArray(available_sizes)) available_sizes = available_sizes.join(',');
+
+    try {
+        // Cek kepemilikan produk
+        const [rows] = await pool.query('SELECT user_id, image_url FROM products WHERE id = ?', [productId]);
+        if (rows.length === 0) return res.status(404).json({ success: false, message: 'Produk tidak ditemukan.' });
+        if (rows[0].user_id !== userId) return res.status(403).json({ success: false, message: 'Anda tidak memiliki akses mengubah produk ini.' });
+
+        let finalImageUrl = rows[0].image_url; // gunakan yang lama jika tidak ada gambar baru
+        if (req.files && req.files.length > 0) {
+            finalImageUrl = '/img/products/' + req.files[0].filename; // ambil gambar pertama untuk gambar utama
+        }
+
+        await pool.query(
+            'UPDATE products SET name=?, price=?, description=?, stock=?, category_id=?, style_id=?, available_colors=?, available_sizes=?, image_url=? WHERE id=?',
+            [name, parseFloat(price), description, parseInt(stock), category_id || null, style_id || null, available_colors || null, available_sizes || null, finalImageUrl, productId]
+        );
+
+        res.json({ success: true, message: 'Produk berhasil diperbarui!' });
+    } catch (err) {
+        console.error('Error updating product:', err);
+        res.status(500).json({ success: false, message: 'Gagal memperbarui produk.' });
+    }
+};
+
+exports.deleteProduct = async (req, res) => {
+    if (!req.user) return res.status(401).json({ success: false, message: 'Harap login.' });
+    
+    const productId = req.params.id;
+    const userId = req.user.id;
+
+    try {
+        // Cek kepemilikan
+        const [rows] = await pool.query('SELECT user_id FROM products WHERE id = ?', [productId]);
+        if (rows.length === 0) return res.status(404).json({ success: false, message: 'Produk tidak ditemukan.' });
+        if (rows[0].user_id !== userId) return res.status(403).json({ success: false, message: 'Anda tidak memiliki akses.' });
+
+        try {
+            // Coba Hard Delete
+            await pool.query('DELETE FROM products WHERE id = ?', [productId]);
+            res.json({ success: true, message: 'Produk berhasil dihapus permanen.' });
+        } catch (dbErr) {
+            // Jika kena Foreign Key Constraint dari pesanan (ER_ROW_IS_REFERENCED)
+            if (dbErr.code === 'ER_ROW_IS_REFERENCED_2' || dbErr.errno === 1451) {
+                // Soft Delete
+                await pool.query('UPDATE products SET is_visible = FALSE WHERE id = ?', [productId]);
+                res.json({ success: true, message: 'Produk telah dibeli sebelumnya, sehingga disembunyikan (arsip) dari toko.' });
+            } else {
+                throw dbErr;
+            }
+        }
+    } catch (err) {
+        console.error('Error deleting product:', err);
+        res.status(500).json({ success: false, message: 'Gagal menghapus produk.' });
+    }
+};

@@ -28,10 +28,10 @@ router.post('/sell',
 
 // PUT /api/products/:id 
 // Untuk mengupdate produk yang sudah ada
-// router.put('/:id', authMiddleware.protect, productController.updateProduct);
+router.put('/:id', authMiddleware.protect, productController.upload.array('images', 5), productController.updateProduct);
 
 // DELETE /api/products/:id
 // Untuk menghapus produk
-// router.delete('/:id', authMiddleware.protect, productController.deleteProduct);
+router.delete('/:id', authMiddleware.protect, productController.deleteProduct);
 
 module.exports = router;

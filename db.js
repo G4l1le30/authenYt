@@ -5,24 +5,31 @@ const pool = mysql.createPool({
   user: process.env.DATABASE_USER,
   password: process.env.DATABASE_PASSWORD,
   database: process.env.DATABASE,
-  port: 3306,  // Explicitly specify port
+  port: 3306,
   waitForConnections: true,
   connectionLimit: 10,
   queueLimit: 0,
-  connectTimeout: 10000,  // 10 seconds connection timeout
-  acquireTimeout: 10000,  // 10 seconds pool acquisition timeout
-  enableKeepAlive: true,  // Prevent connection drops
-  keepAliveInitialDelay: 10000  // Keep-alive ping interval
+  connectTimeout: 10000,
+  enableKeepAlive: true,
+  keepAliveInitialDelay: 10000,
 });
 
-// Test connection immediately
-pool.getConnection()
-  .then(conn => {
-    console.log('Successfully connected to MySQL!');
+pool.verifyConnection = async function verifyConnection() {
+  const conn = await pool.getConnection();
+  try {
+    await conn.query('SELECT 1');
+  } finally {
     conn.release();
-  })
-  .catch(err => {
-    console.error('Database connection failed:', err);
-  });
+  }
+};
+
+pool.ping = async function ping() {
+  const conn = await pool.getConnection();
+  try {
+    await conn.query('SELECT 1');
+  } finally {
+    conn.release();
+  }
+};
 
 module.exports = pool;

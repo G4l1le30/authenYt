@@ -35,7 +35,7 @@ exports.login = async (req, res) => {
     return res.render('login', { message: { type: 'danger', text: 'Please provide an email and password' } });
   }
   try {
-    const [users] = await pool.query('SELECT * FROM users WHERE email = ?', [email]);
+    const [users] = await pool.query('SELECT id, name, email, password FROM users WHERE email = ?', [email]);
     if (users.length === 0) {
       return res.render('login', { message: { type: 'danger', text: 'Email or Password is incorrect' } });
     }
@@ -48,7 +48,9 @@ exports.login = async (req, res) => {
     const cookieOptions = {
       expires: new Date(Date.now() + process.env.JWT_COOKIE_EXPIRES * 24 * 60 * 60 * 1000),
       httpOnly: true,
-      path: '/'
+      path: '/',
+      sameSite: 'lax',
+      secure: process.env.NODE_ENV === 'production'
     };
     res.cookie('jwt', token, cookieOptions);
     res.redirect('/dashboard');
@@ -62,7 +64,9 @@ exports.logout = (req, res) => {
   res.cookie('jwt', 'logout', {
     expires: new Date(Date.now() + 2 * 1000),
     httpOnly: true,
-    path: '/'
+    path: '/',
+    sameSite: 'lax',
+    secure: process.env.NODE_ENV === 'production'
   });
   res.redirect('/');
 };
@@ -113,42 +117,31 @@ exports.getDashboard = async (req, res) => {
     }
     try {
         const userId = req.user.id;
-        console.log(`[AuthCtrl - getDashboard] START: Fetching dashboard data for userId: ${userId}`);
 
         const sqlYourProducts = 'SELECT id, name, price, image_url, stock, rating FROM products WHERE user_id = ? AND is_visible = TRUE ORDER BY created_at DESC';
-        // console.log('[AuthCtrl - getDashboard DEBUG] SQL for yourProducts:', sqlYourProducts);
         const [yourProducts] = await pool.query(sqlYourProducts, [userId]);
-        console.log(`[AuthCtrl - getDashboard] Fetched ${yourProducts.length} user products.`);
 
         const sqlWishlist = `SELECT p.id, p.name, p.price, p.image_url, p.rating, w.created_at as wishlist_added_at 
                              FROM wishlist w 
                              JOIN products p ON w.product_id = p.id 
                              WHERE w.user_id = ? AND p.is_visible = TRUE ORDER BY w.created_at DESC`;
-        // console.log('[AuthCtrl - getDashboard DEBUG] SQL for wishlist:', sqlWishlist);
         const [wishlist] = await pool.query(sqlWishlist, [userId]);
-        console.log(`[AuthCtrl - getDashboard] Fetched ${wishlist.length} wishlist items.`);
 
-        console.log(`[AuthCtrl - getDashboard] Calling fetchUserCartDetails for userId: ${userId}`);
         const { itemsWithSubtotal: cartItemsDetailed, cartTotal } = await fetchUserCartDetails(userId);
-        console.log(`[AuthCtrl - getDashboard] Fetched ${cartItemsDetailed.length} cart items. Total: ${cartTotal}`);
         
         const sqlSellerStats = 'SELECT AVG(rating) as average_seller_rating FROM products WHERE user_id = ? AND rating IS NOT NULL';
-        // console.log('[AuthCtrl - getDashboard DEBUG] SQL for sellerStats:', sqlSellerStats);
         const [sellerStats] = await pool.query(sqlSellerStats, [userId]);
         
         const userForView = { ...req.user };
         if (sellerStats.length > 0 && sellerStats[0].average_seller_rating) {
             userForView.average_seller_rating = sellerStats[0].average_seller_rating;
         }
-        console.log(`[AuthCtrl - getDashboard] Prepared userForView.`);
 
         const sqlOrders = `SELECT id, total_amount, status, DATE_FORMAT(order_date, '%d %M %Y, %H:%i WIB') as formatted_order_date 
                            FROM orders 
                            WHERE user_id = ? 
                            ORDER BY order_date DESC`;
-        // console.log('[AuthCtrl - getDashboard DEBUG] SQL for ordersFromDB:', sqlOrders);
         const [ordersFromDB] = await pool.query(sqlOrders, [userId]);
-        console.log(`[AuthCtrl - getDashboard] Fetched ${ordersFromDB.length} orders.`);
 
         const processedOrders = ordersFromDB.map(order => {
             let status_display = order.status.charAt(0).toUpperCase() + order.status.slice(1);
@@ -161,6 +154,30 @@ exports.getDashboard = async (req, res) => {
                 case 'failed': status_class = 'danger'; status_display = 'Gagal'; break;
             }
             return { ...order, status_display, status_class };
+        });
+
+        // ==================== AMBIL DATA PESANAN TOKO (PENJUAL) ====================
+        const sqlStoreOrders = `
+            SELECT o.id as order_id, DATE_FORMAT(o.order_date, '%d %M %Y') as order_date, 
+                   o.status, u.name as buyer_name, oi.quantity, oi.price_at_purchase, p.name as product_name
+            FROM order_items oi
+            JOIN orders o ON oi.order_id = o.id
+            JOIN users u ON o.user_id = u.id
+            JOIN products p ON oi.product_id = p.id
+            WHERE p.user_id = ?
+            ORDER BY o.order_date DESC`;
+            
+        const [storeOrdersFromDB] = await pool.query(sqlStoreOrders, [userId]);
+        
+        const processedStoreOrders = storeOrdersFromDB.map(order => {
+            let status_class = 'secondary';
+            switch (order.status.toLowerCase()) {
+                case 'completed': status_class = 'success'; break;
+                case 'pending': status_class = 'warning'; break;
+                case 'shipped': status_class = 'info'; break;
+                case 'cancelled': status_class = 'danger'; break;
+            }
+            return { ...order, status_class };
         });
 
         // ==================== AMBIL DATA PERCAKAPAN ====================
@@ -178,10 +195,8 @@ exports.getDashboard = async (req, res) => {
             WHERE (c.user_one_id = ? OR c.user_two_id = ?)
             ORDER BY c.last_message_at DESC`;
         
-        console.log(`[AuthCtrl - getDashboard] EXECUTING SQL for conversations with userId: ${userId}. SQL: ${sqlConversations.substring(0,200)}...`); // Log sebagian SQL
         const [conversationsFromDB] = await pool.query(sqlConversations, [userId, userId, userId, userId]); // userId diulang untuk setiap ?
 
-        console.log(`[AuthCtrl - getDashboard] Raw conversationsFromDB (count: ${conversationsFromDB.length}):`, JSON.stringify(conversationsFromDB.slice(0,2), null, 2)); // Log beberapa data mentah
 
         const processedConversations = conversationsFromDB.map(conv => {
             let lastMsgTime = 'No messages yet';
@@ -204,7 +219,6 @@ exports.getDashboard = async (req, res) => {
                     : (conv.conversationId ? 'Belum ada pesan.' : '') // Tampilkan "Belum ada pesan" hanya jika ada percakapan
             };
         });
-        console.log(`[AuthCtrl - getDashboard] Processed conversations for template (count: ${processedConversations.length}):`, JSON.stringify(processedConversations.slice(0,2), null, 2));
         // ==================================================================
 
         let activeTab = req.query.tab || 
@@ -219,7 +233,6 @@ exports.getDashboard = async (req, res) => {
             activeTab = matchedTab || 'my-profile-pane';
         }
 
-        console.log('[AuthCtrl - getDashboard] Rendering dashboard with activeTab:', activeTab);
         res.render('dashboard', {
             user: userForView,
             yourProducts,
@@ -227,6 +240,7 @@ exports.getDashboard = async (req, res) => {
             cartItemsDetailed,
             cartTotal,
             orders: processedOrders,
+            storeOrders: processedStoreOrders,
             conversations: processedConversations, // Pastikan ini dikirim
             pageTitle: 'My Dashboard',
             activeTab: activeTab
@@ -290,3 +304,36 @@ exports.updateProfile = async (req, res) => {
 };
 
 module.exports = exports;
+// --- TAMBAHAN FASE 10: UPDATE PASSWORD ---
+exports.updatePassword = async (req, res) => {
+    if (!req.user) return res.status(401).json({ success: false, message: 'Harap login.' });
+
+    const { oldPassword, newPassword } = req.body;
+    const userId = req.user.id;
+
+    if (!oldPassword || !newPassword) {
+        return res.status(400).json({ success: false, message: 'Password lama dan baru wajib diisi.' });
+    }
+
+    if (newPassword.length < 6) {
+        return res.status(400).json({ success: false, message: 'Password baru minimal 6 karakter.' });
+    }
+
+    try {
+        const [users] = await pool.query('SELECT password FROM users WHERE id = ?', [userId]);
+        if (users.length === 0) return res.status(404).json({ success: false, message: 'User tidak ditemukan.' });
+
+        const isMatch = await bcrypt.compare(oldPassword, users[0].password);
+        if (!isMatch) {
+            return res.status(400).json({ success: false, message: 'Password lama Anda salah.' });
+        }
+
+        const hashedNewPassword = await bcrypt.hash(newPassword, 8);
+        await pool.query('UPDATE users SET password = ? WHERE id = ?', [hashedNewPassword, userId]);
+
+        res.json({ success: true, message: 'Password berhasil diperbarui!' });
+    } catch (err) {
+        console.error('Error updating password:', err);
+        res.status(500).json({ success: false, message: 'Gagal memperbarui password.' });
+    }
+};

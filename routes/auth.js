@@ -1,11 +1,20 @@
 // routes/auth.js
 const express = require('express');
 const router = express.Router();
+const rateLimit = require('express-rate-limit');
 const authController = require('../controllers/auth');
 const authMiddleware = require('../middleware/auth');
 const multer = require('multer');
 const path = require('path'); // Pastikan ini di-require
 const fs = require('fs');   // Pastikan ini di-require
+
+const loginLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 10,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { success: false, message: 'Terlalu banyak percobaan login. Coba lagi nanti.' }
+});
 
 // Konfigurasi Multer untuk upload avatar ke disk
 const avatarStorage = multer.diskStorage({
@@ -48,7 +57,7 @@ const avatarUpload = multer({
 
 // === Rute Autentikasi Dasar ===
 router.post('/register', authController.register);
-router.post('/login', authController.login);
+router.post('/login', loginLimiter, authController.login);
 router.get('/logout', authController.logout);
 
 // === Rute Wishlist ===
@@ -61,13 +70,12 @@ router.post(
     authMiddleware.protect,         
     avatarUpload.single('avatar'),  // Gunakan konfigurasi Multer yang menyimpan ke disk
     (req, res, next) => { // Middleware debug
-        console.log('[ROUTES/AUTH - AFTER DISK MULTER] req.body:', req.body);
-        console.log('[ROUTES/AUTH - AFTER DISK MULTER] req.file:', req.file);
-        // Jika fileFilter mengirim error dengan cb(new Error(...)), itu akan ditangkap oleh error handler Express
-        // atau try-catch di controller. Jika tidak, file akan diupload atau req.file akan undefined.
         next(); 
     },
     authController.updateProfile      
 );
+
+// === Rute Update Password ===
+router.post('/profile/password', authMiddleware.protect, authController.updatePassword);
 
 module.exports = router;

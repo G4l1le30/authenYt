@@ -10,7 +10,7 @@ exports.isLoggedIn = async (req, res, next) => {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
     // Query user dari database dengan promise
-    const [rows] = await pool.query('SELECT * FROM users WHERE id = ?', [decoded.id]);
+    const [rows] = await pool.query('SELECT id, name, email, profile_image_url, balance FROM users WHERE id = ?', [decoded.id]);
     if (rows.length === 0) return res.redirect('/login');
 
     req.user = rows[0];
@@ -69,7 +69,7 @@ exports.ensureAuth = async (req, res, next) => {
 
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
-    const [rows] = await pool.query('SELECT * FROM users WHERE id = ?', [decoded.id]);
+    const [rows] = await pool.query('SELECT id, name, email, profile_image_url, balance FROM users WHERE id = ?', [decoded.id]);
     if (rows.length === 0) return res.redirect('/login');
 
     req.user = rows[0];

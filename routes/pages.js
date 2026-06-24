@@ -83,12 +83,44 @@ router.get("/seller/:userId", async (req, res) => {
 // RUTE BARU UNTUK DETAIL PESANAN
 // ===================================
 router.get("/order/detail/:orderId", authMiddleware.protect, orderController.getOrderDetailPage)
+
+// PUT /api/orders/:id/status (Seller mengubah status pesanan)
+router.put("/api/orders/:id/status", authMiddleware.protect, async (req, res) => {
+    const orderId = req.params.id;
+    const { status } = req.body;
+    const userId = req.user.id;
+
+    if (!['pending', 'shipped', 'completed', 'cancelled'].includes(status)) {
+        return res.status(400).json({ success: false, message: 'Status tidak valid.' });
+    }
+
+    try {
+        // Pastikan penjual ini berhak mengubah pesanan (memiliki produk di pesanan tsb)
+        const [validRows] = await pool.query(`
+            SELECT oi.id FROM order_items oi
+            JOIN products p ON oi.product_id = p.id
+            WHERE oi.order_id = ? AND p.user_id = ? LIMIT 1
+        `, [orderId, userId]);
+
+        if (validRows.length === 0) {
+            return res.status(403).json({ success: false, message: 'Bukan pesanan produk Anda.' });
+        }
+
+        await pool.query('UPDATE orders SET status = ? WHERE id = ?', [status, orderId]);
+        res.json({ success: true, message: 'Status pesanan berhasil diperbarui.' });
+    } catch (err) {
+        console.error('Update status error:', err);
+        res.status(500).json({ success: false, message: 'Server error' });
+    }
+});
 // ===================================
 
 // Halaman semua produk (dengan filter dan sortir yang diperbarui)
 router.get("/allProduk", async (req, res) => {
   try {
     const {
+      q: searchQuery,
+      page: pageQuery,
       category_id: currentCategoryIdQuery,
       style: currentStyleSlugQuery,
       sizes: selectedSizesQuery, // ?sizes=S,M
@@ -98,23 +130,38 @@ router.get("/allProduk", async (req, res) => {
       sort: currentSortValueQuery,
     } = req.query
 
-    let productQuery = `
+    // Konfigurasi Pagination
+    const limit = 8; // Menampilkan 8 produk per halaman
+    const currentPage = parseInt(pageQuery) || 1;
+    const offset = (currentPage - 1) * limit;
+
+    let baseSelect = `
             SELECT p.id, p.name, p.price, p.image_url, p.description, p.stock, p.rating,
                    p.available_colors, p.available_sizes,
-                   c.name as category_name, c.id as actual_category_id, -- Alias untuk menghindari konflik
-                   s.name as style_name, s.id as actual_style_id, s.slug as actual_style_slug -- Alias
+                   c.name as category_name, c.id as actual_category_id,
+                   s.name as style_name, s.id as actual_style_id, s.slug as actual_style_slug
             FROM products p
             LEFT JOIN categories c ON p.category_id = c.id
             LEFT JOIN styles s ON p.style_id = s.id`
+            
+    let countSelect = `SELECT COUNT(p.id) as totalItems FROM products p LEFT JOIN categories c ON p.category_id = c.id LEFT JOIN styles s ON p.style_id = s.id`
+    
     const conditions = []
     const queryParams = []
 
-    let pageTitle = "All Products"
-    const filterDescription = "Explore our complete product collection"
+    let pageTitle = "Semua Produk"
+    const filterDescription = "Jelajahi koleksi busana lengkap kami."
     let currentCategoryName = null
     let currentStyleName = null
-    const currentCategoryIdForView = currentCategoryIdQuery || null // Untuk dikirim kembali ke view
-    const currentStyleSlugForView = currentStyleSlugQuery || null // Untuk dikirim kembali ke view
+    const currentCategoryIdForView = currentCategoryIdQuery || null
+    const currentStyleSlugForView = currentStyleSlugQuery || null
+
+    // Filter Pencarian (Search)
+    if (searchQuery) {
+        conditions.push(`p.name LIKE ?`);
+        queryParams.push(`%${searchQuery}%`);
+        pageTitle = `Hasil Pencarian: "${searchQuery}"`;
+    }
 
     // Filter Kategori & Style
     if (currentCategoryIdQuery) {
@@ -223,22 +270,49 @@ router.get("/allProduk", async (req, res) => {
       queryParams.push(currentMaxPrice)
     }
 
-    if (conditions.length > 0) productQuery += " WHERE " + conditions.join(" AND ")
+    if (conditions.length > 0) {
+        const whereClause = " WHERE " + conditions.join(" AND ");
+        baseSelect += whereClause;
+        countSelect += whereClause;
+    }
 
     // PERBAIKAN: Validasi dan fallback untuk sort option
     const activeSortOption = SORT_OPTIONS.find((opt) => opt.value === currentSortValueQuery)
     if (!activeSortOption) {
       console.warn(`Sort option '${currentSortValueQuery}' tidak ditemukan, menggunakan default`)
-      productQuery += ` ORDER BY ${SORT_OPTIONS[0].orderBy}`
+      baseSelect += ` ORDER BY ${SORT_OPTIONS[0].orderBy}`
     } else {
-      productQuery += ` ORDER BY ${activeSortOption.orderBy}`
+      baseSelect += ` ORDER BY ${activeSortOption.orderBy}`
     }
 
-    // PERBAIKAN: Logging untuk debugging
-    console.log("Final Query:", productQuery)
-    console.log("Query Params:", queryParams)
+    // Tambahkan Limit dan Offset
+    baseSelect += ` LIMIT ? OFFSET ?`;
+    
+    // Siapkan parameter baru untuk pagination
+    const finalQueryParams = [...queryParams, limit, offset];
 
-    const [products] = await pool.query(productQuery, queryParams)
+    // PERBAIKAN: Logging untuk debugging
+    console.log("Final Query:", baseSelect)
+    console.log("Query Params:", finalQueryParams)
+
+    // Eksekusi data produk dan hitung total item
+    const [products] = await pool.query(baseSelect, finalQueryParams)
+    const [countResult] = await pool.query(countSelect, queryParams)
+    
+    const totalItems = countResult[0].totalItems;
+    const totalPages = Math.ceil(totalItems / limit);
+    
+    // Generate Pagination Object
+    const pagination = {
+        currentPage,
+        totalPages,
+        hasNextPage: currentPage < totalPages,
+        hasPrevPage: currentPage > 1,
+        nextPage: currentPage + 1,
+        prevPage: currentPage - 1,
+        // Buat helper URL dasar untuk mencegah param lama terhapus
+        baseUrl: req.originalUrl.includes('page=') ? req.originalUrl.replace(/page=\d+/, 'page=') : (req.originalUrl.includes('?') ? req.originalUrl + '&page=' : req.originalUrl + '?page=')
+    };
     const [allCategories] = await pool.query("SELECT id, name FROM categories ORDER BY name")
     const [allStyles] = await pool.query("SELECT id, name, slug FROM styles ORDER BY name")
     const filterSizeOptions = PREDEFINED_SIZES.map((size) => ({
@@ -249,6 +323,7 @@ router.get("/allProduk", async (req, res) => {
 
     res.render("allProduk", {
       products,
+      pagination,
       pageTitle,
       filterDescription,
       allCategories,
@@ -433,26 +508,26 @@ router.get("/checkout", authMiddleware.protect, async (req, res) => {
     // Ambil item dari keranjang pengguna beserta detail produk terkini
     // PERBAIKAN: Ubah 'cart_items ci' menjadi 'carts c'
     const [cartItemsDetails] = await pool.query(
-      `SELECT 
+      `SELECT
                 c.id as cart_item_id,         -- Menggunakan alias 'c'
-                c.product_id, 
-                c.quantity, 
+                c.product_id,
+                c.quantity,
                 c.color,                      -- Pastikan kolom ini ada di tabel 'carts'
                 c.size,                       -- Pastikan kolom ini ada di tabel 'carts'
-                p.name AS product_name, 
-                p.price AS current_price, 
+                p.name AS product_name,
+                p.price AS current_price,
                 p.image_url AS product_image_url,
                 p.stock AS current_stock,
                 p.is_visible AS product_is_visible -- Tambahkan ini untuk validasi
              FROM carts c                     -- <<< DIUBAH DARI cart_items ci KE carts c
-             JOIN products p ON c.product_id = p.id 
+             JOIN products p ON c.product_id = p.id
              WHERE c.user_id = ? AND p.is_visible = TRUE`, // Hanya checkout produk yang masih visible
       [userId],
     )
 
     if (cartItemsDetails.length === 0) {
       if (req.flash) req.flash("info_msg", "Keranjang Anda kosong. Silakan tambahkan produk terlebih dahulu.")
-      return res.redirect("/dashboard#cart-pane-dash") // Arahkan ke tab keranjang di dashboard
+      return res.redirect("/dashboard?tab=cart-pane-dash") // Arahkan ke tab keranjang di dashboard
     }
 
     let grandTotal = 0
@@ -497,7 +572,7 @@ router.get("/checkout", authMiddleware.protect, async (req, res) => {
     console.error("Error rendering checkout page:", error)
     if (req.flash) req.flash("error_msg", "Gagal memuat halaman checkout. Silakan coba lagi.")
     // PERBAIKAN: Ubah redirect ke tab keranjang di dashboard
-    res.redirect("/dashboard#cart-pane-dash")
+    res.redirect("/dashboard?tab=cart-pane-dash")
   }
 })
 
